@@ -69,21 +69,23 @@ export async function OnBoardUser(req , res) {
                 });
             }
     
-            const judgePSCheck = await judge.findOne({ps : data.ps});
-            if(judgePSCheck) {
-                return res.status(409).json({
-                    "success" : false ,
-                    "message" : "Judge for same Problem Statement exists"
-                });
-            }
-    
-            const psExistenceCheck = await ps.findById(data.ps);
+            const psExistenceCheck = await ps.findOne({name : data.ps});
             if(!psExistenceCheck) {
                 return res.status(404).json({
                     "success" : false ,
                     "message" : "Problem Statement Not found"
                 });
             }
+
+            const judgePSCheck = await judge.findOne({ps : psExistenceCheck._id});
+            if(judgePSCheck) {
+                return res.status(409).json({
+                    "success" : false ,
+                    "message" : "Judge for same Problem Statement exists"
+                });
+            } 
+
+            data.ps = psExistenceCheck._id;
         }
     
 

@@ -11,7 +11,7 @@ const PointsDistributionSchema = new mongoose.Schema({
 });
 
 const PSSchema = new mongoose.Schema({
-  name : { type : String, required : true , required : true},
+  name : { type : String, required : true , unique : true},
   registrationDeadline : {type : Date ,  required : true},
   submissionDeadline : {type : Date ,  required : true},
   judge : { type : mongoose.Schema.Types.ObjectId, ref : "User" },
