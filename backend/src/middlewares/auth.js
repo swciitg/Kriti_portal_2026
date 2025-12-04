@@ -12,7 +12,7 @@ export async function verifyJWT(req, res, next) {
         }
     
         const decodedToken = jwt.verify(token , process.env.ACCESS_TOKEN_SECRET);
-        
+
         if(!(["SuperAdmin", "Convener", "TechSecy", "Judge", "Company"].includes(decodedToken?.role))) {
             return res.status(403).json({
                 "success" : false,
@@ -54,7 +54,7 @@ export function handleRouteAccess(req, res, next) {
     const role = user.role;
     if(role === "Convener") {
         const routesAllowedForConvener = [
-            "/convener/create-user"
+            "/api/v1/convener/create-user"
         ];
         if(!(routesAllowedForConvener.includes(route))) {
             return res.status(403).json({

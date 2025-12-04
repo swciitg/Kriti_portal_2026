@@ -20,6 +20,9 @@ app.use(express.json());
 import ConvenerRouter from "./src/routes/convenerRoute.js"
 app.use('/api/v1/convener' , ConvenerRouter);
 
+import AuthRouter from  "./src/routes/authRoutes.js"
+app.use('/api/v1/auth/' , AuthRouter);
+
 connectDB()
 .then(()=>{
     app.on("error"  , (error)=>{
