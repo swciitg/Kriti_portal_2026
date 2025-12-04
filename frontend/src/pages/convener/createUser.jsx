@@ -1,8 +1,8 @@
 import { useEffect, useState } from "react"
 import { useNavigate } from "react-router-dom"
 import { useContext } from "react"
-import { userContext } from "../context/userContext"
-import { BACKEND_URL } from "../constants"
+import { userContext } from "../../context/userContext"
+import { BACKEND_URL } from "../../constants"
 
 export default function OnboardUserPage() {
   const navigate = useNavigate()
@@ -23,7 +23,7 @@ export default function OnboardUserPage() {
   useEffect(() => {
     if ((!user || user.role !== "Convener") 
         && JSON.parse(localStorage.getItem("user"))?.role !== "Convener") {
-        navigate("/")
+        navigate("/sign-in")
     }
   }, [user])
 
@@ -47,7 +47,8 @@ export default function OnboardUserPage() {
       })
 
       const data = await res.json()
-      if (data.status !== 201) {
+
+      if (res.status !== 201) {
         setError(data.message || "Failed")
         setLoading(false)
         return

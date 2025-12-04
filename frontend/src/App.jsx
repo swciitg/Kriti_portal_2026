@@ -1,8 +1,9 @@
 import { BrowserRouter, Routes, Route } from "react-router-dom"
 import SignIn from "./pages/signIn.jsx"
 import Footer from "./components/footer.jsx"
-import OnboardUserPage from "./pages/createUser.jsx"
+import OnboardUserPage from "./pages/convener/createUser.jsx"
 import { UserProvider } from "./context/userContext.jsx"
+import ConvenerDashboard from "./pages/convener/dashboard.jsx"
 
 function App() {
   return (
@@ -10,7 +11,9 @@ function App() {
     <BrowserRouter>
       <Routes>
         <Route path="/sign-in" element={<SignIn />} />
-        <Route path="/onboard-user" element={<OnboardUserPage />} />
+
+        <Route path="/convener" element={<ConvenerDashboard />} />
+        <Route path="/convener/onboard-user" element={<OnboardUserPage />} />
       </Routes>
     </BrowserRouter>
     <Footer/>
