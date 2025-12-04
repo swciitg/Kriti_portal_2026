@@ -18,7 +18,8 @@ const SubmissionSchema = new mongoose.Schema({
   submissionTime : { type : Date, default : Date.now },
   penalty : [PenaltySchema],
   deliverables : [SubmissionDeliverableSchema],
-  pointDistribution : [Number]
+  pptPointsDistibution : [Number], // this is in accordance with the order in the PS schema
+  submissionPointsDistribution : [Number]
 });
 
 export default mongoose.model("Submission", SubmissionSchema);

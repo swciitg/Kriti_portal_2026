@@ -54,7 +54,6 @@ export function handleRouteAccess(req, res, next) {
     const role = user.role;
     if(role === "Convenor") {
         const routesAllowedForConvenor = [
-            "/convenor/auth/sign-in" , 
             "/convenor/create-user"
         ];
         if(!(routesAllowedForConvenor.includes(route))) {
