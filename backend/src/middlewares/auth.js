@@ -52,11 +52,11 @@ export function handleRouteAccess(req, res, next) {
     }
 
     const role = user.role;
-    if(role === "Convenor") {
-        const routesAllowedForConvenor = [
-            "/convenor/create-user"
+    if(role === "Convener") {
+        const routesAllowedForConvener = [
+            "/convener/create-user"
         ];
-        if(!(routesAllowedForConvenor.includes(route))) {
+        if(!(routesAllowedForConvener.includes(route))) {
             return res.status(403).json({
                 "success" : false, 
                 "message" : "Forbidden to access this endpoint"

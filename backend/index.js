@@ -13,10 +13,12 @@ app.use(cors({
 }));
 app.use(express.json());
 
-app.get("/", (req, res) => {
-  res.send("Hi");
-});
+// app.get("/", (req, res) => {
+//   res.send("Hi");
+// });
 
+import ConvenerRouter from "./src/routes/convenerRoute.js"
+app.use('/api/v1/convener' , ConvenerRouter);
 
 connectDB()
 .then(()=>{
