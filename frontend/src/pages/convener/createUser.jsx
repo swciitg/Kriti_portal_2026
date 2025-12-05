@@ -48,7 +48,7 @@ export default function OnboardUserPage() {
 
       const data = await res.json()
 
-      if (res.status !== 201) {
+      if (!(data.success)) {
         setError(data.message || "Failed")
         setLoading(false)
         return

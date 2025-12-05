@@ -4,11 +4,14 @@ import Footer from "./components/footer.jsx"
 import OnboardUserPage from "./pages/convener/createUser.jsx"
 import { UserProvider } from "./context/userContext.jsx"
 import ConvenerDashboard from "./pages/convener/dashboard.jsx"
+import AuthButton from "./components/authButton.jsx"
 
 function App() {
   return (
     <UserProvider>
     <BrowserRouter>
+    
+    <AuthButton/>
       <Routes>
         <Route path="/sign-in" element={<SignIn />} />
 

@@ -18,7 +18,6 @@ export default function SignIn() {
   const handleSubmit = async (e) => {
     e.preventDefault()
     setError("")
-    setSystemMessage("");
 
     try {
       const res = await fetch(`${BACKEND_URL}/api/v1/auth/sign-in`, {
@@ -30,7 +29,7 @@ export default function SignIn() {
       })
       const data = await res.json()
 
-      if(res.status !== 200) {
+      if(!(data.success)) {
         setError(data.message || "Failed")
         return
       }
@@ -39,7 +38,7 @@ export default function SignIn() {
       updateUser(data.user)
 
       if(data.user.role === "Convener") {
-        navigate('/convener-dashboard')
+        navigate('/convener')
       }
       // page redirect login based on role
 
