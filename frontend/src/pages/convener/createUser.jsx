@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom"
 import { useContext } from "react"
 import { userContext } from "../../context/userContext"
 import { BACKEND_URL } from "../../constants"
+import { Eye, EyeOff } from "lucide-react"
 
 export default function OnboardUserPage() {
   const navigate = useNavigate()
@@ -19,6 +20,8 @@ export default function OnboardUserPage() {
 
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState("")
+
+  const [showPassword , setShowPassword] = useState(false);
 
   useEffect(() => {
     if ((!user || user.role !== "Convener") 
@@ -54,6 +57,7 @@ export default function OnboardUserPage() {
         return
       }
 
+      setLoading(false)
     } catch (err) {
       setError("Something went wrong")
       setLoading(false)
@@ -89,14 +93,23 @@ export default function OnboardUserPage() {
             onChange={handleChange}
           />
 
-          <input
-            type="password"
-            name="password"
-            placeholder="Password"
-            className="w-full border rounded-lg px-4 py-2 outline-none"
-            value={form.password}
-            onChange={handleChange}
-          />
+          <div className="relative">
+            <input
+              type={showPassword ? "text" : "password"}
+              name="password"
+              placeholder="Password"
+              className="w-full border rounded-lg px-4 py-2 outline-none"
+              value={form.password}
+              onChange={handleChange}
+            />
+
+            <span
+              className="absolute right-3 top-3 cursor-pointer"
+              onClick={() => setShowPassword(!showPassword)}
+            >
+                {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
+            </span>
+          </div>
 
           <div className="space-y-2">
             <p className="text-gray-700 text-md font-semibold">Role</p>

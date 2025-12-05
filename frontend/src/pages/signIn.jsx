@@ -3,6 +3,7 @@ import { BACKEND_URL } from "../constants.js"
 import { useContext } from "react"
 import { userContext } from "../context/userContext.jsx"
 import { useNavigate } from "react-router-dom"
+import { Eye, EyeOff } from "lucide-react"
 
 export default function SignIn() {
   const [form, setForm] = useState({
@@ -14,6 +15,8 @@ export default function SignIn() {
   const navigate = useNavigate()
 
   const [error, setError] = useState("")
+
+  const [showPassword , setShowPassword] = useState(false);
 
   const handleSubmit = async (e) => {
     e.preventDefault()
@@ -64,21 +67,31 @@ export default function SignIn() {
           onChange={(e) => setForm({ ...form, username: e.target.value })}
         />
 
-        <input
-          type="password"
+        <div className="relative">
+          <input
+          type={showPassword ? "text" : "password"}
           className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring"
           placeholder="Password"
           value={form.password}
           onChange={(e) => setForm({ ...form, password: e.target.value })}
         />
 
+        <span
+          className="absolute right-3 top-3 cursor-pointer"
+          onClick={() => setShowPassword(!showPassword)}
+        >
+            {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
+        </span>
+        </div>
+
         <div className="space-y-2">
           <p className="text-sm font-medium text-gray-700">Select Role</p>
           <div className="grid grid-cols-2 gap-2 text-gray-700">
-            {[["SuperAdmin" , "Super Admin"], 
+            {[
+            // ["SuperAdmin" , "Super Admin"], 
             ["Convener" , "Kriti Convener"], 
-            ["Judge" , "Judge"], 
             ["Company" , "Company POC"], 
+            ["Judge" , "Problem Statement Judge"], 
             ["TechSecy" , "Hostel Technical Secretary"]].map(r => (
               <label key={r[0]} className="flex items-center gap-2 bg-gray-50 px-3 py-2 rounded-lg border cursor-pointer">
                 <input
@@ -100,6 +113,15 @@ export default function SignIn() {
         >
           Sign In
         </button>
+
+        <p
+        onClick={() => {
+            navigate('/superadmin/sign-in')
+        }}
+        className="text-blue-500 text-md cursor-pointer"
+        >   
+            Sign-In as Super Admin
+        </p>
       </form>
     </div>
   )
