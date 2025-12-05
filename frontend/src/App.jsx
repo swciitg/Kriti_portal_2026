@@ -5,6 +5,7 @@ import OnboardUserPage from "./pages/convener/createUser.jsx"
 import { UserProvider } from "./context/userContext.jsx"
 import ConvenerDashboard from "./pages/convener/dashboard.jsx"
 import AuthButton from "./components/authButton.jsx"
+import SuperAdminSignIn from "./pages/superAdmin/signIn.jsx"
 
 function App() {
   return (
@@ -17,6 +18,9 @@ function App() {
 
         <Route path="/convener" element={<ConvenerDashboard />} />
         <Route path="/convener/onboard-user" element={<OnboardUserPage />} />
+        
+        <Route path="/superadmin/sign-in" element={<SuperAdminSignIn />} />
+
       </Routes>
     </BrowserRouter>
     <Footer/>
