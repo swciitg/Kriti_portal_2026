@@ -21,7 +21,10 @@ import ConvenerRouter from "./src/routes/convenerRoute.js"
 app.use('/api/v1/convener' , ConvenerRouter);
 
 import AuthRouter from  "./src/routes/authRoutes.js"
-app.use('/api/v1/auth/' , AuthRouter);
+app.use('/api/v1/auth' , AuthRouter);
+
+import SuperAdminRouter from "./src/routes/superAdminRoutes.js"
+app.use('/api/v1/superadmin' , SuperAdminRouter);
 
 connectDB()
 .then(()=>{

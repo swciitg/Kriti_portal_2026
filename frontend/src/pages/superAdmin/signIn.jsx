@@ -2,6 +2,7 @@ import { useState , useContext } from "react"
 import { useNavigate } from "react-router-dom"
 import { userContext } from "../../context/userContext.jsx"
 import { Eye, EyeOff } from "lucide-react"
+import { BACKEND_URL } from "../../constants.js"
 
 export default function SignIn() {
   const [form, setForm] = useState({
@@ -22,13 +23,14 @@ export default function SignIn() {
     setError("")
 
     try {
-      const res = await fetch(`/api/v1/superadmin/sign-in`, {
+      const res = await fetch(`${BACKEND_URL}/api/v1/superadmin/sign-in`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(form)
       })
 
       const data = await res.json()
+      console.log(data)
 
       if (!data.success) {
         setError(data.message || "Failed")
