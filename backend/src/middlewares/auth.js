@@ -66,14 +66,24 @@ export function handleRouteAccess(req, res, next) {
 
     const role = user.role;
     if(role === "Convener") {
-        const routesAllowedForConvener = [
-            "/api/v1/convener/create-user"
+        const allowed = [
+            "/api/v1/convener/create-user",
+            "/api/v1/convener/create-ps",
         ];
-        if(!(routesAllowedForConvener.includes(route))) {
-            return res.status(403).json({
-                "success" : false, 
-                "message" : "Forbidden to access this endpoint"
-            })
+        const startsWithAllowed = [
+            "/api/v1/convener/update-ps/",
+            "/api/v1/convener/delete-ps/"
+        ];
+        if (
+          !allowed.includes(route) &&
+          !startsWithAllowed.some((p) => route.startsWith(p))
+        ) {
+          return res
+            .status(403)
+            .json({
+              success: false,
+              message: "Forbidden to access this route",
+            });
         }
     }
 

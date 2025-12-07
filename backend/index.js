@@ -26,6 +26,9 @@ app.use('/api/v1/auth' , AuthRouter);
 import SuperAdminRouter from "./src/routes/superAdminRoutes.js"
 app.use('/api/v1/superadmin' , SuperAdminRouter);
 
+import PSRouter from "./src/routes/psRoutes.js"
+app.use('/api/v1/ps', PSRouter);
+
 connectDB()
 .then(()=>{
     app.on("error"  , (error)=>{
