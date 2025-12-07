@@ -15,7 +15,7 @@ const PSSchema = new mongoose.Schema({
   registrationDeadline : {type : Date ,  required : true},
   submissionDeadline : {type : Date ,  required : true},
   judge : { type : mongoose.Schema.Types.ObjectId, ref : "User" },
-  pdf : { type : String, match : /^https? :\/\/.+/, required : true },
+  pdf: { type: String, match:/^https?:\/\/.+/, required: true },
   midEvalExist : { type : Boolean, default : false },
   MidEvalSubmissionDeadline : { type : Date, default : null },
   prep : { type : String, enum : ["high", "mid", "low", "no"], required : true },
