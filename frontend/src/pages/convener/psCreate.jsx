@@ -24,6 +24,7 @@ export default function PSCreate() {
     submissionPointsDistribution: [],
     pptPointsDistribution: [],
     pptSchedule: "",
+    teamStrength: 0,
   });
 
   const [saving, setSaving] = useState(false);
@@ -418,6 +419,14 @@ export default function PSCreate() {
               value={ps.pptSchedule}
               onChange={handleChange}
               placeholder="PPT Schedule (URL)"
+            />
+            <input
+              className="w-full border p-2 rounded"
+              type="number"
+              name="teamStrength"
+              value={ps.teamStrength}
+              onChange={handleChange}
+              placeholder="Team Strength"
             />
 
             {/* Actions */}

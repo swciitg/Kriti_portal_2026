@@ -20,12 +20,13 @@ const PSSchema = new mongoose.Schema({
   midEvalSubmissionDeadline: { type: Date, default: null },
   prep: { type: String, enum: ["high", "mid", "low", "no"], required: true },
   points: Number,
-  midEvalSubmissionDeliverables: [DeliverableSchema],
+  midEvalSubmissionDeliverables: [DeliverableSchema], 
   submissionDeliverables: [DeliverableSchema],
   midEvalPointsDistribution: [PointsDistributionSchema],
   submissionPointsDistribution: [PointsDistributionSchema],
   pptPointsDistribution: [PointsDistributionSchema],
   pptSchedule: { type: String, match: /^https? :\/\/.+/ },
+  teamStrength: {type: Number, required: true},
   rankings: [{ hostel_id: Number }],
 });
 

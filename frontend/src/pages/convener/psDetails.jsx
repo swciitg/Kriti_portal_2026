@@ -24,6 +24,7 @@ export default function PSDetailsPage() {
     submissionPointsDistribution: [],
     pptPointsDistribution: [],
     pptSchedule: "",
+    teamStrength: 0,
   });
 
   const [loading, setLoading] = useState(true);
@@ -50,7 +51,8 @@ export default function PSDetailsPage() {
         const data = await res.json();
         if (!res.ok) throw new Error(data.message);
 
-        setPs({
+        setPs(prev => ({
+          ...prev,
           ...data.ps,
           midEvalSubmissionDeliverables:
             data.ps.midEvalSubmissionDeliverables || [],
@@ -59,7 +61,7 @@ export default function PSDetailsPage() {
           submissionPointsDistribution:
             data.ps.submissionPointsDistribution || [],
           pptPointsDistribution: data.ps.pptPointsDistribution || [],
-        });
+        }));
       } catch (e) {
         setError(e.message);
       } finally {
@@ -476,6 +478,14 @@ export default function PSDetailsPage() {
               value={ps.pptSchedule}
               onChange={handleChange}
               placeholder="PPT Schedule (URL)"
+            />
+            <input
+              className="w-full border p-2 rounded"
+              type="number"
+              name="teamStrength"
+              value={ps.teamStrength}
+              onChange={handleChange}
+              placeholder="Team Strength"
             />
 
             {/* Actions */}

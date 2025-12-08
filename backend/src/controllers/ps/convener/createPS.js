@@ -18,6 +18,7 @@ export const createPS = async (req, res) => {
       submissionPointsDistribution,
       pptPointsDistribution,
       pptSchedule,
+      teamStrength,
       rankings,
     } = req.body;
     if (
@@ -25,9 +26,15 @@ export const createPS = async (req, res) => {
       !registrationDeadline ||
       !submissionDeadline ||
       !pdf ||
-      !prep
+      !prep ||
+      !teamStrength
     ) {
       return res.status(400).json({ message: "Missing required fields" });
+    }
+    if(midEvalExist===true && !midEvalSubmissionDeadline){
+      return res
+        .status(400)
+        .json({ message: "Mid evaluation submission deadline is required" });
     }
     const urlRegex = /^https?:\/\/.+/;
     if (!urlRegex.test(pdf)) {
@@ -50,6 +57,7 @@ export const createPS = async (req, res) => {
       submissionPointsDistribution,
       pptPointsDistribution,
       pptSchedule,
+      teamStrength,
       rankings,
     });
     await newPS.save();

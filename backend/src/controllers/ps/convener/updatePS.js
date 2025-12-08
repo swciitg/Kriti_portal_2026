@@ -9,6 +9,7 @@ export const updatePS = async (req, res) => {
       "submissionDeadline",
       "prep",
       "pdf",
+      "teamStrength",
     ];
     for(const field of requiredFields) {
       if(!updates[field]){
