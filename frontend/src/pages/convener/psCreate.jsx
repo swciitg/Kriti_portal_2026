@@ -101,14 +101,18 @@ export default function PSCreate() {
               onChange={handleChange}
               placeholder="Name"
             />
-            <input
+            <select
               className="w-full border p-2 rounded"
-              type="string"
               name="prep"
               value={ps.prep}
               onChange={handleChange}
-              placeholder="Prep"
-            />
+            >
+              {["high", "mid", "low", "no"].map((level) => (
+                <option key={level} value={level}>
+                  {level.toUpperCase()}
+                </option>
+              ))}
+            </select>
             <input
               className="w-full border p-2 rounded"
               type="datetime-local"
