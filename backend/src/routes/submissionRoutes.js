@@ -4,6 +4,6 @@ import { GetSubmissionsForProblemStatement } from "../controllers/submissions/ge
 
 const router = Router();
 
-router.route("/:psId").get(verifyJWT , handleRouteAccess , GetSubmissionsForProblemStatement);
+router.route("/get-all/:psId").get(verifyJWT , handleRouteAccess , GetSubmissionsForProblemStatement);
 
 export default router;

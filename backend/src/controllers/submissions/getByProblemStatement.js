@@ -1,4 +1,4 @@
-import submission from "../../model/submission";
+import submission from "../../model/submission.js";
 
 export async function GetSubmissionsForProblemStatement(req, res) {
     try {

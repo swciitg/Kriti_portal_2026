@@ -4,6 +4,6 @@ import { GetTeamsForProblemStatement } from "../controllers/teams/getByProblemSt
 
 const router = Router();
 
-router.route("/:psId").get(verifyJWT , handleRouteAccess , GetTeamsForProblemStatement);
+router.route("/get-all/:psId").get(verifyJWT , handleRouteAccess , GetTeamsForProblemStatement);
 
 export default router;

@@ -88,16 +88,30 @@ export function handleRouteAccess(req, res, next) {
     }
 
     if(role === "SuperAdmin") {
-        const routesAllowed = [
-            "/api/v1/superadmin/get-info" , 
-            "/api/v1/submission/:psId" , 
-            "/api/v1/teams/:psId"
-        ];
-        if(!(routesAllowed.includes(route))) {
+        if(req.method !== "GET") {
             return res.status(403).json({
-                "success" : false, 
-                "message" : "Forbidden to access this endpoint"
-            })
+                "success": false, 
+                "message": "Forbidden to access this endpoint"
+            });
+        }
+
+        const allowed = [
+            "/api/v1/superadmin/get-info"
+        ];
+
+        const startsWithAllowed = [
+            "/api/v1/submission/get-all/",
+            "/api/v1/teams/get-all/"
+        ];
+        
+        const isAllowed = allowed.includes(route) || 
+                        startsWithAllowed.some(prefix => route.startsWith(prefix));
+        
+        if(!isAllowed) {
+            return res.status(403).json({
+                "success": false, 
+                "message": "Forbidden to access this endpoint"
+            });
         }
     }
 
