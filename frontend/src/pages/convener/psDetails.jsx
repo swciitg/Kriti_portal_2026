@@ -145,344 +145,351 @@ export default function PSDetailsPage() {
 
   return (
     <div className="min-h-screen w-full flex justify-center bg-gray-100 p-6">
-      <div className="w-full max-w-4xl bg-white shadow rounded-xl p-6 space-y-5">
-        <h1 className="text-2xl font-semibold">Edit Problem Statement</h1>
-        {error && <p className="text-red-600 text-center">{error}</p>}
+      <div className="w-full max-w-4xl bg-white shadow rounded-xl p-6 flex flex-col h-[calc(100vh-5rem)]">
+        <div className="overflow-y-auto pr-3 space-y-5">
+          <h1 className="text-2xl font-semibold">Edit Problem Statement</h1>
+          {error && <p className="text-red-600 text-center">{error}</p>}
 
-        <div className="space-y-4">
-          {/* Basic Fields */}
-          <input
-            className="w-full border p-2 rounded"
-            name="name"
-            value={ps.name}
-            onChange={handleChange}
-            placeholder="Name"
-          />
-          <input
-            className="w-full border p-2 rounded"
-            type="string"
-            name="prep"
-            value={ps.prep}
-            onChange={handleChange}
-            placeholder="Prep"
-          />
-          <input
-            className="w-full border p-2 rounded"
-            type="datetime-local"
-            name="registrationDeadline"
-            value={ps.registrationDeadline?.slice(0, 16)}
-            onChange={handleChange}
-          />
-          <input
-            className="w-full border p-2 rounded"
-            type="datetime-local"
-            name="submissionDeadline"
-            value={ps.submissionDeadline?.slice(0, 16)}
-            onChange={handleChange}
-          />
-          <input
-            className="w-full border p-2 rounded"
-            name="judge"
-            value={ps.judge}
-            onChange={handleChange}
-            placeholder="Judge"
-          />
-          <input
-            className="w-full border p-2 rounded"
-            name="pdf"
-            value={ps.pdf}
-            onChange={handleChange}
-            placeholder="PDF Link"
-          />
-          <label className="flex gap-2 items-center">
+          <div className="space-y-4">
+            {/* Basic Fields */}
             <input
-              type="checkbox"
-              name="midEvalExist"
-              checked={ps.midEvalExist}
+              className="w-full border p-2 rounded"
+              name="name"
+              value={ps.name}
+              onChange={handleChange}
+              placeholder="Name"
+            />
+            <input
+              className="w-full border p-2 rounded"
+              type="string"
+              name="prep"
+              value={ps.prep}
+              onChange={handleChange}
+              placeholder="Prep"
+            />
+            <input
+              className="w-full border p-2 rounded"
+              type="datetime-local"
+              name="registrationDeadline"
+              value={ps.registrationDeadline?.slice(0, 16)}
               onChange={handleChange}
             />
-            Mid Evaluation Exists
-          </label>
-          {ps.midEvalExist && (
-            <>
-              {/* Mid Eval Deadline */}
+            <input
+              className="w-full border p-2 rounded"
+              type="datetime-local"
+              name="submissionDeadline"
+              value={ps.submissionDeadline?.slice(0, 16)}
+              onChange={handleChange}
+            />
+            <input
+              className="w-full border p-2 rounded"
+              name="judge"
+              value={ps.judge}
+              onChange={handleChange}
+              placeholder="Judge"
+            />
+            <input
+              className="w-full border p-2 rounded"
+              name="pdf"
+              value={ps.pdf}
+              onChange={handleChange}
+              placeholder="PDF Link"
+            />
+            <label className="flex gap-2 items-center">
               <input
-                className="w-full border p-2 rounded"
-                type="datetime-local"
-                name="MidEvalSubmissionDeadline"
-                value={ps.MidEvalSubmissionDeadline?.slice(0, 16)}
+                type="checkbox"
+                name="midEvalExist"
+                checked={ps.midEvalExist}
                 onChange={handleChange}
               />
-
-              {/* Mid Eval Submission Deliverables */}
-              <div className="space-y-2">
-                <h4 className="font-semibold">midEvalSubmissionDeliverables</h4>
-                {ps.midEvalSubmissionDeliverables.map((item, idx) => (
-                  <div key={idx} className="flex gap-2 mb-2">
-                    <input
-                      className="border p-1 rounded flex-1"
-                      placeholder="Name"
-                      value={item.name}
-                      onChange={(e) =>
-                        handleArrayChange(
-                          "midEvalSubmissionDeliverables",
-                          idx,
-                          "name",
-                          e.target.value
-                        )
-                      }
-                    />
-                    <select
-                      value={item.type}
-                      onChange={(e) =>
-                        handleArrayChange(
-                          "midEvalSubmissionDeliverables",
-                          idx,
-                          "type",
-                          e.target.value
-                        )
-                      }
-                      className="border p-1 rounded"
-                    >
-                      {["URL", "pdf", "zip", "ipynb", "docs", "pptx"].map(
-                        (t) => (
-                          <option key={t} value={t}>
-                            {t}
-                          </option>
-                        )
-                      )}
-                    </select>
-                    <button
-                      type="button"
-                      onClick={() =>
-                        handleRemoveArrayItem(
-                          "midEvalSubmissionDeliverables",
-                          idx
-                        )
-                      }
-                      className="bg-red-500 text-white px-2 rounded"
-                    >
-                      X
-                    </button>
-                  </div>
-                ))}
-                <button
-                  type="button"
-                  onClick={() =>
-                    handleAddArrayItem("midEvalSubmissionDeliverables", {
-                      name: "",
-                      type: "URL",
-                    })
-                  }
-                  className="bg-green-500 text-white px-2 rounded"
-                >
-                  Add midEvalSubmissionDeliverables
-                </button>
-              </div>
-
-              {/* Mid Eval Points Distribution */}
-              <div className="space-y-2">
-                <h4 className="font-semibold">midEvalPointsDistribution</h4>
-                {ps.midEvalPointsDistribution.map((item, idx) => (
-                  <div key={idx} className="flex gap-2 mb-2">
-                    <input
-                      className="border p-1 rounded flex-1"
-                      placeholder="Field"
-                      value={item.field}
-                      onChange={(e) =>
-                        handleArrayChange(
-                          "midEvalPointsDistribution",
-                          idx,
-                          "field",
-                          e.target.value
-                        )
-                      }
-                    />
-                    <input
-                      className="border p-1 rounded w-24"
-                      type="number"
-                      placeholder="Weightage"
-                      value={item.weightage}
-                      onChange={(e) =>
-                        handleArrayChange(
-                          "midEvalPointsDistribution",
-                          idx,
-                          "weightage",
-                          e.target.value
-                        )
-                      }
-                    />
-                    <button
-                      type="button"
-                      onClick={() =>
-                        handleRemoveArrayItem("midEvalPointsDistribution", idx)
-                      }
-                      className="bg-red-500 text-white px-2 rounded"
-                    >
-                      X
-                    </button>
-                  </div>
-                ))}
-                <button
-                  type="button"
-                  onClick={() =>
-                    handleAddArrayItem("midEvalPointsDistribution", {
-                      field: "",
-                      weightage: 0,
-                    })
-                  }
-                  className="bg-green-500 text-white px-2 rounded"
-                >
-                  Add midEvalPointsDistribution
-                </button>
-              </div>
-            </>
-          )}
-
-          {/* Submission Deliverables */}
-          <div className="space-y-2">
-            <h4 className="font-semibold">submissionDeliverables</h4>
-            {ps.submissionDeliverables.map((item, idx) => (
-              <div key={idx} className="flex gap-2 mb-2">
+              Mid Evaluation Exists
+            </label>
+            {ps.midEvalExist && (
+              <>
+                {/* Mid Eval Deadline */}
                 <input
-                  className="border p-1 rounded flex-1"
-                  placeholder="Name"
-                  value={item.name}
-                  onChange={(e) =>
-                    handleArrayChange(
-                      "submissionDeliverables",
-                      idx,
-                      "name",
-                      e.target.value
-                    )
-                  }
+                  className="w-full border p-2 rounded"
+                  type="datetime-local"
+                  name="MidEvalSubmissionDeadline"
+                  value={ps.MidEvalSubmissionDeadline?.slice(0, 16)}
+                  onChange={handleChange}
                 />
-                <select
-                  value={item.type}
-                  onChange={(e) =>
-                    handleArrayChange(
-                      "submissionDeliverables",
-                      idx,
-                      "type",
-                      e.target.value
-                    )
-                  }
-                  className="border p-1 rounded"
-                >
-                  {["URL", "pdf", "zip", "ipynb", "docs", "pptx"].map((t) => (
-                    <option key={t} value={t}>
-                      {t}
-                    </option>
+
+                {/* Mid Eval Submission Deliverables */}
+                <div className="space-y-2">
+                  <h4 className="font-semibold">
+                    midEvalSubmissionDeliverables
+                  </h4>
+                  {ps.midEvalSubmissionDeliverables.map((item, idx) => (
+                    <div key={idx} className="flex gap-2 mb-2">
+                      <input
+                        className="border p-1 rounded flex-1"
+                        placeholder="Name"
+                        value={item.name}
+                        onChange={(e) =>
+                          handleArrayChange(
+                            "midEvalSubmissionDeliverables",
+                            idx,
+                            "name",
+                            e.target.value
+                          )
+                        }
+                      />
+                      <select
+                        value={item.type}
+                        onChange={(e) =>
+                          handleArrayChange(
+                            "midEvalSubmissionDeliverables",
+                            idx,
+                            "type",
+                            e.target.value
+                          )
+                        }
+                        className="border p-1 rounded"
+                      >
+                        {["URL", "pdf", "zip", "ipynb", "docs", "pptx"].map(
+                          (t) => (
+                            <option key={t} value={t}>
+                              {t}
+                            </option>
+                          )
+                        )}
+                      </select>
+                      <button
+                        type="button"
+                        onClick={() =>
+                          handleRemoveArrayItem(
+                            "midEvalSubmissionDeliverables",
+                            idx
+                          )
+                        }
+                        className="bg-red-500 text-white px-2 rounded"
+                      >
+                        X
+                      </button>
+                    </div>
                   ))}
-                </select>
-                <button
-                  type="button"
-                  onClick={() =>
-                    handleRemoveArrayItem("submissionDeliverables", idx)
-                  }
-                  className="bg-red-500 text-white px-2 rounded"
-                >
-                  X
-                </button>
-              </div>
-            ))}
+                  <button
+                    type="button"
+                    onClick={() =>
+                      handleAddArrayItem("midEvalSubmissionDeliverables", {
+                        name: "",
+                        type: "URL",
+                      })
+                    }
+                    className="bg-green-500 text-white px-2 rounded"
+                  >
+                    Add midEvalSubmissionDeliverables
+                  </button>
+                </div>
+
+                {/* Mid Eval Points Distribution */}
+                <div className="space-y-2">
+                  <h4 className="font-semibold">midEvalPointsDistribution</h4>
+                  {ps.midEvalPointsDistribution.map((item, idx) => (
+                    <div key={idx} className="flex gap-2 mb-2">
+                      <input
+                        className="border p-1 rounded flex-1"
+                        placeholder="Field"
+                        value={item.field}
+                        onChange={(e) =>
+                          handleArrayChange(
+                            "midEvalPointsDistribution",
+                            idx,
+                            "field",
+                            e.target.value
+                          )
+                        }
+                      />
+                      <input
+                        className="border p-1 rounded w-24"
+                        type="number"
+                        placeholder="Weightage"
+                        value={item.weightage}
+                        onChange={(e) =>
+                          handleArrayChange(
+                            "midEvalPointsDistribution",
+                            idx,
+                            "weightage",
+                            e.target.value
+                          )
+                        }
+                      />
+                      <button
+                        type="button"
+                        onClick={() =>
+                          handleRemoveArrayItem(
+                            "midEvalPointsDistribution",
+                            idx
+                          )
+                        }
+                        className="bg-red-500 text-white px-2 rounded"
+                      >
+                        X
+                      </button>
+                    </div>
+                  ))}
+                  <button
+                    type="button"
+                    onClick={() =>
+                      handleAddArrayItem("midEvalPointsDistribution", {
+                        field: "",
+                        weightage: 0,
+                      })
+                    }
+                    className="bg-green-500 text-white px-2 rounded"
+                  >
+                    Add midEvalPointsDistribution
+                  </button>
+                </div>
+              </>
+            )}
+
+            {/* Submission Deliverables */}
+            <div className="space-y-2">
+              <h4 className="font-semibold">submissionDeliverables</h4>
+              {ps.submissionDeliverables.map((item, idx) => (
+                <div key={idx} className="flex gap-2 mb-2">
+                  <input
+                    className="border p-1 rounded flex-1"
+                    placeholder="Name"
+                    value={item.name}
+                    onChange={(e) =>
+                      handleArrayChange(
+                        "submissionDeliverables",
+                        idx,
+                        "name",
+                        e.target.value
+                      )
+                    }
+                  />
+                  <select
+                    value={item.type}
+                    onChange={(e) =>
+                      handleArrayChange(
+                        "submissionDeliverables",
+                        idx,
+                        "type",
+                        e.target.value
+                      )
+                    }
+                    className="border p-1 rounded"
+                  >
+                    {["URL", "pdf", "zip", "ipynb", "docs", "pptx"].map((t) => (
+                      <option key={t} value={t}>
+                        {t}
+                      </option>
+                    ))}
+                  </select>
+                  <button
+                    type="button"
+                    onClick={() =>
+                      handleRemoveArrayItem("submissionDeliverables", idx)
+                    }
+                    className="bg-red-500 text-white px-2 rounded"
+                  >
+                    X
+                  </button>
+                </div>
+              ))}
+              <button
+                type="button"
+                onClick={() =>
+                  handleAddArrayItem("submissionDeliverables", {
+                    name: "",
+                    type: "URL",
+                  })
+                }
+                className="bg-green-500 text-white px-2 rounded"
+              >
+                Add submissionDeliverables
+              </button>
+            </div>
+
+            {/* Points Distribution and PPT */}
+            {["submissionPointsDistribution", "pptPointsDistibution"].map(
+              (field) => (
+                <div key={field} className="space-y-2">
+                  <h4 className="font-semibold">{field}</h4>
+                  {ps[field].map((item, idx) => (
+                    <div key={idx} className="flex gap-2 mb-2">
+                      <input
+                        className="border p-1 rounded flex-1"
+                        placeholder="Field"
+                        value={item.field}
+                        onChange={(e) =>
+                          handleArrayChange(field, idx, "field", e.target.value)
+                        }
+                      />
+                      <input
+                        className="border p-1 rounded w-24"
+                        type="number"
+                        placeholder="Weightage"
+                        value={item.weightage}
+                        onChange={(e) =>
+                          handleArrayChange(
+                            field,
+                            idx,
+                            "weightage",
+                            e.target.value
+                          )
+                        }
+                      />
+                      <button
+                        type="button"
+                        onClick={() => handleRemoveArrayItem(field, idx)}
+                        className="bg-red-500 text-white px-2 rounded"
+                      >
+                        X
+                      </button>
+                    </div>
+                  ))}
+                  <button
+                    type="button"
+                    onClick={() =>
+                      handleAddArrayItem(field, { field: "", weightage: 0 })
+                    }
+                    className="bg-green-500 text-white px-2 rounded"
+                  >
+                    Add {field}
+                  </button>
+                </div>
+              )
+            )}
+
+            {/* Points and PPT Schedule */}
+            <input
+              className="w-full border p-2 rounded"
+              type="number"
+              name="points"
+              value={ps.points}
+              onChange={handleChange}
+              placeholder="Points"
+            />
+            <input
+              className="w-full border p-2 rounded"
+              name="pptSchedule"
+              value={ps.pptSchedule}
+              onChange={handleChange}
+              placeholder="PPT Schedule (URL)"
+            />
+
+            {/* Actions */}
             <button
-              type="button"
-              onClick={() =>
-                handleAddArrayItem("submissionDeliverables", {
-                  name: "",
-                  type: "URL",
-                })
-              }
-              className="bg-green-500 text-white px-2 rounded"
+              onClick={handleUpdate}
+              disabled={saving}
+              className="w-full bg-blue-600 text-white py-2 rounded-lg hover:bg-blue-700 disabled:bg-blue-400"
             >
-              Add submissionDeliverables
+              {saving ? "Updating…" : "Save Changes"}
+            </button>
+            <button
+              onClick={handleDelete}
+              disabled={deleting}
+              className="w-full bg-red-600 text-white py-2 rounded-lg hover:bg-red-700 disabled:bg-red-400"
+            >
+              {deleting ? "Deleting…" : "Delete the problem statements"}
             </button>
           </div>
-
-          {/* Points Distribution and PPT */}
-          {["submissionPointsDistribution", "pptPointsDistibution"].map(
-            (field) => (
-              <div key={field} className="space-y-2">
-                <h4 className="font-semibold">{field}</h4>
-                {ps[field].map((item, idx) => (
-                  <div key={idx} className="flex gap-2 mb-2">
-                    <input
-                      className="border p-1 rounded flex-1"
-                      placeholder="Field"
-                      value={item.field}
-                      onChange={(e) =>
-                        handleArrayChange(field, idx, "field", e.target.value)
-                      }
-                    />
-                    <input
-                      className="border p-1 rounded w-24"
-                      type="number"
-                      placeholder="Weightage"
-                      value={item.weightage}
-                      onChange={(e) =>
-                        handleArrayChange(
-                          field,
-                          idx,
-                          "weightage",
-                          e.target.value
-                        )
-                      }
-                    />
-                    <button
-                      type="button"
-                      onClick={() => handleRemoveArrayItem(field, idx)}
-                      className="bg-red-500 text-white px-2 rounded"
-                    >
-                      X
-                    </button>
-                  </div>
-                ))}
-                <button
-                  type="button"
-                  onClick={() =>
-                    handleAddArrayItem(field, { field: "", weightage: 0 })
-                  }
-                  className="bg-green-500 text-white px-2 rounded"
-                >
-                  Add {field}
-                </button>
-              </div>
-            )
-          )}
-
-          {/* Points and PPT Schedule */}
-          <input
-            className="w-full border p-2 rounded"
-            type="number"
-            name="points"
-            value={ps.points}
-            onChange={handleChange}
-            placeholder="Points"
-          />
-          <input
-            className="w-full border p-2 rounded"
-            name="pptSchedule"
-            value={ps.pptSchedule}
-            onChange={handleChange}
-            placeholder="PPT Schedule (URL)"
-          />
-
-          {/* Actions */}
-          <button
-            onClick={handleUpdate}
-            disabled={saving}
-            className="w-full bg-blue-600 text-white py-2 rounded-lg hover:bg-blue-700 disabled:bg-blue-400"
-          >
-            {saving ? "Updating…" : "Update PS"}
-          </button>
-          <button
-            onClick={handleDelete}
-            disabled={deleting}
-            className="w-full bg-red-600 text-white py-2 rounded-lg hover:bg-red-700 disabled:bg-red-400"
-          >
-            {deleting ? "Deleting…" : "Delete PS"}
-          </button>
         </div>
       </div>
     </div>

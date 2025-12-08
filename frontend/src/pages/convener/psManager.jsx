@@ -60,7 +60,7 @@ export default function PSManager() {
         {error && <p className="text-red-600 text-center">{error}</p>}
         {loading && <p className="text-center text-gray-600">Loading...</p>}
         {!loading && problemStatements.length === 0 && (
-          <p className="text-center text-gray-600">No PS Found</p>
+          <p className="text-center text-gray-600">No Problem statements Found</p>
         )}
 
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
