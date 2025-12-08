@@ -1,6 +1,6 @@
 import jwt from 'jsonwebtoken'
-import User from '../model/user.js';
 import superAdmin from '../model/superAdmin.js';
+import User from '../model/user.js';
 
 export async function verifyJWT(req, res, next) {
     try {
@@ -22,7 +22,7 @@ export async function verifyJWT(req, res, next) {
         }
         
         if(decodedToken?.role === "SuperAdmin") {
-            const superadmin = superAdmin.findOne({username : "superadmin"});
+            const superadmin = await superAdmin.findOne({username : "superadmin"});
             if(!superadmin) {
                 return res.status(404).json({
                     "success" : false,
@@ -45,7 +45,7 @@ export async function verifyJWT(req, res, next) {
         }      
     } catch (error) {
         console.log(error);
-        res.status(500).json({
+        res.status(401).json({
             "success" : false,
             "message" : "Some server error occured"
         })

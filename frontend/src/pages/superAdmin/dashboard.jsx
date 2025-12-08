@@ -4,6 +4,7 @@ import SideBar from "./components/sidebar.jsx"
 import GroupSection from "./components/groupSection.jsx"
 import { useContext } from "react"
 import { userContext } from "../../context/userContext.jsx"
+import { BACKEND_URL } from "../../constants.js"
 
 export default function SuperAdminDashboard() {
   const [activePage, setActivePage] = useState("Problem Statements")
@@ -13,20 +14,64 @@ export default function SuperAdminDashboard() {
   const [problemStatements , setProblemStatements] = useState([]);
   const [hostelIds , setHostelIds] = useState([]);
 
-  async function getInfo() {
+  const [error , setError] = useState(""); 
+
+  useEffect(() =>{
+    if(!error || error.trim().length === 0) {
+      return;
+    }
+
+    const timeoutInstance = setTimeout(() => {
+      setError('');
+    } , 5000);
     
+    return () => clearTimeout(timeoutInstance);
+  } , [error]);
+
+  async function getInfo() {
+    try {
+      setError("");
+      const response = await fetch(`${BACKEND_URL}/api/v1/superadmin/get-info` , {
+        method : "GET" , 
+        headers : {
+          "Content-type" : "application/json" , 
+          "Authorization" : localStorage.getItem("accessToken")
+        }
+      });
+  
+      const data = await response.json();
+  
+      if(!data.success) {
+        setError(data.message);
+        return;
+      }
+  
+      if(data.ps?.length > 0) {
+        setProblemStatements(data.ps);
+      } 
+      if(data.hostelId?.length > 0) {
+        setHostelIds(data.hostelId);
+      }
+      setError('');
+    } catch (error) {
+      setError("Some Error in superadmin dashboard");
+      setProblemStatements([]);
+      setHostelIds([]); 
+    }
   }
 
   useEffect(() => {
-    if ((!user || user.role !== "SuperAdmin")
-        || JSON.parse(localStorage.getItem("user"))?.role !== "SuperAdmin"
-        ) {
-            navigate("/sign-in");
-        }
+    const stored = JSON.parse(localStorage.getItem("user"));
+    if (
+      (!user && !stored) ||
+      (stored?.role !== "SuperAdmin" && user?.role !== "SuperAdmin")
+    ) {
+      navigate("/sign-in");
+    }
     else {
       getInfo();
     }
-  } , [])
+  } , [user])
     
 
   const grouped = {
@@ -39,6 +84,11 @@ export default function SuperAdminDashboard() {
   return (
     <div className="min-h-screen bg-gray-100 flex px-64 pb-16">
 
+    {error && (
+      <div className="flex justify-center items-center fixed top-0 left-0 w-[100vw] h-[100vh]">
+        <p className="text-red-600 text-md">{error}</p>
+      </div>
+    )}
 
     <SideBar activePage={activePage} setActivePage={setActivePage}/>
 

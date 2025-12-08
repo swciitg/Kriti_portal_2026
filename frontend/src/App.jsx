@@ -21,6 +21,7 @@ function App() {
 
           <Route path="/convener" element={<ConvenerDashboard />} />
           <Route path="/convener/onboard-user" element={<OnboardUserPage />} />
+          <Route path="/convener/ps" element={<PSManager />} />
           <Route path="/convener/ps/:id" element={<PSDetails />} />
 
           <Route path="/superadmin/sign-in" element={<SuperAdminSignIn />} />

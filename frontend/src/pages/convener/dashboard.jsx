@@ -8,11 +8,13 @@ function ConvenerDashboard() {
   const { user } = useContext(userContext);
 
   useEffect(() => {
-    if ((!user || user.role !== "Convener")
-        && JSON.parse(localStorage.getItem("user"))?.role !== "Convener"
-        ) {
-            navigate("/sign-in");
-        } 
+    const stored = JSON.parse(localStorage.getItem("user"));
+    if (
+      (!user && !stored) ||
+      (stored?.role !== "Convener" && user?.role !== "Convener")
+    ) {
+      navigate("/sign-in");
+    }
   }, [user]);
 
   return (
