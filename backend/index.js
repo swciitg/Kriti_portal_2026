@@ -26,6 +26,12 @@ app.use('/api/v1/auth' , AuthRouter);
 import SuperAdminRouter from "./src/routes/superAdminRoutes.js"
 app.use('/api/v1/superadmin' , SuperAdminRouter);
 
+import SubmissionRouter from "./src/routes/submissionRoutes.js"
+app.use('/api/v1/submission' , SubmissionRouter);
+
+import TeamsRouter from "./src/routes/teamsRoutes.js"
+app.use('/api/v1/teams' , TeamsRouter);
+
 connectDB()
 .then(()=>{
     app.on("error"  , (error)=>{

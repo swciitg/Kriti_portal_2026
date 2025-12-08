@@ -28,8 +28,14 @@ export async function SignIn(req, res) {
           maxAge: 24 * 60 * 60 * 1000, // 1 day
         });
     
+        const responseUser = SuperAdmin.toObject();
+        delete responseUser.publicKey;
+        delete responseUser.privateKey;
+        responseUser.role = "SuperAdmin";
+
         return res.status(200).json({
           "success": true ,
+          "user" : responseUser,
           "accessToken" : token
         });
     } catch (error) {

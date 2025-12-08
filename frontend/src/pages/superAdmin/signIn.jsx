@@ -30,7 +30,6 @@ export default function SignIn() {
       })
 
       const data = await res.json()
-      console.log(data)
 
       if (!data.success) {
         setError(data.message || "Failed")
@@ -39,6 +38,8 @@ export default function SignIn() {
 
       if (data.accessToken) localStorage.setItem("accessToken", data.accessToken)
       updateUser(data.user)
+
+      navigate('/superadmin');
 
       // redirect based on role
 
@@ -91,7 +92,7 @@ export default function SignIn() {
 
         <button
           type="submit"
-          className="w-full bg-blue-600 text-white py-2 rounded-lg hover:bg-blue-700 transition"
+          className="w-full bg-blue-600 text-white cursor-pointer py-2 rounded-lg hover:bg-blue-700 transition"
         >
           Sign In
         </button>

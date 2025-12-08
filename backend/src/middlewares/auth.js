@@ -77,6 +77,20 @@ export function handleRouteAccess(req, res, next) {
         }
     }
 
+    if(role === "SuperAdmin") {
+        const routesAllowed = [
+            "/api/v1/superadmin/get-info" , 
+            "/api/v1/submission/:psId" , 
+            "/api/v1/teams/:psId"
+        ];
+        if(!(routesAllowed.includes(route))) {
+            return res.status(403).json({
+                "success" : false, 
+                "message" : "Forbidden to access this endpoint"
+            })
+        }
+    }
+
     // will do similar for other roles as well
 
     next();

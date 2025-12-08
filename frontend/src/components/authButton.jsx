@@ -27,10 +27,10 @@ export default function AuthButton() {
     }
 
     function handleClick() {
-        if(!user && !localStorage.getItem("user") && !localStorage.getItem("accessToken")) {
-            navigate('/sign-in')
-        } else {
+        if(user && localStorage.getItem("user") && localStorage.getItem("accessToken")) {
             LogoutHandler();
+        } else {
+            navigate('/sign-in')
         }    
     }
 
@@ -41,8 +41,8 @@ export default function AuthButton() {
             className="fixed top-0 right-0 m-2 bg-blue-600 text-white py-2 px-4 font-semibold rounded-lg hover:bg-blue-700 transition disabled:bg-blue-400 cursor-pointer"
         >
           {
-            (!user && !localStorage.getItem("user") && !localStorage.getItem("accessToken")) ? 
-            "Sign In" : "Log Out"
+            (user && localStorage.getItem("user") && localStorage.getItem("accessToken")) ? 
+            "Log Out" : "Sign In"
           }
         </button>
         
