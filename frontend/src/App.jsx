@@ -7,27 +7,31 @@ import ConvenerDashboard from "./pages/convener/dashboard.jsx"
 import AuthButton from "./components/authButton.jsx"
 import SuperAdminSignIn from "./pages/superAdmin/signIn.jsx"
 import SuperAdminDashboard from "./pages/superAdmin/dashboard.jsx"
+import PSManager from "./pages/convener/psManager.jsx"
+import PSDetails from "./pages/convener/psDetails.jsx"
+
 
 function App() {
   return (
     <UserProvider>
-    <BrowserRouter>
+      <BrowserRouter>
+        <AuthButton />
+        <Routes>
+          <Route path="/sign-in" element={<SignIn />} />
+
+          <Route path="/convener" element={<ConvenerDashboard />} />
+          <Route path="/convener/onboard-user" element={<OnboardUserPage />} />
+          <Route path="/convener/ps/:id" element={<PSDetails />} />
+
+          <Route path="/superadmin/sign-in" element={<SuperAdminSignIn />} />
+          <Route path="/superadmin" element={<SuperAdminDashboard />} />
     
-    <AuthButton/>
-      <Routes>
-        <Route path="/sign-in" element={<SignIn />} />
-
-        <Route path="/convener" element={<ConvenerDashboard />} />
-        <Route path="/convener/onboard-user" element={<OnboardUserPage />} />
-        
-        <Route path="/superadmin/sign-in" element={<SuperAdminSignIn />} />
-        <Route path="/superadmin" element={<SuperAdminDashboard />} />
-
       </Routes>
     </BrowserRouter>
     <Footer/>
+
     </UserProvider>
-  )
+  );
 }
 
 export default App

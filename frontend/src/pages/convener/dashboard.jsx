@@ -21,18 +21,25 @@ function ConvenerDashboard() {
             <h1 className="text-xl font-semibold text-gray-800">Convener Dashboard</h1>
         </nav>
 
-        <div className="flex flex-1 items-center justify-center px-4">
+        <div className="flex flex-col flex-1 items-center justify-center px-4 gap-10">
             <div className="w-full max-w-md bg-white shadow-xl rounded-xl p-8">
-            <button
-                onClick={() => navigate("/convener/onboard-user")}
-                className="w-full py-3 rounded-lg bg-blue-600 text-white text-lg font-medium hover:bg-blue-700 transition"
-            >
-                Onboard New User
-            </button>
+                <button
+                    onClick={() => navigate("/convener/onboard-user")}
+                    className="w-full py-3 rounded-lg bg-blue-600 text-white text-lg font-medium hover:bg-blue-700 transition"
+                >
+                    Onboard New User
+                </button>
+            </div>
+            <div className="w-full max-w-md bg-white shadow-xl rounded-xl p-8">
+                <button
+                    onClick={() => navigate("/convener/ps")}
+                    className="w-full py-3 rounded-lg bg-blue-600 text-white text-lg font-medium hover:bg-blue-700 transition"
+                >
+                    ps manager
+                </button>
             </div>
         </div>
-        </div>
-
+    </div>
   );
 }
 

@@ -10,7 +10,7 @@ npm-debug.log*
 pids
 logs
 *.pid
-*.seed
+*.seed*
 *.pid.lock
 
 # Optional npm cache directory
