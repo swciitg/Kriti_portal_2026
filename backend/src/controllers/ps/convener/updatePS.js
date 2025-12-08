@@ -3,12 +3,29 @@ import PS from "../../../model/ps.js";
 export const updatePS = async (req, res) => {
   try {
     const updates = req.body;
-    if (updates.pdf) {
-      const urlRegex = /^https?:\/\/.+/;
-      if (!urlRegex.test(updates.pdf)) {
-        return res.status(400).json({ message: "Invalid PDF URL format" });
+    const requiredFields = [
+      "name",
+      "registrationDeadline",
+      "submissionDeadline",
+      "prep",
+      "pdf",
+    ];
+    for(const field of requiredFields) {
+      if(!updates[field]){
+        return res.status(400).json({message: `${field} is required`});
       }
     }
+    if (updates.midEvalExist === true && !updates.midEvalSubmissionDeadline) {
+      return res
+        .status(400)
+        .json({ message: "Mid evaluation submission deadline is required" });
+    }
+      if (updates.pdf) {
+        const urlRegex = /^https?:\/\/.+/;
+        if (!urlRegex.test(updates.pdf)) {
+          return res.status(400).json({ message: "Invalid PDF URL format" });
+        }
+      }
     const updatePS = await PS.findByIdAndUpdate(req.params.id, updates, {
       new: true,
       runValidators: true,
