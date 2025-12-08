@@ -9,14 +9,14 @@ export const createPS = async (req, res) => {
       judge,
       pdf,
       midEvalExist,
-      MidEvalSubmissionDeadline,
+      midEvalSubmissionDeadline,
       prep,
       points,
       midEvalSubmissionDeliverables,
       submissionDeliverables,
       midEvalPointsDistribution,
       submissionPointsDistribution,
-      pptPointsDistibution,
+      pptPointsDistribution,
       pptSchedule,
       rankings,
     } = req.body;
@@ -33,21 +33,22 @@ export const createPS = async (req, res) => {
     if (!urlRegex.test(pdf)) {
       return res.status(400).json({ message: "Invalid PDF URL" });
     }
+    const judgeFinal = judge && judge.trim()!== "" ? judge : null;
     const newPS = new PS({
       name,
       registrationDeadline,
       submissionDeadline,
-      judge,
+      judge: judgeFinal,
       pdf,
       midEvalExist,
-      MidEvalSubmissionDeadline,
+      midEvalSubmissionDeadline,
       prep,
       points,
       midEvalSubmissionDeliverables,
       submissionDeliverables,
       midEvalPointsDistribution,
       submissionPointsDistribution,
-      pptPointsDistibution,
+      pptPointsDistribution,
       pptSchedule,
       rankings,
     });

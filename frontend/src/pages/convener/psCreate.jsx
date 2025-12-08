@@ -3,8 +3,8 @@ import { useEffect, useState, useContext } from "react";
 import { BACKEND_URL } from "../../constants";
 import { userContext } from "../../context/userContext";
 
-export default function PSDetailsPage() {
-  const { id } = useParams();
+export default function PSCreate() {
+
   const navigate = useNavigate();
   const { user } = useContext(userContext);
 
@@ -26,9 +26,7 @@ export default function PSDetailsPage() {
     pptSchedule: "",
   });
 
-  const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
-  const [deleting, setDeleting] = useState(false);
   const [error, setError] = useState("");
 
   // Redirect non-Convener users
@@ -41,33 +39,6 @@ export default function PSDetailsPage() {
       navigate("/sign-in");
     }
   }, [user, navigate]);
-
-  // Fetch PS details
-  useEffect(() => {
-    const fetchPS = async () => {
-      try {
-        const res = await fetch(`${BACKEND_URL}/api/v1/ps/${id}`);
-        const data = await res.json();
-        if (!res.ok) throw new Error(data.message);
-
-        setPs({
-          ...data.ps,
-          midEvalSubmissionDeliverables:
-            data.ps.midEvalSubmissionDeliverables || [],
-          submissionDeliverables: data.ps.submissionDeliverables || [],
-          midEvalPointsDistribution: data.ps.midEvalPointsDistribution || [],
-          submissionPointsDistribution:
-            data.ps.submissionPointsDistribution || [],
-          pptPointsDistribution: data.ps.pptPointsDistribution || [],
-        });
-      } catch (e) {
-        setError(e.message);
-      } finally {
-        setLoading(false);
-      }
-    };
-    fetchPS();
-  }, [id]);
 
   // Handle simple input changes
   const handleChange = (e) => {
@@ -92,24 +63,21 @@ export default function PSDetailsPage() {
     setPs({ ...ps, [field]: arr });
   };
 
-  // Update PS
-  const handleUpdate = async () => {
+  // Create PS
+  const handleCreate = async () => {
     try {
       setSaving(true);
-      const res = await fetch(
-        `${BACKEND_URL}/api/v1/convener/update-ps/${id}`,
-        {
-          method: "PUT",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: localStorage.getItem("accessToken"),
-          },
-          body: JSON.stringify(ps),
-        }
-      );
+      const res = await fetch(`${BACKEND_URL}/api/v1/convener/create-ps`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: localStorage.getItem("accessToken"),
+        },
+        body: JSON.stringify(ps),
+      });
       const data = await res.json();
       if (!data.success) throw new Error(data.message);
-      alert("PS updated successfully!");
+      alert("PS created successfully!");
     } catch (e) {
       setError(e.message);
     } finally {
@@ -117,37 +85,11 @@ export default function PSDetailsPage() {
     }
   };
 
-  // Delete PS
-  const handleDelete = async () => {
-    if (!confirm("Are you sure you want to delete this PS?")) return;
-    try {
-      setDeleting(true);
-      const res = await fetch(
-        `${BACKEND_URL}/api/v1/convener/delete-ps/${id}`,
-        {
-          method: "DELETE",
-          headers: { Authorization: localStorage.getItem("accessToken") },
-        }
-      );
-      const data = await res.json();
-      if (!data.success) throw new Error(data.message);
-      alert("PS deleted successfully!");
-      navigate("/convener/ps");
-    } catch (e) {
-      setError(e.message);
-    } finally {
-      setDeleting(false);
-    }
-  };
-
-  if (loading)
-    return <p className="text-center mt-20 text-gray-600 text-xl">Loading…</p>;
-
   return (
     <div className="min-h-screen w-full flex justify-center bg-gray-100 p-6">
       <div className="w-full max-w-4xl bg-white shadow rounded-xl p-6 flex flex-col h-[calc(100vh-5rem)]">
         <div className="overflow-y-auto pr-3 space-y-5">
-          <h1 className="text-2xl font-semibold">Edit Problem Statement</h1>
+          <h1 className="text-2xl font-semibold">Create Problem Statement</h1>
           {error && <p className="text-red-600 text-center">{error}</p>}
 
           <div className="space-y-4">
@@ -476,18 +418,11 @@ export default function PSDetailsPage() {
 
             {/* Actions */}
             <button
-              onClick={handleUpdate}
+              onClick={handleCreate}
               disabled={saving}
               className="w-full bg-blue-600 text-white py-2 rounded-lg hover:bg-blue-700 disabled:bg-blue-400"
             >
               {saving ? "Updating…" : "Save Changes"}
-            </button>
-            <button
-              onClick={handleDelete}
-              disabled={deleting}
-              className="w-full bg-red-600 text-white py-2 rounded-lg hover:bg-red-700 disabled:bg-red-400"
-            >
-              {deleting ? "Deleting…" : "Delete the problem statements"}
             </button>
           </div>
         </div>

@@ -9,6 +9,7 @@ import SuperAdminSignIn from "./pages/superAdmin/signIn.jsx"
 import SuperAdminDashboard from "./pages/superAdmin/dashboard.jsx"
 import PSManager from "./pages/convener/psManager.jsx"
 import PSDetails from "./pages/convener/psDetails.jsx"
+import PSCreate from "./pages/convener/psCreate.jsx"
 
 
 function App() {
@@ -22,15 +23,14 @@ function App() {
           <Route path="/convener" element={<ConvenerDashboard />} />
           <Route path="/convener/onboard-user" element={<OnboardUserPage />} />
           <Route path="/convener/ps" element={<PSManager />} />
+          <Route path="/convener/ps/create" element={<PSCreate />} />
           <Route path="/convener/ps/:id" element={<PSDetails />} />
 
           <Route path="/superadmin/sign-in" element={<SuperAdminSignIn />} />
           <Route path="/superadmin" element={<SuperAdminDashboard />} />
-    
-      </Routes>
-    </BrowserRouter>
-    <Footer/>
-
+        </Routes>
+      </BrowserRouter>
+      <Footer />
     </UserProvider>
   );
 }
