@@ -37,7 +37,7 @@ function ConvenerDashboard() {
                     onClick={() => navigate("/convener/ps")}
                     className="w-full py-3 rounded-lg bg-blue-600 text-white text-lg font-medium hover:bg-blue-700 transition"
                 >
-                    ps manager
+                    Manage Problem Statements
                 </button>
             </div>
         </div>
