@@ -48,7 +48,40 @@ export default function SuperAdminDashboard() {
   
       if(data.ps?.length > 0) {
         setProblemStatements(data.ps);
-      } 
+      } else {
+        // remove this before commit 
+        setProblemStatements([
+          {
+  _id: "ps_high_2",
+  name: "Autonomous Drone Fault Diagnosis",
+  registrationDeadline: "2025-01-09",
+  submissionDeadline: "2025-02-05",
+  prep: "high"
+},
+{
+  _id: "ps_high_3",
+  name: "Real-Time Traffic Prediction Engine",
+  registrationDeadline: "2025-01-11",
+  submissionDeadline: "2025-02-08",
+  prep: "high"
+},
+{
+  _id: "ps_high_4",
+  name: "Secure Multi-Party Voting Protocol",
+  registrationDeadline: "2025-01-14",
+  submissionDeadline: "2025-02-12",
+  prep: "low"
+},
+{
+  _id: "ps_high_5",
+  name: "Advanced Healthcare Risk Stratification ML",
+  registrationDeadline: "2025-01-18",
+  submissionDeadline: "2025-02-15",
+  prep: "no"
+}
+
+        ])
+      }
       if(data.hostelId?.length > 0) {
         setHostelIds(data.hostelId);
       }
@@ -82,7 +115,7 @@ export default function SuperAdminDashboard() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-100 flex px-64 pb-16">
+    <div className="min-h-screen bg-gray-100 flex px-4 sm:px-8 md:px-16 lg:px-32 xl:px-64 pb-4 sm:pb-8 md:pb-12 lg:pb-16">
 
     {error && (
       <div className="flex justify-center items-center fixed top-0 left-0 w-[100vw] h-[100vh]">
@@ -93,7 +126,7 @@ export default function SuperAdminDashboard() {
     <SideBar activePage={activePage} setActivePage={setActivePage}/>
 
     <div className={`flex-1 p-6 transition-all`}>
-      <h1 className="text-3xl font-semibold text-gray-800 mb-6">{activePage}</h1>
+      <h1 className="text-3xl font-semibold text-gray-800 mb-6 pt-8 lg:pt-0">{activePage}</h1>
 
 
       {activePage === "Problem Statements" && (

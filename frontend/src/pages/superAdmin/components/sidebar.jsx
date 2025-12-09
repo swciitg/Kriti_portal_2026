@@ -7,18 +7,18 @@ export default function SideBar({activePage , setActivePage})  {
 
     return (
         <div className={`fixed left-0 top-0 h-full bg-white shadow-lg transition-all duration-300 
-                ${sidebarOpen ? "w-64" : "w-12"}`}>
+                ${sidebarOpen ? "w-64" : "w-6 lg:w-12"}`}>
         
-                <div className="flex items-center justify-between p-4">
+                <div className="flex items-center justify-between p-1 lg:p-4 ">
                   {sidebarOpen && (
-                    <h2 className="font-bold text-3xl text-blue-600">
+                    <h2 className="font-bold text-3xl text-blue-600 pt-4 pl-2 lg:pl-0 lg:pt-0">
                       Super Admin
                     </h2>
                   )}
         
-                <button onClick={() => setSidebarOpen(!sidebarOpen)} className="cursor-pointer">
-                  {sidebarOpen ? <ChevronLeft size={22} /> : <ChevronRight size={22} />}
-                </button>
+                  <button onClick={() => setSidebarOpen(!sidebarOpen)} className="cursor-pointer">
+                    {sidebarOpen ? <ChevronLeft size={22} /> : <ChevronRight size={22} />}
+                  </button>
               </div>
         
               {sidebarOpen && (
