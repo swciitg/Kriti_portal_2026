@@ -1,12 +1,29 @@
+import ps from "../../model/ps.js";
 import team from "../../model/team.js";
+import mongoose from "mongoose";
 
 export async function GetTeamsForProblemStatement(req, res) {
     try {
         const {psId} = req.params;
         if(!psId) {
-            return res.status(200).json({
+            return res.status(400).json({
                 "success" : false ,
                 "message" : "Required params missing"
+            });
+        }
+
+        if(!mongoose.Types.ObjectId.isValid(psId)) {
+            return res.status(400).json({
+                "success" : false ,
+                "message" : "Invalid params sent"
+            });
+        }
+    
+        const psExistenceCheck = await ps.findById(psId);
+        if(!psExistenceCheck) {
+            return res.status(404).json({
+                "success" : false ,
+                "message" : "Problem Statement not found!"
             });
         }
     

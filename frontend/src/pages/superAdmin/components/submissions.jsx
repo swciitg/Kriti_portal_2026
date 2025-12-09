@@ -1,49 +1,103 @@
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import { ChevronRight, ChevronDown, ChevronUp } from "lucide-react"
+import {BACKEND_URL} from "../../../constants.js" 
 
 export default function SubmissionsCard({ id, name, close }) {
   const [selectedHostel, setSelectedHostel] = useState(null)
 
   const [submissions, setSubmissions] = useState([
-    {
-      hostelId: 1,
-      midEval: true,
-      submissionTime: "2025-12-08T10:30:00Z",
-      penalty: [{ category: "Format Issue", weightage: 2 }],
-      deliverables: [{ name: "Mid PPT", url: "https://example.com/mid1" }],
-      pptPointsDistibution: [7, 8, 9],
-      submissionPointsDistribution: [8, 8, 10],
-    },
-    {
-      hostelId: 1,
-      midEval: false,
-      submissionTime: "2025-12-10T11:00:00Z",
-      penalty: [{ category: "Late Submission", weightage: 4 }],
-      deliverables: [{ name: "Final Report", url: "https://example.com/final1.pdf" }],
-      pptPointsDistibution: [8, 8, 9],
-      submissionPointsDistribution: [9, 9, 10],
-    },
-    {
-      hostelId: 2,
-      midEval: false,
-      submissionTime: "2025-12-09T14:15:00Z",
-      penalty: [{ category: "Late Submission", weightage: 3 }],
-      deliverables: [{ name: "Prototype", url: "https://example.com/proto2" }],
-      pptPointsDistibution: [6, 5, 7],
-      submissionPointsDistribution: [7, 6, 9],
-    },
-    {
-      hostelId: 3,
-      midEval: true,
-      submissionTime: "2025-12-08T18:45:00Z",
-      penalty: [],
-      deliverables: [{ name: "Presentation", url: "https://example.com/ppt3.pdf" }],
-      pptPointsDistibution: [9, 9, 10],
-      submissionPointsDistribution: [9, 9, 10],
-    },
+    // {
+    //   hostelId: 1,
+    //   midEval: true,
+    //   submissionTime: "2025-12-08T10:30:00Z",
+    //   penalty: [{ category: "Format Issue", weightage: 2 }],
+    //   deliverables: [{ name: "Mid PPT", url: "https://example.com/mid1" }],
+    //   pptPointsDistibution: [7, 8, 9],
+    //   submissionPointsDistribution: [8, 8, 10],
+    // },
+    // {
+    //   hostelId: 1,
+    //   midEval: false,
+    //   submissionTime: "2025-12-10T11:00:00Z",
+    //   penalty: [{ category: "Late Submission", weightage: 4 }],
+    //   deliverables: [{ name: "Final Report", url: "https://example.com/final1.pdf" }],
+    //   pptPointsDistibution: [8, 8, 9],
+    //   submissionPointsDistribution: [9, 9, 10],
+    // },
+    // {
+    //   hostelId: 2,
+    //   midEval: false,
+    //   submissionTime: "2025-12-09T14:15:00Z",
+    //   penalty: [{ category: "Late Submission", weightage: 3 }],
+    //   deliverables: [{ name: "Prototype", url: "https://example.com/proto2" }],
+    //   pptPointsDistibution: [6, 5, 7],
+    //   submissionPointsDistribution: [7, 6, 9],
+    // },
+    // {
+    //   hostelId: 3,
+    //   midEval: true,
+    //   submissionTime: "2025-12-08T18:45:00Z",
+    //   penalty: [],
+    //   deliverables: [{ name: "Presentation", url: "https://example.com/ppt3.pdf" }],
+    //   pptPointsDistibution: [9, 9, 10],
+    //   submissionPointsDistribution: [9, 9, 10],
+    // },
   ])
 
-  const uniqueHostels = [...new Set(submissions.map((s) => s.hostelId))]
+
+  const [error, setError] = useState("");
+
+  useEffect(() => {
+    if(!error || error.trim().length === 0) {
+      return;
+    }
+
+    const timeoutfn = setTimeout(() => {
+      setError("");
+    } , 5000)
+
+    return () => clearTimeout(timeoutfn);
+  } , [error])
+
+
+  useEffect(() => {
+    async function getSubmission() {
+      try {
+        setError('');
+        const response = await fetch(`${BACKEND_URL}/api/v1/submission/get-all/${id}` , {
+          method : "GET" , 
+          headers : {
+            "Content-type" : "application/json" , 
+            "Authorization" : localStorage.getItem("accessToken")
+          }
+        });
+        
+        const data = await response.json();
+        if(response.status != 200 || !data?.success) {
+          setError(data.message);
+          return;
+        }
+  
+        setSubmissions([...data.finalSubmissions , ...data.midEvalSubmissions]);
+      } catch (error) {
+        console.log(error)
+        setError("Some Error Occured!");
+      }
+    }
+
+    getSubmission();
+  } , [id]);
+
+
+  const [uniqueHostels, setUniqueHostels] = useState([]);
+  useEffect(() => {
+    if(!submissions || submissions.length === 0) {
+      return;
+    }
+
+    setUniqueHostels([...new Set(submissions.map((s) => s.hostelId))]);
+  } , [submissions])
+
 
   const hostelSubmissions = submissions.filter((s) => s.hostelId === selectedHostel)
 
@@ -115,7 +169,6 @@ export default function SubmissionsCard({ id, name, close }) {
           ✕
         </button>
 
-        {/* Sidebar */}
         <div className="w-48 bg-white shadow-md p-4 overflow-y-auto">
           <h2 className="text-xl font-semibold text-blue-700 mb-3">Hostels</h2>
 
@@ -138,10 +191,12 @@ export default function SubmissionsCard({ id, name, close }) {
           </div>
         </div>
 
-        {/* Right section */}
         <div className="flex-1 p-6 overflow-y-auto">
 
-          <h2 className="text-2xl font-semibold text-gray-900 mb-2">{name}</h2>
+          <div className="flex justify-between items-center">
+            <h2 className="text-2xl font-semibold text-gray-900 mb-2">{name}</h2>
+            <p className="text-red-600 text-lg">{error}</p>
+          </div>
 
           {!selectedHostel && (
             <div className="text-gray-500 text-lg">
@@ -152,7 +207,6 @@ export default function SubmissionsCard({ id, name, close }) {
           {selectedHostel && (
             <div className="space-y-7">
 
-              {/* MID EVAL SECTION */}
               {midEval && (
                 <div>
                   <button
@@ -171,7 +225,6 @@ export default function SubmissionsCard({ id, name, close }) {
                 </div>
               )}
 
-              {/* FINAL SUBMISSION */}
               {finalEval && (
                 <div>
                   <button

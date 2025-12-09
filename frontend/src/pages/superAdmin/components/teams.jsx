@@ -1,39 +1,84 @@
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { ChevronRight } from "lucide-react"
+import {BACKEND_URL} from "../../../constants.js" 
 
 export default function TeamsCard({id , name , close}) {
   const [selectedHostel, setSelectedHostel] = useState(null)
 
   const [teams , setTeams] = useState([
-    {
-      hostelId: 1,
-      submitted: true,
-      teamMember: [
-        { name: "Aarav Singh", email: "aarav@xyz.com", rollNumber: 21001 },
-        { name: "Riya Sharma", email: "riya@xyz.com", rollNumber: 21002 },
-        { name: "Riya Sharma", email: "riya@xyz.com", rollNumber: 21006 },
-        { name: "Riya Sharma", email: "riya@xyz.com", rollNumber: 21005 },
-        { name: "Riya Sharma", email: "riya@xyz.com", rollNumber: 21004 }
-      ]
-    },
-    {
-      hostelId: 2,
-      submitted: false,
-      teamMember: [
-        { name: "Rohan Jain", email: "rohan@xyz.com", rollNumber: 21015 },
-        { name: "Kriti Verma", email: "kriti@xyz.com", rollNumber: 21018 },
-      ]
-    },
-    {
-      hostelId: 3,
-      submitted: true,
-      teamMember: [
-        { name: "Ishan Mehta", email: "ishan@xyz.com", rollNumber: 21029 },
-        { name: "Nandini Rao", email: "nandini@xyz.com", rollNumber: 21033 },
-      ]
-    }
+    // {
+    //   hostelId: 1,
+    //   submitted: true,
+    //   teamMember: [
+    //     { name: "Aarav Singh", email: "aarav@xyz.com", rollNumber: 21001 },
+    //     { name: "Riya Sharma", email: "riya@xyz.com", rollNumber: 21002 },
+    //     { name: "Riya Sharma", email: "riya@xyz.com", rollNumber: 21006 },
+    //     { name: "Riya Sharma", email: "riya@xyz.com", rollNumber: 21005 },
+    //     { name: "Riya Sharma", email: "riya@xyz.com", rollNumber: 21004 }
+    //   ]
+    // },
+    // {
+    //   hostelId: 2,
+    //   submitted: false,
+    //   teamMember: [
+    //     { name: "Rohan Jain", email: "rohan@xyz.com", rollNumber: 21015 },
+    //     { name: "Kriti Verma", email: "kriti@xyz.com", rollNumber: 21018 },
+    //   ]
+    // },
+    // {
+    //   hostelId: 3,
+    //   submitted: true,
+    //   teamMember: [
+    //     { name: "Ishan Mehta", email: "ishan@xyz.com", rollNumber: 21029 },
+    //     { name: "Nandini Rao", email: "nandini@xyz.com", rollNumber: 21033 },
+    //   ]
+    // }
   ])
 
+
+    const [error, setError] = useState("");
+  
+    useEffect(() => {
+      if(!error || error.trim().length === 0) {
+        return;
+      }
+  
+      const timeoutfn = setTimeout(() => {
+        setError("");
+      } , 5000)
+  
+      return () => clearTimeout(timeoutfn);
+    } , [error])
+  
+  
+    useEffect(() => {
+      async function getSubmission() {
+        try {
+          setError('');
+          const response = await fetch(`${BACKEND_URL}/api/v1/teams/get-all/${id}` , {
+            method : "GET" , 
+            headers : {
+              "Content-type" : "application/json" , 
+              "Authorization" : localStorage.getItem("accessToken")
+            }
+          });
+          
+          const data = await response.json();
+          if(response.status != 200 || !data?.success) {
+            setError(data.message);
+            return;
+          }
+    
+          setTeams(data.teams);
+        } catch (error) {
+          console.log(error)
+          setError("Some Error Occured!");
+        }
+      }
+  
+      getSubmission();
+    } , [id]);
+  
 
 
   const activeTeam = teams.find((t) => t.hostelId === selectedHostel)
@@ -44,7 +89,6 @@ export default function TeamsCard({id , name , close}) {
 
       <div className="flex w-[70vw] pr-4 h-[80vh] bg-gray-100 rounded-xl shadow-sm overflow-hidden relative">
 
-        {/* Cross Button */}
         <button
           onClick={close}
           className="absolute top-2 right-2 text-black font-bold text-xl cursor-pointer"
@@ -52,7 +96,6 @@ export default function TeamsCard({id , name , close}) {
           ✕
         </button>
 
-        {/* Sidebar */}
         <div className="w-48 bg-white shadow-md p-4 overflow-y-auto">
           <h2 className="text-xl font-semibold text-blue-700 mb-3">Hostels</h2>
 
@@ -78,10 +121,12 @@ export default function TeamsCard({id , name , close}) {
           </div>
         </div>
 
-        {/* Right Section */}
         <div className="flex-1 p-6 overflow-y-auto">
 
-          <h2 className="text-2xl font-semibold text-gray-900 mb-2">{name}</h2>
+          <div className="flex justify-between items-center">
+            <h2 className="text-2xl font-semibold text-gray-900 mb-2">{name}</h2>
+            <p className="text-red-600 text-lg">{error}</p>
+          </div>
 
           {!selectedHostel && (
             <div className="text-gray-500 text-lg">

@@ -1,3 +1,4 @@
+import mongoose from "mongoose";
 import submission from "../../model/submission.js";
 
 export async function GetSubmissionsForProblemStatement(req, res) {
@@ -9,10 +10,26 @@ export async function GetSubmissionsForProblemStatement(req, res) {
                 "message" : "Required params missing"
             });
         }
+
+        if(!mongoose.Types.ObjectId.isValid(psId)) {
+            return res.status(400).json({
+                "success" : false ,
+                "message" : "Invalid params sent"
+            });
+        }
     
+        const psExistenceCheck = await ps.findById(psId);
+        
+        if(!psExistenceCheck) {
+            return res.status(404).json({
+                "success" : false ,
+                "message" : "Problem Statement not found!"
+            });
+        }
+
         const allSubmission = await submission.find({ps : psId});
     
-        if(!!allSubmission || allSubmission.length === 0) {
+        if(!allSubmission || allSubmission.length === 0) {
             return res.status(200).json({
                 "success" : true,
                 "message" : "No Submissions for this Problem Statement yet!"
@@ -28,7 +45,11 @@ export async function GetSubmissionsForProblemStatement(req, res) {
             midEvalSubmissions
         });
     } catch (error) {
-        
+        console.log(error);
+        return res.status(500).json({
+            "success" : false, 
+            "messaga" : "Internal Server Error Occured"
+        });
     }
 
 }
