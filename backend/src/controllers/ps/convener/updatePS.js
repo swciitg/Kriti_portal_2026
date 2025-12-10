@@ -27,6 +27,10 @@ export const updatePS = async (req, res) => {
           return res.status(400).json({ message: "Invalid PDF URL format" });
         }
       }
+      if(updates.judge !== undefined){
+        updates.judge =
+          updates.judge && updates.judge.trim() !== "" ? updates.judge : null;
+      }
     const updatePS = await PS.findByIdAndUpdate(req.params.id, updates, {
       new: true,
       runValidators: true,

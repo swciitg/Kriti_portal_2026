@@ -19,6 +19,7 @@ export const createPS = async (req, res) => {
       pptPointsDistribution,
       pptSchedule,
       teamStrength,
+      judgePointsDisribution,
       rankings,
     } = req.body;
     if (
@@ -58,6 +59,7 @@ export const createPS = async (req, res) => {
       pptPointsDistribution,
       pptSchedule,
       teamStrength,
+      judgePointsDisribution,
       rankings,
     });
     await newPS.save();

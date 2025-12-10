@@ -25,6 +25,7 @@ export default function PSDetailsPage() {
     pptPointsDistribution: [],
     pptSchedule: "",
     teamStrength: 0,
+    judgePointsDisribution: [],
   });
 
   const [loading, setLoading] = useState(true);
@@ -51,7 +52,7 @@ export default function PSDetailsPage() {
         const data = await res.json();
         if (!res.ok) throw new Error(data.message);
 
-        setPs(prev => ({
+        setPs((prev) => ({
           ...prev,
           ...data.ps,
           midEvalSubmissionDeliverables:
@@ -61,6 +62,7 @@ export default function PSDetailsPage() {
           submissionPointsDistribution:
             data.ps.submissionPointsDistribution || [],
           pptPointsDistribution: data.ps.pptPointsDistribution || [],
+          judgePointsDisribution: data.ps.judgePointsDisribution || [],
         }));
       } catch (e) {
         setError(e.message);
@@ -413,55 +415,57 @@ export default function PSDetailsPage() {
             </div>
 
             {/* Points Distribution and PPT */}
-            {["submissionPointsDistribution", "pptPointsDistribution"].map(
-              (field) => (
-                <div key={field} className="space-y-2">
-                  <h4 className="font-semibold">{field}</h4>
-                  {ps[field].map((item, idx) => (
-                    <div key={idx} className="flex gap-2 mb-2">
-                      <input
-                        className="border p-1 rounded flex-1"
-                        placeholder="Field"
-                        value={item.field}
-                        onChange={(e) =>
-                          handleArrayChange(field, idx, "field", e.target.value)
-                        }
-                      />
-                      <input
-                        className="border p-1 rounded w-24"
-                        type="number"
-                        placeholder="Weightage"
-                        value={item.weightage}
-                        onChange={(e) =>
-                          handleArrayChange(
-                            field,
-                            idx,
-                            "weightage",
-                            e.target.value
-                          )
-                        }
-                      />
-                      <button
-                        type="button"
-                        onClick={() => handleRemoveArrayItem(field, idx)}
-                        className="bg-red-500 text-white px-2 rounded"
-                      >
-                        X
-                      </button>
-                    </div>
-                  ))}
-                  <button
-                    type="button"
-                    onClick={() =>
-                      handleAddArrayItem(field, { field: "", weightage: 0 })
-                    }
-                    className="bg-green-500 text-white px-2 rounded"
-                  >
-                    Add {field}
-                  </button>
-                </div>
-              )
-            )}
+            {[
+              "submissionPointsDistribution",
+              "pptPointsDistribution",
+              "judgePointsDisribution",
+            ].map((field) => (
+              <div key={field} className="space-y-2">
+                <h4 className="font-semibold">{field}</h4>
+                {ps[field].map((item, idx) => (
+                  <div key={idx} className="flex gap-2 mb-2">
+                    <input
+                      className="border p-1 rounded flex-1"
+                      placeholder="Field"
+                      value={item.field}
+                      onChange={(e) =>
+                        handleArrayChange(field, idx, "field", e.target.value)
+                      }
+                    />
+                    <input
+                      className="border p-1 rounded w-24"
+                      type="number"
+                      placeholder="Weightage"
+                      value={item.weightage}
+                      onChange={(e) =>
+                        handleArrayChange(
+                          field,
+                          idx,
+                          "weightage",
+                          e.target.value
+                        )
+                      }
+                    />
+                    <button
+                      type="button"
+                      onClick={() => handleRemoveArrayItem(field, idx)}
+                      className="bg-red-500 text-white px-2 rounded"
+                    >
+                      X
+                    </button>
+                  </div>
+                ))}
+                <button
+                  type="button"
+                  onClick={() =>
+                    handleAddArrayItem(field, { field: "", weightage: 0 })
+                  }
+                  className="bg-green-500 text-white px-2 rounded"
+                >
+                  Add {field}
+                </button>
+              </div>
+            ))}
 
             {/* Points and PPT Schedule */}
             <input

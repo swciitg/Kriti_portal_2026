@@ -27,6 +27,7 @@ const PSSchema = new mongoose.Schema({
   pptPointsDistribution: [PointsDistributionSchema],
   pptSchedule: { type: String, match: /^https? :\/\/.+/ },
   teamStrength: {type: Number, required: true},
+  judgePointsDisribution: [PointsDistributionSchema],
   rankings: [{ hostel_id: Number }],
 });
 
