@@ -4,6 +4,6 @@ import { registerTeam } from "../controllers/techSecy/registerTeam.js";
 
 const router = Router();
 
-router.route("/register-team").post(verifyJWT , handleRouteAccess , registerTeam);
+router.route("/register-team").post(verifyJWT, handleRouteAccess, registerTeam);
 
 export default router;
