@@ -11,6 +11,7 @@ function HostelJudging() {
   const [criteria, setCriteria] = useState([]);
   const [loading, setLoading] = useState(true);
   const [psInfo, setPsInfo] = useState(null);
+  const [currentSubmission, setCurrentSubmission] = useState(null);
 
   useEffect(() => {
     const stored = JSON.parse(localStorage.getItem("user"));
@@ -47,17 +48,31 @@ function HostelJudging() {
         }
 
         const data = await response.json();
+        console.log(data)
 
         if (data.success && data.ps) {
           setPsInfo(data.ps);
           const pptCriteria = data.ps.pptPointsDistribution || [];
           setCriteria(pptCriteria);
 
-          // Initialize scores for all criteria
-          const initialScores = pptCriteria.reduce((acc, criterion) => {
-            acc[criterion.field] = 0;
+          // Find the submission for this hostel
+          const submission = data.ps.submissions?.find(
+            (sub) => sub.hostelId === parseInt(hostelId)
+          );
+
+          setCurrentSubmission(submission);
+
+          // Initialize scores based on submission data or zeros
+          // pptPointsDistribution is an array where index corresponds to criteria order
+          const initialScores = pptCriteria.reduce((acc, criterion, index) => {
+            // Get the score from the array at this index
+            const existingScore = submission?.pptPointsDistribution?.[index];
+            
+            // If score exists at this index, use it; otherwise default to 0
+            acc[criterion.field] = existingScore !== undefined ? existingScore : 0;
             return acc;
           }, {});
+
           setScores(initialScores);
         }
       } catch (error) {
@@ -69,7 +84,7 @@ function HostelJudging() {
     };
 
     fetchPSCriteria();
-  }, [user, navigate]);
+  }, [user, navigate, hostelId]);
 
   // State to store scores for each field (out of 100)
   const [scores, setScores] = useState({});
@@ -128,6 +143,38 @@ function HostelJudging() {
         <div className="text-center">
           <div className="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mb-4"></div>
           <p className="text-gray-600 text-lg">Loading evaluation criteria...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (!currentSubmission) {
+    return (
+      <div className="min-h-screen bg-gray-50 p-8">
+        <div className="max-w-4xl mx-auto">
+          <button
+            onClick={handleBack}
+            className="flex items-center text-blue-600 hover:text-blue-800 mb-4 transition-colors"
+          >
+            <svg
+              className="w-5 h-5 mr-2"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M15 19l-7-7 7-7"
+              />
+            </svg>
+            Back to Dashboard
+          </button>
+          <div className="bg-white rounded-xl shadow-lg p-6 text-center">
+            <h2 className="text-2xl font-semibold text-gray-800 mb-4">No Submission Found</h2>
+            <p className="text-gray-600">No submission found for Hostel {hostelId}.</p>
+          </div>
         </div>
       </div>
     );
@@ -200,9 +247,14 @@ function HostelJudging() {
                   Problem Statement: {psInfo.name}
                 </p>
               )}
+              {currentSubmission && (
+                <p className="text-xs text-gray-500 mt-1">
+                  Submission ID: {currentSubmission._id}
+                </p>
+              )}
             </div>
             <span className="bg-blue-500 text-white px-6 py-2 rounded-full text-xl font-bold">
-              {hostelId}
+              Hostel {hostelId}
             </span>
           </div>
         </div>
@@ -237,11 +289,11 @@ function HostelJudging() {
                         Score (out of 100)
                       </label>
                       <input
-                        type="text"
+                        type="number"
                         min="0"
                         max="100"
-                        step="5"
-                        value={scores[criterion.field]}
+                        step="0.01"
+                        value={scores[criterion.field] || 0}
                         onChange={(e) =>
                           handleScoreChange(criterion.field, e.target.value)
                         }

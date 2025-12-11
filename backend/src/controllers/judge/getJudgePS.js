@@ -1,5 +1,6 @@
 import Judge from "../../model/judge.js";
 import PS from "../../model/ps.js";
+import Submission from "../../model/submission.js";
 
 export const getJudgePS = async (req, res) => {
   try {
@@ -27,6 +28,9 @@ export const getJudgePS = async (req, res) => {
       });
     }
 
+    // Get all submissions for this problem statement
+    const allSubmissions = await Submission.find({ ps: ps._id });
+
     res.status(200).json({
       success: true,
       ps: {
@@ -35,7 +39,8 @@ export const getJudgePS = async (req, res) => {
         pptPointsDistribution: ps.pptPointsDistribution,
         pptSchedule: ps.pptSchedule,
         registrationDeadline: ps.registrationDeadline,
-        submissionDeadline: ps.submissionDeadline
+        submissionDeadline: ps.submissionDeadline,
+        submissions: allSubmissions
       }
     });
   } catch (error) {

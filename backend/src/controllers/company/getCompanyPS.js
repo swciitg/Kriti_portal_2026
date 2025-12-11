@@ -1,6 +1,6 @@
 import Company from "../../model/company.js"
 import PS from "../../model/ps.js";
-import submission from "../../model/submission.js";
+import Submission from "../../model/submission.js";
 
 export const getCompanyPS = async (req, res) => {
   try {
@@ -29,7 +29,7 @@ export const getCompanyPS = async (req, res) => {
     }
 
     // Get all submissions for this problem statement
-    const allSubmissions = await submission.find({ ps: ps._id });
+    const allSubmissions = await Submission.find({ ps: ps._id });
 
     res.status(200).json({
       success: true,
