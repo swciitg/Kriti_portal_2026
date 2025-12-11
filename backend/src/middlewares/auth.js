@@ -132,22 +132,6 @@ export function handleRouteAccess(req, res, next) {
       }
     }
 
-    if (role === "TechSecy") {
-      const allowed = [
-        
-      ];
-      const startsWithAllowed = ["/api/v1/techsecy/register-team/"];
-      if (
-        !allowed.includes(route) &&
-        !startsWithAllowed.some((p) => route.startsWith(p))
-      ) {
-        return res.status(403).json({
-          success: false,
-          message: "Forbidden to access this route",
-        });
-      }
-    }
-
     // will do similar for other roles as well
 
     next();
