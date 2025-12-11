@@ -11,7 +11,7 @@ export async function verifyJWT(req, res, next) {
                 "message" : "Unauthorized Access"
             });
         }
-    
+
         const decodedToken = jwt.verify(token , process.env.ACCESS_TOKEN_SECRET);
 
         if(!(["SuperAdmin", "Convener", "TechSecy", "Judge", "Company"].includes(decodedToken?.role))) {
@@ -20,7 +20,7 @@ export async function verifyJWT(req, res, next) {
                 "message" : "Forbidden to access without defined roles"
             });
         }
-        
+
         if(decodedToken?.role === "SuperAdmin") {
             const superadmin = await superAdmin.findOne({username : "superadmin"});
             if(!superadmin) {
@@ -39,10 +39,10 @@ export async function verifyJWT(req, res, next) {
                     "message" : "User not found"
                 });
             }
-        
+
             req.user = user;
             next();
-        }      
+        }
     } catch (error) {
         console.log(error);
         res.status(401).json({
@@ -50,7 +50,7 @@ export async function verifyJWT(req, res, next) {
             "message" : "Some server error occured"
         })
     }
-} 
+}
 
 
 export function handleRouteAccess(req, res, next) {
@@ -90,7 +90,7 @@ export function handleRouteAccess(req, res, next) {
     if(role === "SuperAdmin") {
         if(req.method !== "GET") {
             return res.status(403).json({
-                "success": false, 
+                "success": false,
                 "message": "Forbidden to access this endpoint"
             });
         }
@@ -103,14 +103,48 @@ export function handleRouteAccess(req, res, next) {
             "/api/v1/submission/get-all/",
             "/api/v1/teams/get-all/"
         ];
-        
-        const isAllowed = allowed.includes(route) || 
+
+        const isAllowed = allowed.includes(route) ||
                         startsWithAllowed.some(prefix => route.startsWith(prefix));
-        
+
         if(!isAllowed) {
             return res.status(403).json({
-                "success": false, 
+                "success": false,
                 "message": "Forbidden to access this endpoint"
+            });
+        }
+    }
+
+    if(role === "Judge") {
+        const allowed = [
+            "/api/v1/judge/save-ppt-scores",
+            "/api/v1/judge/get-ps",
+        ];
+        if (
+          !allowed.includes(route)
+        ) {
+          return res
+            .status(403)
+            .json({
+              success: false,
+              message: "Forbidden to access this route",
+            });
+        }
+    }
+
+    if(role === "Company") {
+        const allowed = [
+            "/api/v1/company/get-sub",
+            "/api/v1/company/save-sub",
+        ];
+        if (
+          !allowed.includes(route)
+        ) {
+          return res
+            .status(403)
+            .json({
+              success: false,
+              message: "Forbidden to access this route",
             });
         }
     }
