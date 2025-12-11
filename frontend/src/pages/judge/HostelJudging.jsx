@@ -12,6 +12,7 @@ function HostelJudging() {
   const [loading, setLoading] = useState(true);
   const [psInfo, setPsInfo] = useState(null);
   const [currentSubmission, setCurrentSubmission] = useState(null);
+  const [saving, setSaving] = useState(false);
 
   useEffect(() => {
     const stored = JSON.parse(localStorage.getItem("user"));
@@ -118,18 +119,47 @@ function HostelJudging() {
   };
 
   // Handle save
-  const handleSave = () => {
-    const totalScore = calculateTotalScore();
-    const judgingData = {
-      hostelId,
-      scores,
-      totalScore,
-      timestamp: new Date().toISOString(),
-    };
+  const handleSave = async () => {
+    try {
+      setSaving(true);
+      
+      // Convert scores object to array matching criteria order
+      const pptPointsDistribution = criteria.map((criterion) => 
+        scores[criterion.field] || 0
+      );
 
-    // TODO: Implement API call to save data
-    console.log("Saving judging data:", judgingData);
-    alert(`Scores saved successfully! Total Score: ${totalScore}/100`);
+      const response = await fetch(`${BACKEND_URL}/api/v1/judge/save-ppt-scores`, {
+        method: "POST",
+        headers: {
+          "Content-type": "application/json",
+          "Authorization": localStorage.getItem("accessToken")
+        },
+        body: JSON.stringify({
+          submissionId: currentSubmission._id,
+          pptPointsDistribution
+        })
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.message || "Failed to save scores");
+      }
+
+      if (data.success) {
+        const totalScore = calculateTotalScore();
+        alert(`Scores saved successfully! Total Score: ${totalScore}/100`);
+        // Optionally navigate back to dashboard
+        // navigate("/judge/dashboard");
+      } else {
+        throw new Error(data.message || "Failed to save scores");
+      }
+    } catch (error) {
+      console.error("Error saving scores:", error);
+      alert(`Error saving scores: ${error.message}`);
+    } finally {
+      setSaving(false);
+    }
   };
 
   // Handle back navigation
@@ -351,9 +381,20 @@ function HostelJudging() {
           </button>
           <button
             onClick={handleSave}
-            className="flex-1 bg-green-600 hover:bg-green-700 text-white font-semibold py-3 px-6 rounded-lg transition-colors duration-200 shadow-md hover:shadow-lg"
+            disabled={saving}
+            className="flex-1 bg-green-600 hover:bg-green-700 text-white font-semibold py-3 px-6 rounded-lg transition-colors duration-200 shadow-md hover:shadow-lg disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            Save Scores
+            {saving ? (
+              <span className="flex items-center justify-center">
+                <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                </svg>
+                Saving...
+              </span>
+            ) : (
+              "Save Scores"
+            )}
           </button>
         </div>
       </div>
