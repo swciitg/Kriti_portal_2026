@@ -1,4 +1,5 @@
 import user from "../../model/user.js";
+import TechSecy from "../../model/techSecy.js";
 
 export async function SignIn(req, res) {
   try {
@@ -45,6 +46,17 @@ export async function SignIn(req, res) {
 
     const responseUser = existingUser.toObject();
     delete responseUser.password;
+
+    if(existingUser.role==="TechSecy"){
+      const techSecyProfile = await TechSecy.findOne({
+        user: existingUser._id,
+      });
+      if (techSecyProfile) {
+        responseUser.techSecyId = techSecyProfile._id;
+      } else {
+        responseUser.techSecyId = null;
+      }
+    }
 
     return res.status(200).json({
       "success": true ,
