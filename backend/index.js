@@ -38,6 +38,9 @@ app.use('/api/v1/teams' , TeamsRouter);
 import JudgeRouter from "./src/routes/judgeRoutes.js"
 app.use('/api/v1/judge' , JudgeRouter);
 
+import CompanyRouter from "./src/routes/companyRoutes.js"
+app.use('/api/v1/company', CompanyRouter);
+
 
 connectDB()
 .then(()=>{

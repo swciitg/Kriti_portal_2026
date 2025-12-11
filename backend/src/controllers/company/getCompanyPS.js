@@ -1,23 +1,24 @@
-import Judge from "../../model/judge.js";
+import Company from "../../model/company.js"
 import PS from "../../model/ps.js";
+import submission from "../../model/submission.js";
 
-export const getJudgePS = async (req, res) => {
+export const getCompanyPS = async (req, res) => {
   try {
     const userId = req.user._id;
 
     // Find the judge document for this user
-    const judgeDoc = await Judge.findOne({ user: userId });
+    const companyDoc = await Company.findOne({ user: userId });
 
-    if (!judgeDoc) {
+    if (!companyDoc) {
       return res.status(404).json({
         success: false,
-        message: "Judge assignment not found"
+        message: "Company POC assignment not found"
       });
     }
 
     // Get the PS details with pptPointsDistribution
-    const ps = await PS.findById(judgeDoc.ps).select(
-      "name pptPointsDistribution pptSchedule registrationDeadline submissionDeadline"
+    const ps = await PS.findById(companyDoc.ps).select(
+      "name pptPointsDistribution pptSchedule registrationDeadline submissionPointsDistribution submissionDeadline"
     );
 
     if (!ps) {
@@ -27,15 +28,20 @@ export const getJudgePS = async (req, res) => {
       });
     }
 
+    // Get all submissions for this problem statement
+    const allSubmissions = await submission.find({ ps: ps._id });
+
     res.status(200).json({
       success: true,
       ps: {
         _id: ps._id,
         name: ps.name,
         pptPointsDistribution: ps.pptPointsDistribution,
+        submissionPointsDistribution: ps.submissionPointsDistribution,
         pptSchedule: ps.pptSchedule,
         registrationDeadline: ps.registrationDeadline,
-        submissionDeadline: ps.submissionDeadline
+        submissionDeadline: ps.submissionDeadline,
+        submissions: allSubmissions
       }
     });
   } catch (error) {
