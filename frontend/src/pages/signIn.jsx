@@ -37,8 +37,11 @@ export default function SignIn() {
         return
       }
 
-      if (data.accessToken) localStorage.setItem("accessToken", data.accessToken)
-      updateUser(data.user)
+      if (data.accessToken){
+        localStorage.setItem("accessToken", data.accessToken);
+        localStorage.setItem("user", JSON.stringify(data.user));
+        updateUser(data.user);
+      }
 
       if(data.user.role === "Convener") {
         navigate('/convener')
