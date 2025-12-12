@@ -96,7 +96,8 @@ export function handleRouteAccess(req, res, next) {
         }
 
         const allowed = [
-            "/api/v1/superadmin/get-info"
+            "/api/v1/superadmin/get-info",
+            "/api/v1/superadmin/get-points"
         ];
 
         const startsWithAllowed = [
