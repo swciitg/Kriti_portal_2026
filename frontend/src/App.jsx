@@ -10,6 +10,9 @@ import SuperAdminDashboard from "./pages/superAdmin/dashboard.jsx"
 import PSManager from "./pages/convener/psManager.jsx"
 import PSDetails from "./pages/convener/psDetails.jsx"
 import PSCreate from "./pages/convener/psCreate.jsx"
+import TechSecyDashboard from "./pages/techSecy/dashboard.jsx"
+import PSScreen from "./pages/techSecy/components/psScreen.jsx"
+import RegisterTeam from "./pages/techSecy/components/registerTeam.jsx"
 
 
 function App() {
@@ -28,6 +31,12 @@ function App() {
 
           <Route path="/superadmin/sign-in" element={<SuperAdminSignIn />} />
           <Route path="/superadmin" element={<SuperAdminDashboard />} />
+          <Route path="/techsecy" element={<TechSecyDashboard />} />
+          <Route path="/techsecy/register-team" element={<PSScreen />} />
+          <Route
+            path="/techsecy/register-team/:psId"
+            element={<RegisterTeam />}
+          />
         </Routes>
       </BrowserRouter>
       <Footer />

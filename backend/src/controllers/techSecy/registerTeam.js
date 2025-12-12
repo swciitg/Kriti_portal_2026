@@ -1,58 +1,57 @@
+import team from "../../model/team.js";
 import TechSecy from "../../model/techSecy.js";
-import Team from "../../model/team.js";
 import PS from "../../model/ps.js";
 
-export const registerTeam = async (req, res) => {
+export async function registerTeam(req, res) {
   try {
-    const { techSecyId, teamMembers } = req.body;
+    const { teamMembers } = req.body;
     const { psId } = req.params;
-
-    const techSecy = await TechSecy.findById(techSecyId);
+    const techSecy = await TechSecy.findOne({ user: req.user._id });
     if (!techSecy) {
-      return res.status(404).json({ message: "tech secy not found" });
+      return res
+        .status(404)
+        .json({ success: "false", message: "Tech secy not found" });
     }
-    const ps = await PS.findById(psId);
-    if (!ps) {
-      return res.status(404).json({ message: "ps not found" });
+    const existingPS = await PS.findById(psId);
+    if (!existingPS) {
+      return res
+        .status(404)
+        .json({ success: "false", message: "Problem statement not found" });
     }
-    const existingTeam = await Team.findOne({
-      techSecy: techSecyId,
+    if (teamMembers.length > existingPS.teamStrength) {
+      return res
+        .status(400)
+        .json({
+          success: "false",
+          message: `Team size exceeds the limit of ${existingPS.teamStrength}`,
+        });
+    }
+    const existingTeam = await team.findOne({
       ps: psId,
+      techSecy: techSecy._id,
     });
     if (existingTeam) {
-      return res.status(400).json({ message: "team already registered" });
+      return res
+        .status(400)
+        .json({ success: "false", message: "Team already registered" });
     }
-    if (teamMembers.length > ps.teamStrength) {
-      return res.status(400).json({
-        message: `this ps allows maximum of ${ps.teamStrength} people`,
-      });
-    }
-    const emailRegex = /.+\@.+\..+/;
-    for (let i = 0; i < teamMembers.lenth; i++) {
-      const m = teamMembers[i];
-      if (!m.name || !m.email || !m.rollNumber) {
-        return res
-          .status(400)
-          .json({ message: "required fields for team members are missing" });
-      }
-      if (!emailRegex.test(m.email)) {
-        return res
-          .status(400)
-          .json({ message: `invalid email format for team member ${m.name}` });
-      }
-    }
-    const team = new Team({
+    const newTeam = await team.create({
       techSecy: techSecy._id,
       hostelId: techSecy.hostelId,
-      ps: ps._id,
+      ps: psId,
       teamMembers,
     });
-    await team.save();
     return res
       .status(201)
-      .json({ message: "Team registered successfully", team });
-  } catch (error) {
-    console.log(error);
-    return res.status(500).json({ message: "internal sever error" });
+      .json({
+        success: "true",
+        message: "Team registered successfully",
+        team: newTeam,
+      });
+  } catch (err) {
+    console.error(err);
+    return res
+      .status(500)
+      .json({ success: "false", message: "Server error", err });
   }
-};
+}
