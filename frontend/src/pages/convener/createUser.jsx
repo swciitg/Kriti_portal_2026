@@ -45,7 +45,7 @@ export default function OnboardUserPage() {
     try {
       const res = await fetch(`${BACKEND_URL}/api/v1/convener/create-user`, {
         method: "POST",
-        headers: { 
+        headers: {
             "Content-Type": "application/json",
             "Authorization" : localStorage.getItem("accessToken")
         },
@@ -117,8 +117,8 @@ export default function OnboardUserPage() {
           <div className="space-y-2">
             <p className="text-gray-700 text-md font-semibold">Role</p>
             <div className="flex flex-col gap-2">
-              {[["TechSecy" , "Hostel Technical Secretary"], 
-              ["Judge" , "Judge"], 
+              {[["TechSecy" , "Hostel Technical Secretary"],
+              ["Judge" , "Judge"],
               ["Company" , "Company POC"]].map(r => (
                 <label key={r[0]} className="flex items-center gap-2">
                   <input
@@ -146,6 +146,17 @@ export default function OnboardUserPage() {
           )}
 
           {form.role === "Judge" && (
+            <input
+              type="text"
+              name="ps"
+              placeholder="Problem Statement Name"
+              className="w-full border rounded-lg px-4 py-2 outline-none"
+              value={form.ps}
+              onChange={handleChange}
+            />
+          )}
+
+          {form.role === "Company" && (
             <input
               type="text"
               name="ps"

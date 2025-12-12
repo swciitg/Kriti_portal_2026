@@ -10,6 +10,10 @@ import SuperAdminDashboard from "./pages/superAdmin/dashboard.jsx"
 import PSManager from "./pages/convener/psManager.jsx"
 import PSDetails from "./pages/convener/psDetails.jsx"
 import PSCreate from "./pages/convener/psCreate.jsx"
+import JudgeDashboard from "./pages/judge/dashboard.jsx"
+import HostelJudging from "./pages/judge/HostelJudging.jsx"
+import CompanyDashboard from "./pages/company/dashboard.jsx"
+import SubmissionJudging from "./pages/company/SubmissionJudging.jsx"
 import TechSecyPanel from "./pages/techsecy/TechSecyPanel.jsx"
 import TechSecySubmissions from "./pages/techsecy/TechSecySubmissions.jsx"
 
@@ -30,6 +34,12 @@ function App() {
 
           <Route path="/superadmin/sign-in" element={<SuperAdminSignIn />} />
           <Route path="/superadmin" element={<SuperAdminDashboard />} />
+
+          <Route path="/judge/dashboard" element={<JudgeDashboard />} />
+          <Route path="/judge/hostel/:hostelId" element={<HostelJudging />} />
+
+          <Route path="/company/dashboard" element={<CompanyDashboard />} />
+          <Route path="/company/hostel/:hostelId" element={<SubmissionJudging />} />
 
           <Route path="/techsecy" element={<TechSecyPanel />} />
           <Route path="/techsecy/submissions/:psId" element={<TechSecySubmissions />} />
