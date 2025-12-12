@@ -16,7 +16,7 @@ export default function PSCreate() {
     pdf: "",
     midEvalExist: false,
     midEvalSubmissionDeadline: "",
-    prep: "",
+    prep: "high",
     points: 0,
     midEvalSubmissionDeliverables: [],
     submissionDeliverables: [],
