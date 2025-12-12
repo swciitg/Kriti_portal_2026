@@ -35,6 +35,10 @@ app.use('/api/v1/submission' , SubmissionRouter);
 import TeamsRouter from "./src/routes/teamsRoutes.js"
 app.use('/api/v1/teams' , TeamsRouter);
 
+import TechsecyRouter from "./src/routes/techsecyRoutes.js";
+app.use("/api/v1/techsecy", TechsecyRouter);
+
+
 
 connectDB()
 .then(()=>{

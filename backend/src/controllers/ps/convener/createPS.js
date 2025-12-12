@@ -1,3 +1,4 @@
+import mongoose from "mongoose";
 import PS from "../../../model/ps.js";
 
 export const createPS = async (req, res) => {
@@ -33,12 +34,12 @@ export const createPS = async (req, res) => {
     if (!urlRegex.test(pdf)) {
       return res.status(400).json({ message: "Invalid PDF URL" });
     }
-    const judgeFinal = judge && judge.trim()!== "" ? judge : null;
+    const judgeFinal = judge && judge.trim() !== "" ? new mongoose.Types.ObjectId(judge) : null;
+
     const newPS = new PS({
       name,
       registrationDeadline,
       submissionDeadline,
-      judge: judgeFinal,
       pdf,
       midEvalExist,
       midEvalSubmissionDeadline,
@@ -57,13 +58,15 @@ export const createPS = async (req, res) => {
       .status(201)
       .json({ message: "Problem statement created successfully", ps: newPS });
   } catch (error) {
-    if (error.code === 11000) {
-      return res
-        .status(400)
-        .json({ message: "PS with this name already exists" });
-    }
-    res
-      .status(500)
-      .json({ message: "Internal Server Error", error: error.message });
+  console.error("createPS error:", error);   // <‑ add this
+  if (error.code === 11000) {
+    return res
+      .status(400)
+      .json({ message: "PS with this name already exists" });
   }
+  res
+    .status(500)
+    .json({ message: "Internal Server Error", error: error.message });
+}
+
 };

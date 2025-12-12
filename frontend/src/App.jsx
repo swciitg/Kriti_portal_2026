@@ -10,6 +10,8 @@ import SuperAdminDashboard from "./pages/superAdmin/dashboard.jsx"
 import PSManager from "./pages/convener/psManager.jsx"
 import PSDetails from "./pages/convener/psDetails.jsx"
 import PSCreate from "./pages/convener/psCreate.jsx"
+import TechSecyPanel from "./pages/techsecy/TechSecyPanel.jsx"
+import TechSecySubmissions from "./pages/techsecy/TechSecySubmissions.jsx"
 
 
 function App() {
@@ -28,6 +30,9 @@ function App() {
 
           <Route path="/superadmin/sign-in" element={<SuperAdminSignIn />} />
           <Route path="/superadmin" element={<SuperAdminDashboard />} />
+
+          <Route path="/techsecy" element={<TechSecyPanel />} />
+          <Route path="/techsecy/submissions/:psId" element={<TechSecySubmissions />} />
         </Routes>
       </BrowserRouter>
       <Footer />
