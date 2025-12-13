@@ -9,6 +9,7 @@ export const updatePS = async (req, res) => {
       "submissionDeadline",
       "prep",
       "pdf",
+      "teamStrength",
     ];
     for(const field of requiredFields) {
       if(!updates[field]){
@@ -25,6 +26,10 @@ export const updatePS = async (req, res) => {
         if (!urlRegex.test(updates.pdf)) {
           return res.status(400).json({ message: "Invalid PDF URL format" });
         }
+      }
+      if(updates.judge !== undefined){
+        updates.judge =
+          updates.judge && updates.judge.trim() !== "" ? updates.judge : null;
       }
     const updatePS = await PS.findByIdAndUpdate(req.params.id, updates, {
       new: true,

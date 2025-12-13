@@ -39,8 +39,8 @@ function HostelJudging() {
         const response = await fetch(`${BACKEND_URL}/api/v1/judge/get-ps`, {
           method: "GET",
           headers : {
-            "Content-type" : "application/json" ,
-            "Authorization" : localStorage.getItem("accessToken")
+            "Content-Type" : "application/json" ,
+            "Authorization" : token ? `Bearer ${token}` : ""
           }
         });
 
@@ -128,11 +128,12 @@ function HostelJudging() {
         scores[criterion.field] || 0
       );
 
+      const token = localStorage.getItem("accessToken") || user?.accessToken;
       const response = await fetch(`${BACKEND_URL}/api/v1/judge/save-ppt-scores`, {
         method: "POST",
         headers: {
-          "Content-type": "application/json",
-          "Authorization": localStorage.getItem("accessToken")
+          "Content-Type": "application/json",
+          "Authorization": token ? `Bearer ${token}` : ""
         },
         body: JSON.stringify({
           submissionId: currentSubmission._id,

@@ -25,8 +25,8 @@ export default function SignIn() {
     try {
       const res = await fetch(`${BACKEND_URL}/api/v1/auth/sign-in`, {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json"
+        headers: { 
+          "Content-Type": "application/json" 
         },
         body: JSON.stringify(form)
       })
@@ -37,19 +37,14 @@ export default function SignIn() {
         return
       }
 
-      if (data.accessToken) localStorage.setItem("accessToken", data.accessToken)
-      updateUser(data.user)
+      if (data.accessToken){
+        localStorage.setItem("accessToken", data.accessToken);
+        localStorage.setItem("user", JSON.stringify(data.user));
+        updateUser(data.user);
+      }
 
       if(data.user.role === "Convener") {
         navigate('/convener')
-      }
-
-      if(data.user.role === "Judge") {
-        navigate('/judge/dashboard')
-      }
-
-      if(data.user.role === "Company") {
-        navigate('/company/dashboard')
       }
       // page redirect login based on role
 
@@ -96,10 +91,10 @@ export default function SignIn() {
           <p className="text-sm font-medium text-gray-700">Select Role</p>
           <div className="grid grid-cols-2 gap-2 text-gray-700">
             {[
-            // ["SuperAdmin" , "Super Admin"],
-            ["Convener" , "Kriti Convener"],
-            ["Company" , "Company POC"],
-            ["Judge" , "Problem Statement Judge"],
+            // ["SuperAdmin" , "Super Admin"], 
+            ["Convener" , "Kriti Convener"], 
+            ["Company" , "Company POC"], 
+            ["Judge" , "Problem Statement Judge"], 
             ["TechSecy" , "Hostel Technical Secretary"]].map(r => (
               <label key={r[0]} className="flex items-center gap-2 bg-gray-50 px-3 py-2 rounded-lg border cursor-pointer">
                 <input
@@ -127,7 +122,7 @@ export default function SignIn() {
             navigate('/superadmin/sign-in')
         }}
         className="text-blue-500 text-md cursor-pointer"
-        >
+        >   
             Sign-In as Super Admin
         </p>
       </form>

@@ -32,11 +32,12 @@ export default function SuperAdminDashboard() {
   async function getInfo() {
     try {
       setError("");
+      const token = localStorage.getItem("accessToken");
       const response = await fetch(`${BACKEND_URL}/api/v1/superadmin/get-info` , {
         method : "GET" , 
         headers : {
-          "Content-type" : "application/json" , 
-          "Authorization" : localStorage.getItem("accessToken")
+          "Content-Type" : "application/json" , 
+          "Authorization" : token ? `Bearer ${token}` : ""
         }
       });
   

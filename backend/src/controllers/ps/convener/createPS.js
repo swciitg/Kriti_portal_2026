@@ -1,69 +1,113 @@
+// controllers/ps/convener/createPS.js
 import PS from "../../../model/ps.js";
 
 export const createPS = async (req, res) => {
   try {
     const {
       name,
-      registrationDeadline,
+      prep,
+      startDate,
       submissionDeadline,
-      judge,
-      pdf,
       midEvalExist,
       midEvalSubmissionDeadline,
-      prep,
-      points,
-      midEvalSubmissionDeliverables,
+      judge,
+      companyPOC,
+      pdf,
       submissionDeliverables,
-      midEvalPointsDistribution,
+      midEvalSubmissionDeliverables,
       submissionPointsDistribution,
       pptPointsDistribution,
+      points,
+      teamStrength,
       pptSchedule,
-      rankings,
     } = req.body;
+
     if (
       !name ||
-      !registrationDeadline ||
+      !prep ||
+      !startDate ||
       !submissionDeadline ||
       !pdf ||
-      !prep
+      points == null ||
+      teamStrength == null
     ) {
-      return res.status(400).json({ message: "Missing required fields" });
-    }
-    const urlRegex = /^https?:\/\/.+/;
-    if (!urlRegex.test(pdf)) {
-      return res.status(400).json({ message: "Invalid PDF URL" });
-    }
-    const judgeFinal = judge && judge.trim()!== "" ? judge : null;
-    const newPS = new PS({
-      name,
-      registrationDeadline,
-      submissionDeadline,
-      judge: judgeFinal,
-      pdf,
-      midEvalExist,
-      midEvalSubmissionDeadline,
-      prep,
-      points,
-      midEvalSubmissionDeliverables,
-      submissionDeliverables,
-      midEvalPointsDistribution,
-      submissionPointsDistribution,
-      pptPointsDistribution,
-      pptSchedule,
-      rankings,
-    });
-    await newPS.save();
-    res
-      .status(201)
-      .json({ message: "Problem statement created successfully", ps: newPS });
-  } catch (error) {
-    if (error.code === 11000) {
       return res
         .status(400)
-        .json({ message: "PS with this name already exists" });
+        .json({ success: false, message: "Missing required fields" });
+    }
+
+    const urlRegex = /^https?:\/\/.+/;
+    if (!urlRegex.test(pdf)) {
+      return res
+        .status(400)
+        .json({ success: false, message: "Invalid PDF URL" });
+    }
+
+    if (pptSchedule && !urlRegex.test(pptSchedule)) {
+      return res
+        .status(400)
+        .json({ success: false, message: "Invalid PPT schedule URL" });
+    }
+
+    if (midEvalExist && !midEvalSubmissionDeadline) {
+      return res.status(400).json({
+        success: false,
+        message: "Mid evaluation submission deadline is required",
+      });
+    }
+
+    const judgeFinal =
+      judge && typeof judge === "string" && judge.trim() !== ""
+        ? judge
+        : null;
+    const companyPOCFinal =
+      companyPOC && typeof companyPOC === "string" && companyPOC.trim() !== ""
+        ? companyPOC
+        : null;
+
+    const pptScheduleFinal =
+      pptSchedule && pptSchedule.trim() !== "" ? pptSchedule : undefined;
+
+    const newPS = new PS({
+      name: name.trim(),
+      prep,
+      startDate,
+      submissionDeadline,
+      midEvalExist,
+      midEvalSubmissionDeadline: midEvalExist
+        ? midEvalSubmissionDeadline
+        : undefined,
+      judge: judgeFinal,
+      companyPOC: companyPOCFinal,
+      pdf,
+      submissionDeliverables: submissionDeliverables || [],
+      midEvalSubmissionDeliverables: midEvalExist
+        ? midEvalSubmissionDeliverables || []
+        : [],
+      submissionPointsDistribution: submissionPointsDistribution || [],
+      pptPointsDistribution: pptPointsDistribution || [],
+      points,
+      teamStrength,
+      pptSchedule: pptScheduleFinal,
+    });
+
+    await newPS.save();
+
+    res.status(201).json({
+      success: true,
+      message: "Problem statement created successfully",
+      ps: newPS,
+    });
+  } catch (error) {
+    console.error("Error creating PS:", error);
+    if (error.code === 11000) {
+      return res.status(400).json({
+        success: false,
+        message: "PS with this name already exists",
+      });
     }
     res
       .status(500)
-      .json({ message: "Internal Server Error", error: error.message });
+      .json({ success: false, message: "Internal Server Error" });
   }
 };
