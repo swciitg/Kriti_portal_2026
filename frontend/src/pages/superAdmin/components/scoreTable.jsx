@@ -76,6 +76,8 @@ export default function ScoreTable({problemStatements , hostelIds , setError}) {
             _weightage.push(item.weightage);
         })
 
+
+
         setColumns(_columns);
         setFieldWeightage(_weightage);
     } , [selectedId , pointsTable])
@@ -177,7 +179,7 @@ export default function ScoreTable({problemStatements , hostelIds , setError}) {
 
                                         
                                         let _scores = [];
-                                        if(_submissions.final !== undefined) {
+                                        if(_submissions.final !== undefined && _submissions.final?.length > 0) {
                                             _scores = [..._scores  , ..._submissions.final];
                                         } else {
                                             // add '-' for ps.submissionPointsDistribution.length times to _scores
@@ -186,7 +188,7 @@ export default function ScoreTable({problemStatements , hostelIds , setError}) {
                                                 _scores.push(null);
                                             }
                                         }
-                                        if(_submissions.midEval !== undefined) {
+                                        if(_submissions.midEval !== undefined && _submissions.midEval?.length > 0) {
                                             _scores = [..._scores  , ..._submissions.midEval];
                                         } else if(ps.midEvalExist) {
                                             // add '-' for ps.midEvalPointsDistribution.length times 
@@ -195,7 +197,7 @@ export default function ScoreTable({problemStatements , hostelIds , setError}) {
                                                 _scores.push(null);
                                             }
                                         }
-                                        if(_submissions.ppt !== undefined) {
+                                        if(_submissions.ppt !== undefined && _submissions.ppt?.length > 0) {
                                             _scores = [..._scores  , ..._submissions.ppt];
                                         } else {
                                             // add '-' for ps.pptPointsDistribution.length times 
@@ -204,11 +206,12 @@ export default function ScoreTable({problemStatements , hostelIds , setError}) {
                                                 _scores.push(null);
                                             }
                                         }
+
                                         
-                                        let _totalScore = _scores.reduce((acc , item) => {
-                                            if(item) {
+                                        let _totalScore = _scores.reduce((acc , item , idx) => {
+                                            if(item && fieldWeightage?.length > 0) {
                                                 if(!isNaN(Number(item))) {
-                                                    acc += Number(item);
+                                                    acc += Number(item) * fieldWeightage[idx] * 0.01;
                                                 }
                                             }
                                             return acc;
@@ -217,16 +220,14 @@ export default function ScoreTable({problemStatements , hostelIds , setError}) {
                                         _totalPenaltyPercent = Math.min(100 , _totalPenaltyPercent);
                                         
                                         let _finalScore = Math.max( 0 , _totalScore - _totalPenaltyPercent*0.01*ps.points);
-                                        // if(hostelId === 1) {
+                                        // if(hostelId === 204) {
                                         //     console.log(_scores)
                                         // console.log(_totalScore)
                                         // console.log(_totalPenaltyPercent)
                                         // console.log(_finalScore)
                                         //     console.log(_penalty)
                                         // }
-                                        /**
-                                         * we have the _scores[], _penalty[], _totalScore , _totalPenaltyPercent , __finalScore
-                                         */
+                                
 
                                         return(
                                             

@@ -5,35 +5,7 @@ import {BACKEND_URL} from "../../../constants.js"
 export default function TeamsCard({id , name , close}) {
   const [selectedHostel, setSelectedHostel] = useState(null)
 
-  const [teams , setTeams] = useState([
-    // {
-    //   hostelId: 1,
-    //   submitted: true,
-    //   teamMember: [
-    //     { name: "Aarav Singh", email: "aarav@xyz.com", rollNumber: 21001 },
-    //     { name: "Riya Sharma", email: "riya@xyz.com", rollNumber: 21002 },
-    //     { name: "Riya Sharma", email: "riya@xyz.com", rollNumber: 21006 },
-    //     { name: "Riya Sharma", email: "riya@xyz.com", rollNumber: 21005 },
-    //     { name: "Riya Sharma", email: "riya@xyz.com", rollNumber: 21004 }
-    //   ]
-    // },
-    // {
-    //   hostelId: 2,
-    //   submitted: false,
-    //   teamMember: [
-    //     { name: "Rohan Jain", email: "rohan@xyz.com", rollNumber: 21015 },
-    //     { name: "Kriti Verma", email: "kriti@xyz.com", rollNumber: 21018 },
-    //   ]
-    // },
-    // {
-    //   hostelId: 3,
-    //   submitted: true,
-    //   teamMember: [
-    //     { name: "Ishan Mehta", email: "ishan@xyz.com", rollNumber: 21029 },
-    //     { name: "Nandini Rao", email: "nandini@xyz.com", rollNumber: 21033 },
-    //   ]
-    // }
-  ])
+  const [teams , setTeams] = useState([])
 
 
     const [error, setError] = useState("");
@@ -69,8 +41,9 @@ export default function TeamsCard({id , name , close}) {
             setError(data.message);
             return;
           }
-    
-          setTeams(data.teams);
+          if(data.teams?.length > 0) {
+            setTeams(data.teams);
+          }
         } catch (error) {
           console.log(error)
           setError("Some Error Occured!");
