@@ -39,8 +39,10 @@ import JudgeRouter from "./src/routes/judgeRoutes.js"
 app.use('/api/v1/judge' , JudgeRouter);
 
 import CompanyRouter from "./src/routes/companyRoutes.js"
+import { mailInit } from "./src/utils/mail.js";
 app.use('/api/v1/company', CompanyRouter);
 
+mailInit();
 
 connectDB()
 .then(()=>{
