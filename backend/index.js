@@ -2,6 +2,7 @@ import express from "express";
 import cors from "cors";
 import dotenv from "dotenv";
 import connectDB from "./src/db/connect.js";
+import cookieParser from "cookie-parser";
 import { mailInit } from "./src/utils/mail.js";
 
 dotenv.config();
@@ -9,14 +10,24 @@ dotenv.config();
 const app = express();
 const PORT = process.env.PORT || 5000;
 
-app.use(cors({
-  origin : process.env.CORS_ALLOWED_ORIGINS
-}));
+app.use(cookieParser());
+app.use(
+  cors({
+    origin: process.env.CORS_ALLOWED_ORIGINS,
+    methods: ["GET", "POST", "PUT", "PATCH", "DELETE"],
+    credentials: true,
+  })
+);
 app.use(express.json());
 
 // app.get("/", (req, res) => {
 //   res.send("Hi");
 // });
+
+app.use((req, res, next) => {
+  res.header("Access-Control-Allow-Credentials", "true");
+  next();
+});
 
 import ConvenerRouter from "./src/routes/convenerRoute.js"
 app.use('/api/v1/convener' , ConvenerRouter);
@@ -35,6 +46,9 @@ app.use('/api/v1/submission' , SubmissionRouter);
 
 import TeamsRouter from "./src/routes/teamsRoutes.js"
 app.use('/api/v1/teams' , TeamsRouter);
+
+import TechSecyRouter from "./src/routes/techSecyRoutes.js";
+app.use('/api/v1/techsecy', TechSecyRouter);
 
 import JudgeRouter from "./src/routes/judgeRoutes.js"
 app.use('/api/v1/judge' , JudgeRouter);

@@ -39,8 +39,8 @@ function SubmissionJudging() {
         const response = await fetch(`${BACKEND_URL}/api/v1/company/get-sub`, {
           method: "GET",
           headers : {
-            "Content-type" : "application/json" ,
-            "Authorization" : localStorage.getItem("accessToken")
+            "Content-Type" : "application/json" ,
+            "Authorization" : token ? `Bearer ${token}` : ""
           }
         });
 
@@ -128,11 +128,12 @@ function SubmissionJudging() {
         scores[criterion.field] || 0
       );
 
+      const token = localStorage.getItem("accessToken") || user?.accessToken;
       const response = await fetch(`${BACKEND_URL}/api/v1/company/save-sub`, {
         method: "POST",
         headers: {
-          "Content-type": "application/json",
-          "Authorization": localStorage.getItem("accessToken")
+          "Content-Type": "application/json",
+          "Authorization": token ? `Bearer ${token}` : ""
         },
         body: JSON.stringify({
           submissionId: currentSubmission._id,

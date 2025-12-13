@@ -1,32 +1,95 @@
+// model/ps.js
 import mongoose from "mongoose";
 
-const DeliverableSchema = new mongoose.Schema({
-  name : String,
-  type : { type : String, enum : ["URL", "pdf", "zip", "ipynb", "docs", "pptx"] }
-});
+const DeliverableSchema = new mongoose.Schema(
+  {
+    name: { type: String, required: true },
+    type: {
+      type: String,
+      enum: ["url", "pdf", "zip", "ipynb", "doc", "pptx", "png", "jpg"],
+      required: true,
+    },
+  },
+  { _id: false }
+);
 
-const PointsDistributionSchema = new mongoose.Schema({
-  field : String,
-  weightage : Number
-});
+const PointsItemSchema = new mongoose.Schema(
+  {
+    field: { type: String, required: true },
+    weightage: { type: Number, required: true, min: 0, max: 100 },
+  },
+  { _id: false }
+);
 
-const PSSchema = new mongoose.Schema({
-  name: { type: String, required: true, unique: true },
-  registrationDeadline: { type: Date, required: true },
-  submissionDeadline: { type: Date, required: true },
-  judge: { type: mongoose.Schema.Types.ObjectId, ref: "User", required: false },
-  pdf: { type: String, match: /^https?:\/\/.+/, required: true },
-  midEvalExist: { type: Boolean, default: false },
-  midEvalSubmissionDeadline: { type: Date, default: null },
-  prep: { type: String, enum: ["high", "mid", "low", "no"], required: true },
-  points: Number,
-  midEvalSubmissionDeliverables: [DeliverableSchema],
-  submissionDeliverables: [DeliverableSchema],
-  midEvalPointsDistribution: [PointsDistributionSchema],
-  submissionPointsDistribution: [PointsDistributionSchema],
-  pptPointsDistribution: [PointsDistributionSchema],
-  pptSchedule: { type: String, match: /^https? :\/\/.+/ },
-  rankings: [{ hostel_id: Number }],
-});
+const PSSchema = new mongoose.Schema(
+  {
+    name: { type: String, required: true, trim: true, unique: true },
+    prep: {
+      type: String,
+      enum: ["high", "mid", "low", "no"],
+      required: true,
+    },
 
-export default mongoose.model("PS", PSSchema);
+    startDate: { type: Date, required: true },
+    submissionDeadline: { type: Date, required: true },
+
+    midEvalExist: { type: Boolean, default: false },
+    midEvalSubmissionDeadline: { type: Date },
+
+    judge: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "User",
+      required: false,
+      default: null,
+    },
+    companyPOC: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "User",
+      required: false,
+      default: null,
+    },
+
+    pdf: {
+      type: String,
+      required: true,
+      match: /^https?:\/\/.+/,
+    },
+
+    submissionDeliverables: { type: [DeliverableSchema], default: [] },
+    midEvalSubmissionDeliverables: { type: [DeliverableSchema], default: [] },
+
+    submissionPointsDistribution: { type: [PointsItemSchema], default: [] },
+    pptPointsDistribution: { type: [PointsItemSchema], default: [] },
+
+    points: { type: Number, required: true, min: 0 },
+    teamStrength: { type: Number, required: true, min: 1 },
+
+    pptSchedule: {
+      type: String,
+      required: false,
+      match: /^https?:\/\/.+/,
+    },
+  },
+  { timestamps: true }
+);
+
+// custom validators
+PSSchema.path("midEvalSubmissionDeadline").validate(function (value) {
+  if (this.midEvalExist && !value) return false;
+  return true;
+}, "Mid evaluation submission deadline is required when midEvalExist is true.");
+
+PSSchema.path("submissionPointsDistribution").validate(function (value) {
+  if (!value || !value.length) return true;
+  const total = value.reduce((sum, item) => sum + (item.weightage || 0), 0);
+  return total === 100;
+}, "Submission points distribution must total 100.");
+
+PSSchema.path("pptPointsDistribution").validate(function (value) {
+  if (!value || !value.length) return true;
+  const total = value.reduce((sum, item) => sum + (item.weightage || 0), 0);
+  return total === 100;
+}, "PPT points distribution must total 100.");
+
+const PS = mongoose.model("PS", PSSchema);
+export default PS;

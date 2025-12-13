@@ -37,8 +37,8 @@ function CompanyDashboard() {
         const response = await fetch(`${BACKEND_URL}/api/v1/company/get-sub`, {
           method: "GET",
           headers: {
-            "Content-type": "application/json",
-            "Authorization": localStorage.getItem("accessToken")
+            "Content-Type": "application/json",
+            "Authorization": token ? `Bearer ${token}` : ""
           }
         });
 

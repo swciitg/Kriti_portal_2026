@@ -55,11 +55,12 @@ export default function TeamsCard({id , name , close}) {
       async function getSubmission() {
         try {
           setError('');
+          const token = localStorage.getItem("accessToken");
           const response = await fetch(`${BACKEND_URL}/api/v1/teams/get-all/${id}` , {
             method : "GET" , 
             headers : {
-              "Content-type" : "application/json" , 
-              "Authorization" : localStorage.getItem("accessToken")
+              "Content-Type" : "application/json" , 
+              "Authorization" : token ? `Bearer ${token}` : ""
             }
           });
           

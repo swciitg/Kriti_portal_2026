@@ -16,11 +16,12 @@ export default function AuthButton() {
 
     async function LogoutHandler() {
         try {
+            const token = localStorage.getItem("accessToken");
             const res = await fetch(`${BACKEND_URL}/api/v1/auth/logout` , {
                 method : "GET" , 
                 headers : {
                     "Content-Type": "application/json"  ,
-                    "Authorization" : localStorage.getItem("accessToken")
+                    "Authorization" : token ? `Bearer ${token}` : ""
                 }
             });
     

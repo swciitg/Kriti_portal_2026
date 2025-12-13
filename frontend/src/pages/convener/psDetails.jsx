@@ -24,6 +24,8 @@ export default function PSDetailsPage() {
     submissionPointsDistribution: [],
     pptPointsDistribution: [],
     pptSchedule: "",
+    teamStrength: 0,
+    judgePointsDisribution: [],
   });
 
   const [loading, setLoading] = useState(true);
@@ -50,7 +52,8 @@ export default function PSDetailsPage() {
         const data = await res.json();
         if (!res.ok) throw new Error(data.message);
 
-        setPs({
+        setPs((prev) => ({
+          ...prev,
           ...data.ps,
           midEvalSubmissionDeliverables:
             data.ps.midEvalSubmissionDeliverables || [],
@@ -59,7 +62,8 @@ export default function PSDetailsPage() {
           submissionPointsDistribution:
             data.ps.submissionPointsDistribution || [],
           pptPointsDistribution: data.ps.pptPointsDistribution || [],
-        });
+          judgePointsDisribution: data.ps.judgePointsDisribution || [],
+        }));
       } catch (e) {
         setError(e.message);
       } finally {
@@ -96,13 +100,14 @@ export default function PSDetailsPage() {
   const handleUpdate = async () => {
     try {
       setSaving(true);
+      const token = localStorage.getItem("accessToken");
       const res = await fetch(
         `${BACKEND_URL}/api/v1/convener/update-ps/${id}`,
         {
           method: "PUT",
           headers: {
             "Content-Type": "application/json",
-            Authorization: localStorage.getItem("accessToken"),
+            Authorization: token ? `Bearer ${token}` : "",
           },
           body: JSON.stringify(ps),
         }
@@ -122,11 +127,12 @@ export default function PSDetailsPage() {
     if (!confirm("Are you sure you want to delete this PS?")) return;
     try {
       setDeleting(true);
+      const token = localStorage.getItem("accessToken");
       const res = await fetch(
         `${BACKEND_URL}/api/v1/convener/delete-ps/${id}`,
         {
           method: "DELETE",
-          headers: { Authorization: localStorage.getItem("accessToken") },
+          headers: { Authorization: token ? `Bearer ${token}` : "" },
         }
       );
       const data = await res.json();
@@ -159,14 +165,18 @@ export default function PSDetailsPage() {
               onChange={handleChange}
               placeholder="Name"
             />
-            <input
+            <select
               className="w-full border p-2 rounded"
-              type="string"
               name="prep"
               value={ps.prep}
               onChange={handleChange}
-              placeholder="Prep"
-            />
+            >
+              {["high", "mid", "low", "no"].map((level) => (
+                <option key={level} value={level}>
+                  {level.toUpperCase()}
+                </option>
+              ))}
+            </select>
             <input
               className="w-full border p-2 rounded"
               type="datetime-local"
@@ -407,55 +417,57 @@ export default function PSDetailsPage() {
             </div>
 
             {/* Points Distribution and PPT */}
-            {["submissionPointsDistribution", "pptPointsDistribution"].map(
-              (field) => (
-                <div key={field} className="space-y-2">
-                  <h4 className="font-semibold">{field}</h4>
-                  {ps[field].map((item, idx) => (
-                    <div key={idx} className="flex gap-2 mb-2">
-                      <input
-                        className="border p-1 rounded flex-1"
-                        placeholder="Field"
-                        value={item.field}
-                        onChange={(e) =>
-                          handleArrayChange(field, idx, "field", e.target.value)
-                        }
-                      />
-                      <input
-                        className="border p-1 rounded w-24"
-                        type="number"
-                        placeholder="Weightage"
-                        value={item.weightage}
-                        onChange={(e) =>
-                          handleArrayChange(
-                            field,
-                            idx,
-                            "weightage",
-                            e.target.value
-                          )
-                        }
-                      />
-                      <button
-                        type="button"
-                        onClick={() => handleRemoveArrayItem(field, idx)}
-                        className="bg-red-500 text-white px-2 rounded"
-                      >
-                        X
-                      </button>
-                    </div>
-                  ))}
-                  <button
-                    type="button"
-                    onClick={() =>
-                      handleAddArrayItem(field, { field: "", weightage: 0 })
-                    }
-                    className="bg-green-500 text-white px-2 rounded"
-                  >
-                    Add {field}
-                  </button>
-                </div>
-              )
-            )}
+            {[
+              "submissionPointsDistribution",
+              "pptPointsDistribution",
+              "judgePointsDisribution",
+            ].map((field) => (
+              <div key={field} className="space-y-2">
+                <h4 className="font-semibold">{field}</h4>
+                {ps[field].map((item, idx) => (
+                  <div key={idx} className="flex gap-2 mb-2">
+                    <input
+                      className="border p-1 rounded flex-1"
+                      placeholder="Field"
+                      value={item.field}
+                      onChange={(e) =>
+                        handleArrayChange(field, idx, "field", e.target.value)
+                      }
+                    />
+                    <input
+                      className="border p-1 rounded w-24"
+                      type="number"
+                      placeholder="Weightage"
+                      value={item.weightage}
+                      onChange={(e) =>
+                        handleArrayChange(
+                          field,
+                          idx,
+                          "weightage",
+                          e.target.value
+                        )
+                      }
+                    />
+                    <button
+                      type="button"
+                      onClick={() => handleRemoveArrayItem(field, idx)}
+                      className="bg-red-500 text-white px-2 rounded"
+                    >
+                      X
+                    </button>
+                  </div>
+                ))}
+                <button
+                  type="button"
+                  onClick={() =>
+                    handleAddArrayItem(field, { field: "", weightage: 0 })
+                  }
+                  className="bg-green-500 text-white px-2 rounded"
+                >
+                  Add {field}
+                </button>
+              </div>
+            ))}
 
             {/* Points and PPT Schedule */}
             <input
@@ -472,6 +484,14 @@ export default function PSDetailsPage() {
               value={ps.pptSchedule}
               onChange={handleChange}
               placeholder="PPT Schedule (URL)"
+            />
+            <input
+              className="w-full border p-2 rounded"
+              type="number"
+              name="teamStrength"
+              value={ps.teamStrength}
+              onChange={handleChange}
+              placeholder="Team Strength"
             />
 
             {/* Actions */}
