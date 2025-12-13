@@ -1,4 +1,5 @@
 import judge from "../../model/judge.js";
+import company from "../../model/company.js";
 import ps from "../../model/ps.js";
 import techSecy from "../../model/techSecy.js";
 import user from "../../model/user.js";
@@ -8,41 +9,41 @@ export async function OnBoardUser(req , res) {
     try {
         const data = req.body;
         const {username , password , email , role} = data;
-    
+
         if([username , password , email , role].some(field => field === undefined || !field)) {
             return res.status(400).json({
                 "success" : false,
                 "message" : "All fields are necesaary"
             });
         }
-    
+
         if(!(["TechSecy", "Judge", "Company"].includes(role))) {
             return res.status(403).json({
                 "success" : false,
                 "message" : "Forbidden to assign undefined roles"
             });
         }
-    
+
         if(role === "TechSecy" && !data.hostelId) {
             return res.status(400).json({
                 "success" : false,
                 "message" : "Hostel ID is required field for Technical Secretary Onboarding"
             });
         }
-    
+
         // for company to be added later
-    
+
         const checkForExistingUser =  await user.findOne({
             $or:[{email} , {username}]
         });
-    
+
         if(checkForExistingUser) {
             return res.status(409).json({
                 "success" : false ,
                 "message" : "User with Similar Email or Username exists"
             });
         }
-    
+
         if(role === "TechSecy") {
             if(!data.hostelId) {
                 return res.status(400).json({
@@ -50,7 +51,7 @@ export async function OnBoardUser(req , res) {
                     "message" : "Hostel ID is required field for Technical Secretary Onboarding"
                 });
             }
-    
+
             const hostelIdCheck = await techSecy.findOne({hostelId : data.hostelId});
             if(hostelIdCheck) {
                 return res.status(409).json({
@@ -59,8 +60,8 @@ export async function OnBoardUser(req , res) {
                 });
             }
         }
-    
-    
+
+
         if(role === "Judge") {
             if(!data.ps) {
                 return res.status(400).json({
@@ -68,7 +69,7 @@ export async function OnBoardUser(req , res) {
                     "message" : "Problem Statement is required field for Judge Onboarding"
                 });
             }
-    
+
             const psExistenceCheck = await ps.findOne({name : data.ps});
             if(!psExistenceCheck) {
                 return res.status(404).json({
@@ -83,11 +84,38 @@ export async function OnBoardUser(req , res) {
                     "success" : false ,
                     "message" : "Judge for same Problem Statement exists"
                 });
-            } 
+            }
 
             data.ps = psExistenceCheck._id;
         }
-    
+
+        if(role === "Company") {
+            if(!data.ps) {
+                return res.status(400).json({
+                    "success" : false,
+                    "message" : "Problem Statement is required field for Company POC Onboarding"
+                });
+            }
+
+            const psExistenceCheck = await ps.findOne({name : data.ps});
+            if(!psExistenceCheck) {
+                return res.status(404).json({
+                    "success" : false ,
+                    "message" : "Problem Statement Not found"
+                });
+            }
+
+            const companyPSCheck = await company.findOne({ps : psExistenceCheck._id});
+            if(companyPSCheck) {
+                return res.status(409).json({
+                    "success" : false ,
+                    "message" : "Company POC for same Problem Statement exists"
+                });
+            }
+
+            data.ps = psExistenceCheck._id;
+        }
+
 
         const session = await mongoose.startSession();
         session.startTransaction();
@@ -98,17 +126,25 @@ export async function OnBoardUser(req , res) {
             password,
             role
         });
-    
+
         if(role === "TechSecy") {
             await techSecy.create({
-                user : newUser._id , 
+                user : newUser._id ,
                 hostelId : data.hostelId
             });
         }
-    
+
         if(role === "Judge") {
             await judge.create({
-                user : newUser._id , 
+                user : newUser._id ,
+                ps : data.ps ,
+                verified : false
+            });
+        }
+
+        if(role === "Company") {
+            await company.create({
+                user : newUser._id ,
                 ps : data.ps ,
                 verified : false
             });
@@ -116,8 +152,8 @@ export async function OnBoardUser(req , res) {
 
         await session.commitTransaction();
         session.endSession();
-        
-    
+
+
         return res.status(201).json({
             "success" : true
         });
@@ -125,7 +161,7 @@ export async function OnBoardUser(req , res) {
     } catch (error) {
         console.log(error);
         return res.status(500).json({
-            "success" : false , 
+            "success" : false ,
             "message" : "Internal Server Error Occured"
         })
     }

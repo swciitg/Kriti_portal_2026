@@ -5,6 +5,7 @@ import GroupSection from "./components/groupSection.jsx"
 import { useContext } from "react"
 import { userContext } from "../../context/userContext.jsx"
 import { BACKEND_URL } from "../../constants.js"
+import ScoreTable from "./components/scoreTable.jsx"
 
 export default function SuperAdminDashboard() {
   const [activePage, setActivePage] = useState("Problem Statements")
@@ -31,11 +32,12 @@ export default function SuperAdminDashboard() {
   async function getInfo() {
     try {
       setError("");
+      const token = localStorage.getItem("accessToken");
       const response = await fetch(`${BACKEND_URL}/api/v1/superadmin/get-info` , {
         method : "GET" , 
         headers : {
-          "Content-type" : "application/json" , 
-          "Authorization" : localStorage.getItem("accessToken")
+          "Content-Type" : "application/json" , 
+          "Authorization" : token ? `Bearer ${token}` : ""
         }
       });
   
@@ -49,41 +51,16 @@ export default function SuperAdminDashboard() {
       if(data.ps?.length > 0) {
         setProblemStatements(data.ps);
       } else {
-        // remove this before commit 
-        setProblemStatements([
-          {
-  _id: "ps_high_2",
-  name: "Autonomous Drone Fault Diagnosis",
-  registrationDeadline: "2025-01-09",
-  submissionDeadline: "2025-02-05",
-  prep: "high"
-},
-{
-  _id: "ps_high_3",
-  name: "Real-Time Traffic Prediction Engine",
-  registrationDeadline: "2025-01-11",
-  submissionDeadline: "2025-02-08",
-  prep: "high"
-},
-{
-  _id: "ps_high_4",
-  name: "Secure Multi-Party Voting Protocol",
-  registrationDeadline: "2025-01-14",
-  submissionDeadline: "2025-02-12",
-  prep: "low"
-},
-{
-  _id: "ps_high_5",
-  name: "Advanced Healthcare Risk Stratification ML",
-  registrationDeadline: "2025-01-18",
-  submissionDeadline: "2025-02-15",
-  prep: "no"
-}
-
-        ])
+        // remove this before commit
+        // setProblemStatements(fakePS);
       }
+      
       if(data.hostelId?.length > 0) {
         setHostelIds(data.hostelId);
+        // setHostelIds([1,2,3,4,5,6,7,8,9,10]);
+      } else {
+        // remove this before commit
+        // setHostelIds([1,2,3,4,5,6,7,8,9,10]);
       }
       setError('');
     } catch (error) {
@@ -115,7 +92,7 @@ export default function SuperAdminDashboard() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-100 flex px-4 sm:px-8 md:px-16 lg:px-32 xl:px-64 pb-4 sm:pb-8 md:pb-12 lg:pb-16">
+    <div className="min-h-screen bg-gray-100 flex px-4 sm:px-8 md:px-16 lg:px-32 xl:px-64 pb-4">
 
     {error && (
       <div className="flex justify-center items-center fixed top-0 left-0 w-[100vw] h-[100vh]">
@@ -125,7 +102,7 @@ export default function SuperAdminDashboard() {
 
     <SideBar activePage={activePage} setActivePage={setActivePage}/>
 
-    <div className={`flex-1 p-6 transition-all`}>
+    <div className="p-6 transition-all w-full">
       <h1 className="text-3xl font-semibold text-gray-800 mb-6 pt-8 lg:pt-0">{activePage}</h1>
 
 
@@ -158,11 +135,10 @@ export default function SuperAdminDashboard() {
         </div>
       )}
 
-      {activePage !== "Problem Statements" && (
-        <div className="text-gray-600 text-lg">
-          This section will be developed later.
-        </div>
-      )}
+      {
+        activePage === "Score Table" && 
+        <ScoreTable problemStatements={problemStatements} hostelIds={hostelIds} error = {error} setError={setError}/>
+      }
     </div>
   </div>
   )

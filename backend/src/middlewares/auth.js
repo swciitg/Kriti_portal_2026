@@ -1,6 +1,6 @@
-import jwt from 'jsonwebtoken'
-import superAdmin from '../model/superAdmin.js';
-import User from '../model/user.js';
+import jwt from "jsonwebtoken";
+import superAdmin from "../model/superAdmin.js";
+import User from "../model/user.js";
 
 export async function verifyJWT(req, res, next) {
   try {
@@ -22,6 +22,7 @@ export async function verifyJWT(req, res, next) {
       });
     }
 
+    // IMPORTANT: use the same secret as in generateAccessToken
     const decodedToken = jwt.verify(token, process.env.ACCESS_TOKEN_SECRET);
 
     if (
@@ -43,10 +44,10 @@ export async function verifyJWT(req, res, next) {
           message: "User not found",
         });
       }
-      // FIX: assign the found document, not the model
       req.user = superadmin;
       return next();
     } else {
+      // token was created with { id: this.id, ... }
       const user = await User.findById(decodedToken?._id).select("-password");
       if (!user) {
         return res.status(404).json({
@@ -66,6 +67,7 @@ export async function verifyJWT(req, res, next) {
     });
   }
 }
+
 
 export function handleRouteAccess(req, res, next) {
   const route = req.originalUrl;
@@ -108,7 +110,10 @@ export function handleRouteAccess(req, res, next) {
       });
     }
 
-    const allowed = ["/api/v1/superadmin/get-info"];
+        const allowed = [
+            "/api/v1/superadmin/get-info",
+            "/api/v1/superadmin/get-points"
+        ];
 
     const startsWithAllowed = [
       "/api/v1/submission/get-all/",
@@ -141,7 +146,25 @@ export function handleRouteAccess(req, res, next) {
     }
   }
 
-  // similar logic for Judge, Company etc. can be added here
+  if(role === "Company") {
+        const allowed = [
+            "/api/v1/company/get-sub",
+            "/api/v1/company/save-sub",
+        ];
+        if (
+          !allowed.includes(route)
+        ) {
+          return res
+            .status(403)
+            .json({
+              success: false,
+              message: "Forbidden to access this route",
+            });
+        }
+    }
+
+    // will do similar for other roles as well
+  
 
   next();
 }

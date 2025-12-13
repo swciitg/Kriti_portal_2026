@@ -100,13 +100,14 @@ export default function PSDetailsPage() {
   const handleUpdate = async () => {
     try {
       setSaving(true);
+      const token = localStorage.getItem("accessToken");
       const res = await fetch(
         `${BACKEND_URL}/api/v1/convener/update-ps/${id}`,
         {
           method: "PUT",
           headers: {
             "Content-Type": "application/json",
-            Authorization: localStorage.getItem("accessToken"),
+            Authorization: token ? `Bearer ${token}` : "",
           },
           body: JSON.stringify(ps),
         }
@@ -126,11 +127,12 @@ export default function PSDetailsPage() {
     if (!confirm("Are you sure you want to delete this PS?")) return;
     try {
       setDeleting(true);
+      const token = localStorage.getItem("accessToken");
       const res = await fetch(
         `${BACKEND_URL}/api/v1/convener/delete-ps/${id}`,
         {
           method: "DELETE",
-          headers: { Authorization: localStorage.getItem("accessToken") },
+          headers: { Authorization: token ? `Bearer ${token}` : "" },
         }
       );
       const data = await res.json();

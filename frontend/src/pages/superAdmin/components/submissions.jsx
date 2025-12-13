@@ -5,44 +5,7 @@ import {BACKEND_URL} from "../../../constants.js"
 export default function SubmissionsCard({ id, name, close }) {
   const [selectedHostel, setSelectedHostel] = useState(null)
 
-  const [submissions, setSubmissions] = useState([
-    // {
-    //   hostelId: 1,
-    //   midEval: true,
-    //   submissionTime: "2025-12-08T10:30:00Z",
-    //   penalty: [{ category: "Format Issue", weightage: 2 }],
-    //   deliverables: [{ name: "Mid PPT", url: "https://example.com/mid1" }],
-    //   pptPointsDistibution: [7, 8, 9],
-    //   submissionPointsDistribution: [8, 8, 10],
-    // },
-    // {
-    //   hostelId: 1,
-    //   midEval: false,
-    //   submissionTime: "2025-12-10T11:00:00Z",
-    //   penalty: [{ category: "Late Submission", weightage: 4 }],
-    //   deliverables: [{ name: "Final Report", url: "https://example.com/final1.pdf" }],
-    //   pptPointsDistibution: [8, 8, 9],
-    //   submissionPointsDistribution: [9, 9, 10],
-    // },
-    // {
-    //   hostelId: 2,
-    //   midEval: false,
-    //   submissionTime: "2025-12-09T14:15:00Z",
-    //   penalty: [{ category: "Late Submission", weightage: 3 }],
-    //   deliverables: [{ name: "Prototype", url: "https://example.com/proto2" }],
-    //   pptPointsDistibution: [6, 5, 7],
-    //   submissionPointsDistribution: [7, 6, 9],
-    // },
-    // {
-    //   hostelId: 3,
-    //   midEval: true,
-    //   submissionTime: "2025-12-08T18:45:00Z",
-    //   penalty: [],
-    //   deliverables: [{ name: "Presentation", url: "https://example.com/ppt3.pdf" }],
-    //   pptPointsDistibution: [9, 9, 10],
-    //   submissionPointsDistribution: [9, 9, 10],
-    // },
-  ])
+  const [submissions, setSubmissions] = useState([])
 
 
   const [error, setError] = useState("");
@@ -64,11 +27,12 @@ export default function SubmissionsCard({ id, name, close }) {
     async function getSubmission() {
       try {
         setError('');
+        const token = localStorage.getItem("accessToken");
         const response = await fetch(`${BACKEND_URL}/api/v1/submission/get-all/${id}` , {
           method : "GET" , 
           headers : {
-            "Content-type" : "application/json" , 
-            "Authorization" : localStorage.getItem("accessToken")
+            "Content-Type" : "application/json" , 
+            "Authorization" : token ? `Bearer ${token}` : ""
           }
         });
         
@@ -188,6 +152,13 @@ export default function SubmissionsCard({ id, name, close }) {
                 Hostel {hostelId}
               </button>
             ))}
+
+            {
+              uniqueHostels.length === 0 &&
+              <div className="text-gray-500 text-lg">
+                No Hostels have Submitted yet!
+              </div>
+            }
           </div>
         </div>
 

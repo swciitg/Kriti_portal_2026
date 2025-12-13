@@ -49,6 +49,12 @@ app.use('/api/v1/teams' , TeamsRouter);
 import TechSecyRouter from "./src/routes/techSecyRoutes.js";
 app.use('/api/v1/techsecy', TechSecyRouter);
 
+import JudgeRouter from "./src/routes/judgeRoutes.js"
+app.use('/api/v1/judge' , JudgeRouter);
+
+import CompanyRouter from "./src/routes/companyRoutes.js"
+app.use('/api/v1/company', CompanyRouter);
+
 
 connectDB()
 .then(()=>{
