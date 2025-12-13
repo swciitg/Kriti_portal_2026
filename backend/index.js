@@ -2,6 +2,7 @@ import express from "express";
 import cors from "cors";
 import dotenv from "dotenv";
 import connectDB from "./src/db/connect.js";
+import { mailInit } from "./src/utils/mail.js";
 
 dotenv.config();
 
@@ -39,7 +40,6 @@ import JudgeRouter from "./src/routes/judgeRoutes.js"
 app.use('/api/v1/judge' , JudgeRouter);
 
 import CompanyRouter from "./src/routes/companyRoutes.js"
-import { mailInit } from "./src/utils/mail.js";
 app.use('/api/v1/company', CompanyRouter);
 
 mailInit();

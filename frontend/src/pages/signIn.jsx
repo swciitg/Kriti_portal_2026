@@ -130,6 +130,15 @@ export default function SignIn() {
         >
             Sign-In as Super Admin
         </p>
+      
+        <p
+        onClick={() => {
+            navigate('/change-password')
+        }}
+        className="text-blue-500 text-md cursor-pointer"
+        >
+            Change Password
+        </p>
       </form>
     </div>
   )

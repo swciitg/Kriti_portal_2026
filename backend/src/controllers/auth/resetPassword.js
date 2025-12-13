@@ -32,7 +32,7 @@ export async function RequestChange(req, res) {
     try {
         const { email } = req.body;
         
-        if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+        if (email === undefined || !email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
             return res.status(400).json({
                 success: false,
                 message: "Invalid email format"
@@ -92,14 +92,14 @@ export async function ResetPassword(req, res) {
         
         const { newPassword, token } = req.body;
         
-        if (!newPassword) {
+        if (newPassword === undefined || !newPassword) {
             return res.status(400).json({
                 success: false,
                 message: "Password must exists"
             });
         }
         
-        if (!token) {
+        if (token === undefined || !token) {
             return res.status(400).json({
                 success: false,
                 message: "Token is required"

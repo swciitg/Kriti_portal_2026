@@ -14,6 +14,8 @@ import JudgeDashboard from "./pages/judge/dashboard.jsx"
 import HostelJudging from "./pages/judge/HostelJudging.jsx"
 import CompanyDashboard from "./pages/company/dashboard.jsx"
 import SubmissionJudging from "./pages/company/SubmissionJudging.jsx"
+import RequestPasswordReset from "./pages/changePassword.jsx"
+import ResetPassword from "./pages/resetPassword.jsx"
 
 
 function App() {
@@ -23,6 +25,8 @@ function App() {
         <AuthButton />
         <Routes>
           <Route path="/sign-in" element={<SignIn />} />
+          <Route path="/change-password" element={<RequestPasswordReset />} />
+          <Route path="/reset-password" element={<ResetPassword />} />
 
           <Route path="/convener" element={<ConvenerDashboard />} />
           <Route path="/convener/onboard-user" element={<OnboardUserPage />} />

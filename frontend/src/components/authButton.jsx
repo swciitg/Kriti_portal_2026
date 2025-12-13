@@ -45,18 +45,28 @@ export default function AuthButton() {
     }
 
     return  (
-        <>
+        <div className="fixed top-0 right-0 flex justify-between items-center">
         <button
             onClick={() => handleClick()}
-            className="fixed top-0 right-0 m-2 bg-blue-600 text-white py-2 px-4 font-semibold rounded-lg hover:bg-blue-700 transition disabled:bg-blue-400 cursor-pointer"
+            className=" bg-blue-600 text-white py-2 px-4 font-semibold rounded-lg hover:bg-blue-700 transition disabled:bg-blue-400 cursor-pointer"
         >
           { 
             isSignedIn()? 
             "Log Out" : "Sign In"
           }
         </button>
+
+            <button
+            onClick={() => {
+                navigate('/change-password')
+            }}
+                className="m-2 bg-blue-600 text-white py-2 px-4 font-semibold rounded-lg hover:bg-blue-700 transition disabled:bg-blue-400 cursor-pointer"
+            >
+                Change Password
+            </button>
         
-        </>
+        
+        </div>
     )
 
 }
