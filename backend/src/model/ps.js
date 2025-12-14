@@ -68,11 +68,7 @@ const PSSchema = new mongoose.Schema(
     points: { type: Number, required: true, min: 0 },
     teamStrength: { type: Number, required: true, min: 1 },
 
-    pptSchedule: {
-      type: String,
-      required: false,
-      match: /^https?:\/\/.+/,
-    },
+    // removed pptSchedule
   },
   { timestamps: true }
 );

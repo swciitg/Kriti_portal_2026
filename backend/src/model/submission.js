@@ -15,7 +15,7 @@ const SubmissionSchema = new mongoose.Schema({
   hostelId: { type: Number, required: true },
   team: { type: mongoose.Schema.Types.ObjectId, ref: "Team", required: true },
   midEval: { type: Boolean, required: true },
-  submissionTime: { type: Date, default: Date.now },
+  submissionTime: { type: Date, required: true},
   penalty: [PenaltySchema],
   deliverables: [SubmissionDeliverableSchema],
   pptPointsDistribution: [Number], // this is in accordance with the order in the PS schema
