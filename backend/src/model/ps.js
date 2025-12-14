@@ -32,6 +32,7 @@ const PSSchema = new mongoose.Schema(
 
     startDate: { type: Date, required: true },
     submissionDeadline: { type: Date, required: true },
+    registrationDeadline: { type: Date, required: true }, // add this line
 
     midEvalExist: { type: Boolean, default: false },
     midEvalSubmissionDeadline: { type: Date },
@@ -60,15 +61,14 @@ const PSSchema = new mongoose.Schema(
 
     submissionPointsDistribution: { type: [PointsItemSchema], default: [] },
     pptPointsDistribution: { type: [PointsItemSchema], default: [] },
+    midEvalPointsDistribution: { type: [PointsItemSchema], default: [] },
+
+    overallPointsDistribution: { type: [Number], required:true}, // [300, 150, 150] ([sub, ppt, mid]) add this new line
 
     points: { type: Number, required: true, min: 0 },
     teamStrength: { type: Number, required: true, min: 1 },
 
-    pptSchedule: {
-      type: String,
-      required: false,
-      match: /^https?:\/\/.+/,
-    },
+    // removed pptSchedule
   },
   { timestamps: true }
 );
