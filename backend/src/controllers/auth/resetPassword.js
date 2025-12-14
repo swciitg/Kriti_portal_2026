@@ -1,31 +1,27 @@
 import crypto from "crypto";
-import user from "../../model/user.js";
 import bcrypt from "bcrypt";
+import user from "../../model/user.js";
 import { mailUtil } from "../../utils/mail.js";
+import Token from "../../model/resetPassToken.js";
 
 const FRONTEND_URL = "http://localhost:5173"; 
 const TOKEN_EXPIRY_MS = 5 * 60 * 1000;
 
-// Store plain tokens mapped to email + expiry
-const tokens = new Map();
-
-function removeExpiredTokens() {
+async function removeExpiredTokens() {
     const now = Date.now();
-    for (const [token, data] of tokens.entries()) {
-        if (data.expiresAt < now) {
-            tokens.delete(token);
+    await Token.deleteMany({
+        expiresAt : {
+            $lte : now
         }
-    }
+    });
 }
 
-function hasActiveToken(email) {
-    const now = Date.now();
-    for (const [token, data] of tokens.entries()) {
-        if (data.email === email && data.expiresAt > now) {
-            return true;
-        }
-    }
-    return false;
+async function searchToken(email) {
+    const tokenFound = await Token.findOne({ email });
+    if(!tokenFound)
+        return false;
+
+    return tokenFound;
 }
 
 export async function RequestChange(req, res) {
@@ -39,9 +35,10 @@ export async function RequestChange(req, res) {
             });
         }
     
-        removeExpiredTokens();
+        await removeExpiredTokens();
     
-        if (hasActiveToken(email)) {
+        const hasActiveToken = await searchToken(email);
+        if (hasActiveToken) {
             return res.status(429).json({
                 success: false,
                 message: "Too many password change attempts! Try after 5 minutes"
@@ -58,17 +55,18 @@ export async function RequestChange(req, res) {
             }
         } else {
             const token = crypto.randomBytes(32).toString('hex');
-            
-            tokens.set(token, {
-                email,
-                expiresAt: Date.now() + TOKEN_EXPIRY_MS
+            const hashedToken = await bcrypt.hash(token , 10);
+            await Token.create({
+                token : hashedToken,
+                email ,
+                expiresAt : Date.now() + TOKEN_EXPIRY_MS
             });
             
         
-            const text = `Follow this link to reset your password. This link expires in 5 minutes:\n\n${FRONTEND_URL}/reset-password?token=${token}\n\nIf you didn't request this, please ignore this email.\n\nThis is a system generated email. Do not reply.`;
+            const text = `Follow this link to reset your password. This link expires in 5 minutes:\n\n${FRONTEND_URL}/reset-password?token=${token}&email=${email}\n\nIf you didn't request this, please ignore this email.\n\nThis is a system generated email. Do not reply.`;
             const mailSuccess = await mailUtil(email, text);
             if(!mailSuccess) {
-                tokens.delete(token);
+                await Token.deleteOne({ email });
                 throw new Error("Mail not sent");
             }
         }
@@ -90,7 +88,7 @@ export async function RequestChange(req, res) {
 export async function ResetPassword(req, res) {
     try {
         
-        const { newPassword, token } = req.body;
+        const { newPassword, token, email } = req.body;
         
         if (newPassword === undefined || !newPassword) {
             return res.status(400).json({
@@ -99,17 +97,16 @@ export async function ResetPassword(req, res) {
             });
         }
         
-        if (token === undefined || !token) {
+        if (token === undefined || !token || email === undefined || !email) {
             return res.status(400).json({
                 success: false,
-                message: "Token is required"
+                message: "Token and Email are required"
             });
         }
         
-        removeExpiredTokens();
+        await removeExpiredTokens();
 
-        const tokenData = tokens.get(token);
-        
+        const tokenData = await searchToken(email);
         if (!tokenData) {
             return res.status(403).json({
                 success: false,
@@ -117,8 +114,16 @@ export async function ResetPassword(req, res) {
             });
         }
 
+        const compareTokens = await bcrypt.compare(token , tokenData.token);
+        if(!compareTokens) {
+            return res.status(403).json({
+                success : false ,
+                message : "Incorrect Token"
+            });
+        }
+
         const hashedNewPassword = await bcrypt.hash(newPassword, 10);
-        tokens.delete(token);
+        await Token.deleteOne({ email });
 
         const updateCheck = await user.findOneAndUpdate(
             { 

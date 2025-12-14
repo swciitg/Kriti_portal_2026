@@ -4,6 +4,7 @@ import { BACKEND_URL } from "../constants.js";
 export default function ResetPassword() {
   const [token, setToken] = useState("");
   const [newPassword, setNewPassword] = useState("");
+  const [email , setEmail] = useState("");
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState("");
   const [error, setError] = useState("");
@@ -23,7 +24,11 @@ export default function ResetPassword() {
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
     const t = params.get("token");
-    if (t) setToken(t);
+    const e = params.get("email");
+    if (t && e) {
+      setToken(t);
+      setEmail(e);
+    }
   }, []);
 
   async function handleReset() {
@@ -42,7 +47,7 @@ export default function ResetPassword() {
               headers : {
                 "Content-type" : "application/json" , 
               } , 
-              body : JSON.stringify({ newPassword , token })
+              body : JSON.stringify({ newPassword , token , email })
             });
       
             const data = await response.json();

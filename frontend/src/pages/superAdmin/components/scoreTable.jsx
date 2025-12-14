@@ -211,7 +211,7 @@ export default function ScoreTable({problemStatements , hostelIds , setError}) {
                                         let _totalScore = _scores.reduce((acc , item , idx) => {
                                             if(item && fieldWeightage?.length > 0) {
                                                 if(!isNaN(Number(item))) {
-                                                    acc += Number(item) * fieldWeightage[idx] * 0.01;
+                                                    acc += Number(item);
                                                 }
                                             }
                                             return acc;
