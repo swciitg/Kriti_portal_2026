@@ -1,5 +1,6 @@
 import mongoose from "mongoose";
 import submission from "../../model/submission.js";
+import ps from "../../model/ps.js";
 
 export async function GetSubmissionsForProblemStatement(req, res) {
     try {
@@ -32,7 +33,9 @@ export async function GetSubmissionsForProblemStatement(req, res) {
         if(!allSubmission || allSubmission.length === 0) {
             return res.status(200).json({
                 "success" : true,
-                "message" : "No Submissions for this Problem Statement yet!"
+                "message" : "No Submissions for this Problem Statement yet!",
+                finalSubmissions : [],
+                midEvalSubmissions : []
             });
         }
     

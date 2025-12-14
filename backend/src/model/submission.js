@@ -3,12 +3,14 @@ import mongoose from "mongoose";
 const PenaltySchema = new mongoose.Schema({
   category : String,
   weightage : Number
-});
+},
+{ _id: false });
 
 const SubmissionDeliverableSchema = new mongoose.Schema({
   name : String,
   url : { type : String, match : /^https? :\/\/.+/ }
-});
+},
+{ _id: false });
 
 const SubmissionSchema = new mongoose.Schema({
   ps: { type: mongoose.Schema.Types.ObjectId, ref: "PS", required: true },
