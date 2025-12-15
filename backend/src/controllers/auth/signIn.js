@@ -37,10 +37,11 @@ export async function SignIn(req, res) {
 
     const token = existingUser.generateAccessToken();
 
+    const isProd = process.env.PRODUCTION_MODE === "prod";
     res.cookie("accessToken", token, {
       httpOnly: true,
-      secure: process.env.PRODUCTION_MODE === "prod",
-      sameSite: "none",
+      secure: isProd ? true : false,
+      sameSite: isProd ? "none" : "lax",
       maxAge: 24 * 60 * 60 * 1000, // 1 day
     });
 

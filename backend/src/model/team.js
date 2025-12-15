@@ -14,7 +14,6 @@ const TeamSchema = new mongoose.Schema({
   ps : { type : mongoose.Schema.Types.ObjectId, ref : "PS", required : true },
   teamMembers : [TeamMemberSchema],
   submitted : { type : Boolean, default : false }
-},
-{ _id: false });
+}); // removed {_id: false}
 
 export default mongoose.model("Team", TeamSchema);
