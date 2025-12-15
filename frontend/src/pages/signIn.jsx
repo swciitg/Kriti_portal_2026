@@ -54,6 +54,9 @@ export default function SignIn() {
       if(data.user.role === "Company") {
         navigate('/company/dashboard')
       }
+      if (data.user.role === "TechSecy") {
+        navigate("/techsecy");
+      }
       // page redirect login based on role
 
     } catch (error) {
