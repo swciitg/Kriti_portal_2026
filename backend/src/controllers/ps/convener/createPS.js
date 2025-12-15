@@ -8,6 +8,7 @@ export const createPS = async (req, res) => {
       prep,
       startDate,
       submissionDeadline,
+      registrationDeadline,
       midEvalExist,
       midEvalSubmissionDeadline,
       judge,
@@ -17,7 +18,9 @@ export const createPS = async (req, res) => {
       midEvalSubmissionDeliverables,
       submissionPointsDistribution,
       pptPointsDistribution,
+      midEvalPointsDistribution,
       points,
+      overallPointsDistribution,
       teamStrength,
       pptSchedule,
     } = req.body;
@@ -73,6 +76,7 @@ export const createPS = async (req, res) => {
       prep,
       startDate,
       submissionDeadline,
+      registrationDeadline,
       midEvalExist,
       midEvalSubmissionDeadline: midEvalExist
         ? midEvalSubmissionDeadline
@@ -86,9 +90,13 @@ export const createPS = async (req, res) => {
         : [],
       submissionPointsDistribution: submissionPointsDistribution || [],
       pptPointsDistribution: pptPointsDistribution || [],
+      midEvalPointsDistribution: midEvalExist
+        ? midEvalPointsDistribution || []
+        : [],
+      overallPointsDistribution: overallPointsDistribution || [],
       points,
       teamStrength,
-      pptSchedule: pptScheduleFinal,
+      // pptSchedule: pptScheduleFinal, commented out as per model change
     });
 
     await newPS.save();
