@@ -10,6 +10,8 @@ import SuperAdminDashboard from "./pages/superAdmin/dashboard.jsx"
 import PSManager from "./pages/convener/psManager.jsx"
 import PSDetails from "./pages/convener/psDetails.jsx"
 import PSCreate from "./pages/convener/psCreate.jsx"
+import JudgeRequests from "./pages/convener/judgeRequests.jsx"
+import CompanyRequests from "./pages/convener/companyRequests.jsx"
 import TechSecyDashboard from "./pages/techSecy/dashboard.jsx"
 import PSScreen from "./pages/techSecy/components/psScreen.jsx"
 import RegisterTeam from "./pages/techSecy/components/registerTeam.jsx"
@@ -32,6 +34,8 @@ function App() {
           <Route path="/convener/ps" element={<PSManager />} />
           <Route path="/convener/ps/create" element={<PSCreate />} />
           <Route path="/convener/ps/:id" element={<PSDetails />} />
+          <Route path="/convener/judge-requests" element={<JudgeRequests />} />
+          <Route path="/convener/company-requests" element={<CompanyRequests />} />
 
           <Route path="/superadmin/sign-in" element={<SuperAdminSignIn />} />
           <Route path="/superadmin" element={<SuperAdminDashboard />} />

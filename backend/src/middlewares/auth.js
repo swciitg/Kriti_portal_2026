@@ -1,6 +1,8 @@
 import jwt from "jsonwebtoken";
 import superAdmin from "../model/superAdmin.js";
 import User from "../model/user.js";
+import Judge from "../model/judge.js";
+import Company from "../model/company.js";
 
 export async function verifyJWT(req, res, next) {
   try {
@@ -56,6 +58,28 @@ export async function verifyJWT(req, res, next) {
         });
       }
 
+      // Check if user is a verified judge (they should not be able to login)
+      if (user.role === "Judge") {
+        const judgeDoc = await Judge.findOne({ user: user._id });
+        if (judgeDoc && judgeDoc.verified) {
+          return res.status(403).json({
+            success: false,
+            message: "Your marks have been verified. You can no longer access the system.",
+          });
+        }
+      }
+
+      // Check if user is a verified company POC (they should not be able to login)
+      if (user.role === "Company") {
+        const companyDoc = await Company.findOne({ user: user._id });
+        if (companyDoc && companyDoc.verified) {
+          return res.status(403).json({
+            success: false,
+            message: "Your marks have been verified. You can no longer access the system.",
+          });
+        }
+      }
+
       req.user = user;
       return next();
     }
@@ -86,10 +110,14 @@ export function handleRouteAccess(req, res, next) {
     const allowed = [
       "/api/v1/convener/create-user",
       "/api/v1/convener/create-ps",
+      "/api/v1/convener/get-pending-requests",
+      "/api/v1/convener/get-company-pending-requests",
     ];
     const startsWithAllowed = [
       "/api/v1/convener/update-ps/",
       "/api/v1/convener/delete-ps/",
+      "/api/v1/convener/verify-judge/",
+      "/api/v1/convener/verify-company/",
     ];
     if (
       !allowed.includes(route) &&
@@ -148,8 +176,9 @@ export function handleRouteAccess(req, res, next) {
 
   if(role === "Company") {
         const allowed = [
-            "/api/v1/company/get-sub",
-            "/api/v1/company/save-sub",
+          "/api/v1/company/get-sub",
+          "/api/v1/company/save-sub",
+          "/api/v1/company/submit-marks-request",
         ];
         if (
           !allowed.includes(route)
@@ -162,6 +191,20 @@ export function handleRouteAccess(req, res, next) {
             });
         }
     }
+
+  if (role === "Judge") {
+    const allowed = [
+      "/api/v1/judge/get-ps",
+      "/api/v1/judge/save-ppt-scores",
+      "/api/v1/judge/submit-marks-request",
+    ];
+    if (!allowed.includes(route)) {
+      return res.status(403).json({
+        success: false,
+        message: "Forbidden to access this route",
+      });
+    }
+  }
 
     // will do similar for other roles as well
   

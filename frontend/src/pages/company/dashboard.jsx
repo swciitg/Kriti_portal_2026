@@ -11,6 +11,9 @@ function CompanyDashboard() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [psInfo, setPsInfo] = useState(null);
+  const [showConfirmModal, setShowConfirmModal] = useState(false);
+  const [confirmChecked, setConfirmChecked] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
 
   useEffect(() => {
     const stored = JSON.parse(localStorage.getItem("user"));
@@ -74,6 +77,53 @@ function CompanyDashboard() {
 
   const handleHostelClick = (hostelId) => {
     navigate(`/company/hostel/${hostelId}`);
+  };
+
+  const handleSubmitMarksRequest = async () => {
+    if (!confirmChecked) {
+      alert("Please check the confirmation box");
+      return;
+    }
+
+    setSubmitting(true);
+    try {
+      const stored = localStorage.getItem("accessToken");
+      const token = stored || user?.accessToken;
+
+      if (!token) {
+        navigate("/sign-in");
+        return;
+      }
+
+      const response = await fetch(
+        `${BACKEND_URL}/api/v1/company/submit-marks-request`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: token ? `Bearer ${token}` : "",
+          },
+        }
+      );
+
+      const data = await response.json();
+
+      if (data.success) {
+        alert(
+          "Marks submission request sent successfully! Please wait for convener approval."
+        );
+        setShowConfirmModal(false);
+        setConfirmChecked(false);
+        // Optionally redirect or disable further actions
+      } else {
+        alert(data.message || "Failed to submit request");
+      }
+    } catch (error) {
+      console.error("Error submitting marks request:", error);
+      alert("Failed to submit marks request. Please try again.");
+    } finally {
+      setSubmitting(false);
+    }
   };
 
   if (loading) {
@@ -154,6 +204,28 @@ function CompanyDashboard() {
           </div>
         )}
 
+        {/* Submit All Marks Button */}
+        <div className="bg-white rounded-xl shadow-lg p-6 mb-6">
+          <div className="flex items-center justify-between">
+            <div>
+              <h3 className="text-xl font-semibold text-gray-800 mb-2">
+                Finalize Judging
+              </h3>
+              <p className="text-gray-600 text-sm">
+                Once you submit all marks, the convener will review and verify
+                your judgement. After verification, you will no longer be able
+                to login.
+              </p>
+            </div>
+            <button
+              onClick={() => setShowConfirmModal(true)}
+              className="bg-green-600 hover:bg-green-700 text-white font-semibold py-3 px-6 rounded-lg transition-colors shadow-md hover:shadow-lg whitespace-nowrap ml-4"
+            >
+              Submit All Marks
+            </button>
+          </div>
+        </div>
+
         {/* Hostel List Section */}
         <div className="bg-white rounded-xl shadow-lg p-6">
           <h2 className="text-2xl font-semibold text-gray-800 mb-6 pb-3 border-b-2 border-gray-200">
@@ -220,6 +292,84 @@ function CompanyDashboard() {
             </ul>
           )}
         </div>
+
+        {/* Confirmation Modal */}
+        {showConfirmModal && (
+          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+            <div className="bg-white rounded-xl shadow-2xl max-w-md w-full p-6">
+              <div className="flex items-center justify-center mb-4">
+                <div className="bg-yellow-100 rounded-full p-3">
+                  <svg
+                    className="w-8 h-8 text-yellow-600"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"
+                    />
+                  </svg>
+                </div>
+              </div>
+
+              <h2 className="text-2xl font-bold text-gray-800 mb-3 text-center">
+                Confirm Submission
+              </h2>
+
+              <p className="text-gray-600 mb-4 text-center">
+                Are you sure you want to submit all marks? This action will send
+                a request to the convener for verification.
+              </p>
+
+              <div className="bg-yellow-50 border-l-4 border-yellow-400 p-4 mb-4">
+                <p className="text-sm text-yellow-800 font-semibold">
+                  ⚠️ Warning: After the convener verifies your submission, you
+                  will no longer be able to login or make changes.
+                </p>
+              </div>
+
+              <div className="flex items-start mb-6">
+                <input
+                  type="checkbox"
+                  id="confirm-checkbox"
+                  checked={confirmChecked}
+                  onChange={(e) => setConfirmChecked(e.target.checked)}
+                  className="mt-1 h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+                />
+                <label
+                  htmlFor="confirm-checkbox"
+                  className="ml-3 text-sm text-gray-700 cursor-pointer"
+                >
+                  I confirm that I have completed all judgements and understand
+                  that I will lose access after convener verification.
+                </label>
+              </div>
+
+              <div className="flex gap-3">
+                <button
+                  onClick={() => {
+                    setShowConfirmModal(false);
+                    setConfirmChecked(false);
+                  }}
+                  disabled={submitting}
+                  className="flex-1 bg-gray-200 hover:bg-gray-300 text-gray-800 font-semibold py-2 px-4 rounded-lg transition-colors disabled:opacity-50"
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={handleSubmitMarksRequest}
+                  disabled={!confirmChecked || submitting}
+                  className="flex-1 bg-green-600 hover:bg-green-700 text-white font-semibold py-2 px-4 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  {submitting ? "Submitting..." : "Confirm Submit"}
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );
