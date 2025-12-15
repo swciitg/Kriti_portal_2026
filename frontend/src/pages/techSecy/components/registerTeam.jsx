@@ -29,36 +29,49 @@ export default function RegisterTeam() {
   useEffect(() => {
     async function fetchAll() {
       try {
+        setLoading(true);
+        const psRes = await fetch(`${BACKEND_URL}/api/v1/ps/${psId}`, {
+          credentials: "include",
+        });
+        if(psRes.ok){
+          const psData = await psRes.json();
+          setPsDetails(psData.ps);
+        }
         const teamRes = await fetch(
-        `${BACKEND_URL}/api/v1/techsecy/get-team/${psId}`,
-        { credentials: "include" }
-      );
-      if (teamRes.ok) {
-        const teamData = await teamRes.json();
-        setExistingTeam(teamData.team);
-      } else {
-        setExistingTeam(null);
-      }
-      setLoading(true);
-      setTimeout(() => setLoading(false), 200);
-      } catch(err){
+          `${BACKEND_URL}/api/v1/techsecy/get-team/${psId}`,
+          { credentials: "include" }
+        );
+        if (teamRes.ok) {
+          const teamData = await teamRes.json();
+          if (teamData.teams && teamData.teams.length > 0) {
+            setExistingTeam(teamData.teams[0]);
+          } else {
+            setExistingTeam(null);
+          }
+        } else {
+          setExistingTeam(null);
+        }
+        setLoading(true);
+        setTimeout(() => setLoading(false), 200);
+      } catch (err) {
         console.error(err);
         setError("Failed to fetch details");
+      } finally {
         setLoading(false);
       }
     }
     fetchAll();
   }, [psId]);
-  
-  if(loading || !psDetails) {
-    return <div className="p-4">Loading ...</div>
+
+  if (loading) {
+    return <div className="p-4">Loading ...</div>;
   }
 
-  if(existingTeam){
+  if (existingTeam) {
     return (
       <div className="p-4 max-w-3xl mx-auto">
         <h1 className="text-3xl font-semibold">Your Team</h1>
-        <p className="text-gray-700 mt-2">PS: {psDetails.title}</p>
+        <p className="text-gray-700 mt-2">PS: {psDetails.name}</p>
 
         <div className="mt-6 space-y-4">
           {existingTeam.teamMembers.map((m, i) => (
@@ -73,7 +86,7 @@ export default function RegisterTeam() {
         </div>
 
         <p className="mt-6 text-green-600 font-medium">
-          Team already registered 
+          Team already registered
         </p>
       </div>
     );
@@ -98,11 +111,11 @@ export default function RegisterTeam() {
   }
   async function submitTeam() {
     try {
-      const res = await fetch(`${BACKEND_URL}/api/v1/techsecy/register-team`, {
+      const res = await fetch(`${BACKEND_URL}/api/v1/techsecy/register-team/${psId}`, {
         method: "POST",
         credentials: "include",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ psId, teamMembers }),
+        body: JSON.stringify({teamMembers }),
       });
 
       const data = await res.json();
@@ -112,7 +125,7 @@ export default function RegisterTeam() {
         return;
       }
       setMessage("Team registered successfully!");
-      setTimeout(() => navigate(0), 700); 
+      setTimeout(() => navigate(0), 700);
     } catch (err) {
       setError("Server error");
     }
@@ -121,7 +134,7 @@ export default function RegisterTeam() {
     <div className="p-4 max-w-3xl mx-auto">
       <h1 className="text-3xl font-semibold">Register Team</h1>
 
-      <p className="mt-2 text-gray-700">PS: {psDetails.title}</p>
+      <p className="mt-2 text-gray-700">PS: {psDetails.name}</p>
       <p className="text-gray-600 mb-4">
         Max Team Size: {psDetails.teamStrength}
       </p>
@@ -191,5 +204,4 @@ export default function RegisterTeam() {
       </button>
     </div>
   );
-};
-
+}
