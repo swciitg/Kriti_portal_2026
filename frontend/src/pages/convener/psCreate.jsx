@@ -38,6 +38,7 @@ export default function PSCreate() {
     // points
     submissionPointsDistribution: [],
     pptPointsDistribution: [],
+    midEvalPointsDistribution: [],
     points: 0,
     overallPointsDistribution: [0, 0, 0],
     teamStrength: 1,
@@ -47,6 +48,11 @@ export default function PSCreate() {
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
   const [isOverallPointsValid, setIsOverallPointsValid] = useState(false);
+  const [pointsValidation, setPointsValidation] = useState({
+    submissionPointsDistribution: false,
+    pptPointsDistribution: false,
+    midEvalPointsDistribution: false,
+  });
 
   // Protect route: only Convener
   useEffect(() => {
@@ -65,25 +71,58 @@ export default function PSCreate() {
     }));
   };
 
+  const calculateTotal = (arr) =>
+    arr.reduce((sum, item) => sum + Number(item.weightage || 0), 0);
+
+  const VALIDATED_FIELDS = [
+    "submissionPointsDistribution",
+    "pptPointsDistribution",
+    "midEvalPointsDistribution",
+  ];
+
   const handleArrayChange = (field, index, key, value) => {
     setPs((prev) => {
       const arr = [...prev[field]];
       arr[index] = { ...arr[index], [key]: value };
+      if(VALIDATED_FIELDS.includes(field)){
+        const total = calculateTotal(arr);
+        setPointsValidation((prevVal) => ({
+          ...prevVal,
+          [field]: total === 100,
+        }));
+      }
       return { ...prev, [field]: arr };
     });
   };
 
   const addArrayItem = (field, defaultObj) => {
-    setPs((prev) => ({
-      ...prev,
-      [field]: [...prev[field], defaultObj],
-    }));
+    setPs((prev) => {
+      const updatedArr = [...prev[field], defaultObj];
+      if (VALIDATED_FIELDS.includes(field)) {
+        const total = calculateTotal(updatedArr);
+        setPointsValidation((prevVal) => ({
+          ...prevVal,
+          [field]: total === 100,
+        }));
+      }
+      return {
+        ...prev,
+        [field]: updatedArr,
+      };
+    });
   };
 
   const removeArrayItem = (field, index) => {
     setPs((prev) => {
       const arr = [...prev[field]];
       arr.splice(index, 1);
+      if (VALIDATED_FIELDS.includes(field)) {
+        const total = calculateTotal(arr);
+        setPointsValidation((prevVal) => ({
+          ...prevVal,
+          [field]: total === 100,
+        }));
+      }
       return { ...prev, [field]: arr };
     });
   };
@@ -107,9 +146,6 @@ export default function PSCreate() {
       }
     })
   }
-
-  const calcTotalWeightage = (items) =>
-    items.reduce((sum, item) => sum + Number(item.weightage || 0), 0);
 
   const validateBeforeSubmit = () => {
     if (!ps.name.trim()) return "Name is required.";
@@ -136,14 +172,19 @@ export default function PSCreate() {
       return "Overall points distribution does not match total points.";
     }
 
-    const subTotal = calcTotalWeightage(ps.submissionPointsDistribution);
+    const subTotal = calculateTotal(ps.submissionPointsDistribution);
     if (ps.submissionPointsDistribution.length && subTotal !== 100) {
       return "Submission points distribution must total 100.";
     }
 
-    const pptTotal = calcTotalWeightage(ps.pptPointsDistribution);
+    const pptTotal = calculateTotal(ps.pptPointsDistribution);
     if (ps.pptPointsDistribution.length && pptTotal !== 100) {
       return "PPT points distribution must total 100.";
+    }
+
+    const midTotal = calculateTotal(ps.midEvalPointsDistribution);
+    if (ps.pptPointsDistribution.length && midTotal !== 100) {
+      return "Mid term points distribution must total 100.";
     }
 
     return "";
@@ -169,6 +210,8 @@ export default function PSCreate() {
     try {
       setSaving(true);
       const token = localStorage.getItem("accessToken");
+      console.log("Payload: ", payload);
+      console.log("-------------------------------------");
       const res = await fetch(`${BACKEND_URL}/api/v1/convener/create-ps`, {
         method: "POST",
         headers: {
@@ -178,6 +221,7 @@ export default function PSCreate() {
         body: JSON.stringify(payload),
       });
       const data = await res.json();
+      console.log("Data:", data);
       if (!res.ok || !data.success) {
         throw new Error(data.message || "Failed to create PS.");
       }
@@ -191,8 +235,9 @@ export default function PSCreate() {
     }
   };
 
-  const subTotal = calcTotalWeightage(ps.submissionPointsDistribution);
-  const pptTotal = calcTotalWeightage(ps.pptPointsDistribution);
+  const subTotal = calculateTotal(ps.submissionPointsDistribution);
+  const pptTotal = calculateTotal(ps.pptPointsDistribution);
+  const midTotal = calculateTotal(ps.midEvalPointsDistribution)
 
   return (
     <div className="min-h-screen w-full flex justify-center bg-gray-100 p-4">
@@ -457,7 +502,7 @@ export default function PSCreate() {
                 total:{" "}
                 <span
                   className={
-                    subTotal === 100
+                    pointsValidation.submissionPointsDistribution
                       ? "text-green-600 font-semibold"
                       : "text-red-600 font-semibold"
                   }
@@ -508,8 +553,6 @@ export default function PSCreate() {
                 </div>
               ))}
             </div>
-
-            {/* PPT Points Distribution */}
             <div>
               <div className="flex items-center justify-between mb-1">
                 <span className="text-sm font-medium">
@@ -529,7 +572,7 @@ export default function PSCreate() {
                 Define PPT judging criteria (total must be 100%). Current total:{" "}
                 <span
                   className={
-                    pptTotal === 100
+                    pointsValidation.pptPointsDistribution
                       ? "text-green-600 font-semibold"
                       : "text-red-600 font-semibold"
                   }
@@ -580,6 +623,79 @@ export default function PSCreate() {
                 </div>
               ))}
             </div>
+            {ps.midEvalExist && (
+              <div>
+                <div className="flex items-center justify-between mb-1">
+                  <span className="text-sm font-medium">
+                    Mid term Points Distribution
+                  </span>
+                  <button
+                    type="button"
+                    onClick={() =>
+                      addArrayItem("midEvalPointsDistribution", emptyPointsItem)
+                    }
+                    className="text-xs px-2 py-1 bg-blue-500 text-white rounded"
+                  >
+                    Add Criterion
+                  </button>
+                </div>
+                <p className="text-xs text-gray-500 mb-2">
+                  Define criteria and weightages (total must be 100%). Current
+                  total:{" "}
+                  <span
+                    className={
+                      pointsValidation.midEvalPointsDistribution
+                        ? "text-green-600 font-semibold"
+                        : "text-red-600 font-semibold"
+                    }
+                  >
+                    {midTotal}%
+                  </span>
+                </p>
+                {ps.midEvalPointsDistribution.map((item, idx) => (
+                  <div key={idx} className="flex gap-2 mb-2">
+                    <input
+                      className="border rounded px-2 py-1 text-sm flex-1"
+                      placeholder="Criterion"
+                      value={item.field}
+                      onChange={(e) =>
+                        handleArrayChange(
+                          "midEvalPointsDistribution",
+                          idx,
+                          "field",
+                          e.target.value
+                        )
+                      }
+                    />
+                    <input
+                      type="number"
+                      min="0"
+                      max="100"
+                      className="border rounded px-2 py-1 text-sm w-24"
+                      placeholder="%"
+                      value={item.weightage}
+                      onChange={(e) =>
+                        handleArrayChange(
+                          "midEvalPointsDistribution",
+                          idx,
+                          "weightage",
+                          e.target.value
+                        )
+                      }
+                    />
+                    <button
+                      type="button"
+                      onClick={() =>
+                        removeArrayItem("midEvalPointsDistribution", idx)
+                      }
+                      className="text-xs px-2 py-1 bg-red-500 text-white rounded"
+                    >
+                      X
+                    </button>
+                  </div>
+                ))}
+              </div>
+            )}
           </section>
 
           {/* Final Submission Deliverables */}
