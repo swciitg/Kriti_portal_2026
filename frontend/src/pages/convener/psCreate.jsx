@@ -17,6 +17,7 @@ export default function PSCreate() {
     prep: "high",
     startDate: "",
     submissionDeadline: "",
+    registrationDeadline: "",
 
     // mid eval
     midEvalExist: false,
@@ -38,12 +39,14 @@ export default function PSCreate() {
     submissionPointsDistribution: [],
     pptPointsDistribution: [],
     points: 0,
+    overallPointsDistribution: [0, 0, 0],
     teamStrength: 1,
   });
 
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
+  const [isOverallPointsValid, setIsOverallPointsValid] = useState(false);
 
   // Protect route: only Convener
   useEffect(() => {
@@ -85,6 +88,26 @@ export default function PSCreate() {
     });
   };
 
+  const handleOverallPointsChange = (index, value) => {
+    setPs((prev) => {
+      const arr = [...(prev.overallPointsDistribution || [0, 0, 0])];
+      arr[index] = Number(value);
+      const sub = arr[0] || 0;
+      const ppt = arr[1] || 0;
+      const mid = arr[2] || 0;
+      const total = sub + ppt + mid;
+      if(total!==Number(prev.points)){
+        setIsOverallPointsValid(false);
+      } else {
+        setIsOverallPointsValid(true);
+      }
+      return {
+        ...prev,
+        overallPointsDistribution: arr,
+      }
+    })
+  }
+
   const calcTotalWeightage = (items) =>
     items.reduce((sum, item) => sum + Number(item.weightage || 0), 0);
 
@@ -93,6 +116,7 @@ export default function PSCreate() {
     if (!ps.prep) return "Prep level is required.";
     if (!ps.startDate) return "Start date is required.";
     if (!ps.submissionDeadline) return "Submission deadline is required.";
+    if(!ps.registrationDeadline) return "Registration deadline is required.";
     if (!ps.pdf.trim()) return "PDF link is required.";
     if (ps.points === "" || ps.points === null) return "Points are required.";
     if (!ps.teamStrength) return "Team strength is required.";
@@ -106,6 +130,10 @@ export default function PSCreate() {
 
     if (ps.midEvalExist && !ps.midEvalSubmissionDeadline) {
       return "Mid evaluation submission date is required when mid evaluation exists.";
+    }
+
+    if(isOverallPointsValid===false){
+      return "Overall points distribution does not match total points.";
     }
 
     const subTotal = calcTotalWeightage(ps.submissionPointsDistribution);
@@ -169,7 +197,9 @@ export default function PSCreate() {
   return (
     <div className="min-h-screen w-full flex justify-center bg-gray-100 p-4">
       <div className="w-full max-w-4xl bg-white shadow-md rounded-xl p-4 sm:p-6 flex flex-col">
-        <h1 className="text-2xl font-semibold mb-4">Create Problem Statement</h1>
+        <h1 className="text-4xl font-semibold mb-4">
+          Create Problem Statement
+        </h1>
 
         {error && (
           <div className="mb-3 text-sm text-red-700 bg-red-100 border border-red-300 rounded px-3 py-2">
@@ -185,7 +215,7 @@ export default function PSCreate() {
         <div className="flex-1 overflow-y-auto space-y-6 pr-1">
           {/* Basic Information */}
           <section className="space-y-3">
-            <h2 className="text-lg font-semibold">Basic Information</h2>
+            <h2 className="text-2xl font-semibold">Basic Information</h2>
             <div className="grid gap-3 md:grid-cols-2">
               <div>
                 <label className="block text-sm font-medium">
@@ -233,6 +263,19 @@ export default function PSCreate() {
 
               <div>
                 <label className="block text-sm font-medium">
+                  Registration Deadline <span className="text-red-500">*</span>
+                </label>
+                <input
+                  type="datetime-local"
+                  className="mt-1 w-full border rounded px-3 py-2 text-sm"
+                  name="registrationDeadline"
+                  value={ps.registrationDeadline}
+                  onChange={handleChange}
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium">
                   Submission Deadline <span className="text-red-500">*</span>
                 </label>
                 <input
@@ -243,16 +286,31 @@ export default function PSCreate() {
                   onChange={handleChange}
                 />
               </div>
+
+              <div>
+                <label className="block text-sm font-medium">
+                  Team Strength <span className="text-red-500">*</span>
+                </label>
+                <input
+                  type="number"
+                  min="1"
+                  className="mt-1 w-full border rounded px-3 py-2 text-sm"
+                  name="teamStrength"
+                  value={ps.teamStrength}
+                  onChange={handleChange}
+                />
+              </div>
             </div>
           </section>
 
           {/* Roles & Links */}
           <section className="space-y-3">
-            <h2 className="text-lg font-semibold">Roles & Links</h2>
+            <h2 className="text-2xl font-semibold">Roles & Links</h2>
             <div className="grid gap-3 md:grid-cols-2">
               <div>
                 <label className="block text-sm font-medium">
-                  Judge (User ObjectId) <span className="text-gray-500">(optional)</span>
+                  Judge (User ObjectId){" "}
+                  <span className="text-gray-500">(optional)</span>
                 </label>
                 <input
                   className="mt-1 w-full border rounded px-3 py-2 text-sm"
@@ -294,7 +352,7 @@ export default function PSCreate() {
 
           {/* Mid Evaluation */}
           <section className="space-y-3">
-            <h2 className="text-lg font-semibold">Mid Evaluation</h2>
+            <h2 className="text-2xl font-semibold">Mid Evaluation</h2>
             <label className="inline-flex items-center gap-2 text-sm">
               <input
                 type="checkbox"
@@ -370,13 +428,20 @@ export default function PSCreate() {
                           )
                         }
                       >
-                        {["url", "pdf", "zip", "ipynb", "doc", "pptx", "png", "jpg"].map(
-                          (t) => (
-                            <option key={t} value={t}>
-                              {t.toUpperCase()}
-                            </option>
-                          )
-                        )}
+                        {[
+                          "url",
+                          "pdf",
+                          "zip",
+                          "ipynb",
+                          "doc",
+                          "pptx",
+                          "png",
+                          "jpg",
+                        ].map((t) => (
+                          <option key={t} value={t}>
+                            {t.toUpperCase()}
+                          </option>
+                        ))}
                       </select>
                       <button
                         type="button"
@@ -394,9 +459,92 @@ export default function PSCreate() {
             )}
           </section>
 
+          {/* Points Distribution Deliverables */}
+          <section className="space-y-3">
+            <h2 className="text-2xl font-semibold">
+              Overall Points Distribution
+            </h2>
+            <div>
+              <label className="block text-sm font-medium">
+                Total Points <span className="text-red-500">*</span>
+              </label>
+              <input
+                type="number"
+                min="0"
+                className="mt-1 w-full border rounded px-3 py-2 mb-1 text-sm"
+                name="points"
+                value={ps.points}
+                onChange={handleChange}
+              />
+            </div>
+            <p className="text-xs text-gray-500 mb-2">
+              Define all submission components and their weightages total must
+              be {ps.points} points, current total is:{" "}
+              <span
+                className={
+                  isOverallPointsValid
+                    ? "text-green-600 font-semibold"
+                    : "text-red-600 font-semibold"
+                }
+              >
+                {ps.overallPointsDistribution[0] +
+                  ps.overallPointsDistribution[1] +
+                  (ps.midEvalExist ? ps.overallPointsDistribution[2] : 0)}
+              </span>
+            </p>
+            <div className="flex gap-6">
+              <div>
+                <label className="block text-sm font-medium">
+                  End term submission score{" "}
+                  <span className="text-red-500">*</span>
+                </label>
+                <input
+                  type="number"
+                  min="0"
+                  className="mt-1 w-full border rounded px-3 py-2 text-sm"
+                  name="points"
+                  value={ps.overallPointsDistribution[0]}
+                  onChange={(e) => handleOverallPointsChange(0, e.target.value)}
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium">
+                  Presentation score <span className="text-red-500">*</span>
+                </label>
+                <input
+                  type="number"
+                  min="0"
+                  className="mt-1 w-full border rounded px-3 py-2 text-sm"
+                  name="points"
+                  value={ps.overallPointsDistribution[1]}
+                  onChange={(e) => handleOverallPointsChange(1, e.target.value)}
+                />
+              </div>
+              {ps.midEvalExist && (
+                <div>
+                  <label className="block text-sm font-medium">
+                    MidTerm Evaluation Score{" "}
+                    <span className="text-red-500">*</span>
+                  </label>
+                  <input
+                    type="number"
+                    min="0"
+                    className="mt-1 w-full border rounded px-3 py-2 text-sm"
+                    name="points"
+                    value={ps.overallPointsDistribution[2]}
+                    onChange={(e) =>
+                      handleOverallPointsChange(2, e.target.value)
+                    }
+                  />
+                </div>
+              )}
+            </div>
+          </section>
           {/* Final Submission Deliverables */}
           <section className="space-y-3">
-            <h2 className="text-lg font-semibold">Final Submission Deliverables</h2>
+            <h2 className="text-2xl font-semibold">
+              Final Submission Deliverables
+            </h2>
             <div>
               <div className="flex items-center justify-between mb-1">
                 <span className="text-sm font-medium">Deliverables</span>
@@ -440,17 +588,26 @@ export default function PSCreate() {
                       )
                     }
                   >
-                    {["url", "pdf", "zip", "ipynb", "doc", "pptx", "png", "jpg"].map(
-                      (t) => (
-                        <option key={t} value={t}>
-                          {t.toUpperCase()}
-                        </option>
-                      )
-                    )}
+                    {[
+                      "url",
+                      "pdf",
+                      "zip",
+                      "ipynb",
+                      "doc",
+                      "pptx",
+                      "png",
+                      "jpg",
+                    ].map((t) => (
+                      <option key={t} value={t}>
+                        {t.toUpperCase()}
+                      </option>
+                    ))}
                   </select>
                   <button
                     type="button"
-                    onClick={() => removeArrayItem("submissionDeliverables", idx)}
+                    onClick={() =>
+                      removeArrayItem("submissionDeliverables", idx)
+                    }
                     className="text-xs px-2 py-1 bg-red-500 text-white rounded"
                   >
                     X
@@ -462,37 +619,7 @@ export default function PSCreate() {
 
           {/* Points & PPT */}
           <section className="space-y-4">
-            <h2 className="text-lg font-semibold">Points & PPT</h2>
-
-            <div className="grid gap-3 md:grid-cols-2">
-              <div>
-                <label className="block text-sm font-medium">
-                  Total Points <span className="text-red-500">*</span>
-                </label>
-                <input
-                  type="number"
-                  min="0"
-                  className="mt-1 w-full border rounded px-3 py-2 text-sm"
-                  name="points"
-                  value={ps.points}
-                  onChange={handleChange}
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium">
-                  Team Strength <span className="text-red-500">*</span>
-                </label>
-                <input
-                  type="number"
-                  min="1"
-                  className="mt-1 w-full border rounded px-3 py-2 text-sm"
-                  name="teamStrength"
-                  value={ps.teamStrength}
-                  onChange={handleChange}
-                />
-              </div>
-            </div>
-
+            <h2 className="text-2xl font-semibold">Category wise points Distribution PPT</h2>
             {/* Submission Points Distribution */}
             <div>
               <div className="flex items-center justify-between mb-1">
@@ -502,7 +629,10 @@ export default function PSCreate() {
                 <button
                   type="button"
                   onClick={() =>
-                    addArrayItem("submissionPointsDistribution", emptyPointsItem)
+                    addArrayItem(
+                      "submissionPointsDistribution",
+                      emptyPointsItem
+                    )
                   }
                   className="text-xs px-2 py-1 bg-blue-500 text-white rounded"
                 >
@@ -514,7 +644,9 @@ export default function PSCreate() {
                 total:{" "}
                 <span
                   className={
-                    subTotal === 100 ? "text-green-600 font-semibold" : "text-red-600 font-semibold"
+                    subTotal === 100
+                      ? "text-green-600 font-semibold"
+                      : "text-red-600 font-semibold"
                   }
                 >
                   {subTotal}%
@@ -584,7 +716,9 @@ export default function PSCreate() {
                 Define PPT judging criteria (total must be 100%). Current total:{" "}
                 <span
                   className={
-                    pptTotal === 100 ? "text-green-600 font-semibold" : "text-red-600 font-semibold"
+                    pptTotal === 100
+                      ? "text-green-600 font-semibold"
+                      : "text-red-600 font-semibold"
                   }
                 >
                   {pptTotal}%
@@ -637,7 +771,8 @@ export default function PSCreate() {
             {/* PPT Schedule URL */}
             <div>
               <label className="block text-sm font-medium">
-                PPT Schedule URL <span className="text-gray-500">(optional)</span>
+                PPT Schedule URL{" "}
+                <span className="text-gray-500">(optional)</span>
               </label>
               <input
                 className="mt-1 w-full border rounded px-3 py-2 text-sm"
