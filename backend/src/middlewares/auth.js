@@ -91,7 +91,8 @@ export function handleRouteAccess(req, res, next) {
     const startsWithAllowed = [
       "/api/v1/convener/update-ps/",
       "/api/v1/convener/delete-ps/",
-      "/api/v1/convener/get-requests",
+      "/api/v1/convener/get-requests/",
+      "/api/v1/convener/update-status/",
     ];
     if (
       !allowed.includes(route) &&
