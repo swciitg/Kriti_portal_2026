@@ -86,6 +86,7 @@ export function handleRouteAccess(req, res, next) {
     const allowed = [
       "/api/v1/convener/create-user",
       "/api/v1/convener/create-ps",
+      "/api/v1/convener/get-requests",
     ];
     const startsWithAllowed = [
       "/api/v1/convener/update-ps/",
