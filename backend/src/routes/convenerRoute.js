@@ -5,6 +5,7 @@ import { updatePS } from "../controllers/ps/convener/updatePS.js";
 import { deletePS } from "../controllers/ps/convener/deletePS.js";
 import { handleRouteAccess, verifyJWT } from "../middlewares/auth.js";
 import { GetAllRequests } from "../controllers/convener/requests/getAllRequests.js";
+import { GetRequestById } from "../controllers/convener/requests/getRequestById.js";
 
 const router = Router();
 
@@ -13,5 +14,6 @@ router.route("/create-ps").post(verifyJWT, handleRouteAccess, createPS);
 router.route("/update-ps/:id").put(verifyJWT, handleRouteAccess, updatePS);
 router.route("/delete-ps/:id").delete(verifyJWT, handleRouteAccess, deletePS);
 router.route("/get-requests").get(verifyJWT, handleRouteAccess, GetAllRequests);
+router.route("/get-requests/:id").get(verifyJWT, handleRouteAccess, GetRequestById);
 
 export default router;
