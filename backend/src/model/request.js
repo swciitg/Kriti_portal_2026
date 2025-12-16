@@ -26,6 +26,12 @@ const requestSchema = new mongoose.Schema({
     enum: ["pending", "approved", "rejected"],
     default: "pending",
   },
+  hostelId: {
+    type: String,
+  },
+  psName: {
+    type: String,
+  }
 });
 
 export default mongoose.model("Request", requestSchema);
