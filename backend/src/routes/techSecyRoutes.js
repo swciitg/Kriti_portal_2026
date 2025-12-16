@@ -4,6 +4,7 @@ import { registerTeam } from "../controllers/techSecy/registerTeam.js";
 import { GetTeamsForProblemStatement } from "../controllers/teams/getByProblemStatement.js";
 import { editRegisteredTeam } from "../controllers/techSecy/editRegisteredTeam.js";
 import { updateRegisterTeam } from "../controllers/techSecy/updateRegisterTeam.js";
+import { DeleteRequest } from "../controllers/convener/requests/deleteRequest.js";
 
 const router = Router();
 
@@ -19,5 +20,6 @@ router
 router
   .route("/update-registered-team/:psId")
   .put(verifyJWT, handleRouteAccess, updateRegisterTeam);
+router.route("/delete/:id").delete(verifyJWT, handleRouteAccess, DeleteRequest);
 
 export default router;

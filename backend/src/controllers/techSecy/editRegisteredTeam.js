@@ -42,6 +42,8 @@ export async function editRegisteredTeam(req, res) {
       to: convener._id,
       psId,
       requestType: "EDIT_TEAM",
+      hostelId: techSecy.hostelId,
+      psName: ps.name
     });
     return res.status(201).json({
       success: "true",
