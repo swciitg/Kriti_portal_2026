@@ -86,10 +86,13 @@ export function handleRouteAccess(req, res, next) {
     const allowed = [
       "/api/v1/convener/create-user",
       "/api/v1/convener/create-ps",
+      "/api/v1/convener/get-requests",
     ];
     const startsWithAllowed = [
       "/api/v1/convener/update-ps/",
       "/api/v1/convener/delete-ps/",
+      "/api/v1/convener/get-requests/",
+      "/api/v1/convener/update-status/",
     ];
     if (
       !allowed.includes(route) &&
@@ -137,6 +140,8 @@ export function handleRouteAccess(req, res, next) {
     const startsWithAllowed = [
       "/api/v1/techsecy/register-team/",
       "/api/v1/techsecy/get-team/",
+      "/api/v1/techsecy/edit-registered-team/",
+      "/api/v1/techsecy/update-registered-team/",
     ];
     if (
       !allowed.includes(route) &&
