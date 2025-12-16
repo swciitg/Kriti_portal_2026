@@ -4,7 +4,7 @@ import { createPS } from "../controllers/ps/convener/createPS.js";
 import { updatePS } from "../controllers/ps/convener/updatePS.js";
 import { deletePS } from "../controllers/ps/convener/deletePS.js";
 import { handleRouteAccess, verifyJWT } from "../middlewares/auth.js";
-import { GetAllRequests } from "../controllers/convener/getAllRequests.js";
+import { GetAllRequests } from "../controllers/convener/requests/getAllRequests.js";
 
 const router = Router();
 

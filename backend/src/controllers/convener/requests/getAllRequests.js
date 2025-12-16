@@ -1,4 +1,4 @@
-import request from "../../model/request.js";
+import request from "../../../model/request.js";
 
 export async function GetAllRequests(req, res) {
   try {
