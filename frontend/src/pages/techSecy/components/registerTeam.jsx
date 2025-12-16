@@ -15,6 +15,7 @@ export default function RegisterTeam() {
   ]);
   const [error, setError] = useState("");
   const [message, setMessage] = useState("");
+  const [requestingEdit, setRequestingEdit] = useState(false);
 
   useEffect(() => {
     const stored = JSON.parse(localStorage.getItem("user"));
@@ -33,7 +34,7 @@ export default function RegisterTeam() {
         const psRes = await fetch(`${BACKEND_URL}/api/v1/ps/${psId}`, {
           credentials: "include",
         });
-        if(psRes.ok){
+        if (psRes.ok) {
           const psData = await psRes.json();
           setPsDetails(psData.ps);
         }
@@ -63,6 +64,31 @@ export default function RegisterTeam() {
     fetchAll();
   }, [psId]);
 
+  async function requestEditAccess() {
+    try {
+      setError("");
+      setMessage("");
+      setRequestingEdit(true);
+      const res = await fetch(
+        `${BACKEND_URL}/api/v1/techsecy/edit-registered-team/${psId}`,
+        {
+          method: "POST",
+          credentials: "include",
+        }
+      );
+      const data = await res.json();
+      if (!res.ok) {
+        setError(data.message || "Failed to request edit access");
+        return;
+      }
+      setMessage("Edit access request sent successfully!");
+    } catch (err) {
+      setError("Server error while requesting edit access");
+    } finally {
+      setRequestingEdit(false);
+    }
+  }
+
   if (loading) {
     return <div className="p-4">Loading ...</div>;
   }
@@ -85,9 +111,17 @@ export default function RegisterTeam() {
           ))}
         </div>
 
-        <p className="mt-6 text-green-600 font-medium">
-          Team already registered
-        </p>
+        <button
+          onClick={requestEditAccess}
+          disabled={requestingEdit}
+          className={`mt-6 px-4 py-2 rounded text-white ${
+            requestingEdit
+              ? "bg-gray-400 cursor-not-allowed"
+              : "bg-yellow-500 hover:bg-yellow-600"
+          }`}
+        >
+          {requestingEdit ? "Requesting..." : "Request Edit Access"}
+        </button>
       </div>
     );
   }
@@ -111,12 +145,15 @@ export default function RegisterTeam() {
   }
   async function submitTeam() {
     try {
-      const res = await fetch(`${BACKEND_URL}/api/v1/techsecy/register-team/${psId}`, {
-        method: "POST",
-        credentials: "include",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({teamMembers }),
-      });
+      const res = await fetch(
+        `${BACKEND_URL}/api/v1/techsecy/register-team/${psId}`,
+        {
+          method: "POST",
+          credentials: "include",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ teamMembers }),
+        }
+      );
 
       const data = await res.json();
 
