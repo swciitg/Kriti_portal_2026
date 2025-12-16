@@ -137,6 +137,7 @@ export function handleRouteAccess(req, res, next) {
     const startsWithAllowed = [
       "/api/v1/techsecy/register-team/",
       "/api/v1/techsecy/get-team/",
+      "/api/v1/techsecy/edit-registered-team/",
     ];
     if (
       !allowed.includes(route) &&
