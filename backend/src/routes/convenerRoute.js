@@ -3,14 +3,18 @@ import { OnBoardUser } from "../controllers/convener/createUser.js";
 import { createPS } from "../controllers/ps/convener/createPS.js";
 import { updatePS } from "../controllers/ps/convener/updatePS.js";
 import { deletePS } from "../controllers/ps/convener/deletePS.js";
-import { getPendingRequests } from "../controllers/convener/getPendingRequests.js";
-import { verifyJudgeRequest } from "../controllers/convener/verifyJudgeRequest.js";
-import { getCompanyPendingRequests } from "../controllers/convener/getCompanyPendingRequests.js";
-import { verifyCompanyRequest } from "../controllers/convener/verifyCompanyRequest.js";
-import { getAccessRequests } from "../controllers/convener/getAccessRequests.js";
-import { grantAccess } from "../controllers/convener/grantAccess.js";
-import { getCompanyAccessRequests } from "../controllers/convener/getCompanyAccessRequests.js";
-import { grantCompanyAccess } from "../controllers/convener/grantCompanyAccess.js";
+import { 
+  getPendingRequests, 
+  getAccessRequests, 
+  verifyJudgeRequest, 
+  grantAccess 
+} from "../controllers/convener/judgeManagement.js";
+import { 
+  getCompanyPendingRequests, 
+  getCompanyAccessRequests, 
+  verifyCompanyRequest, 
+  grantCompanyAccess 
+} from "../controllers/convener/companyManagement.js";
 import { handleRouteAccess, verifyJWT } from "../middlewares/auth.js";
 
 const router = Router();
