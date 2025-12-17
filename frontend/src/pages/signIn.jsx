@@ -33,7 +33,16 @@ export default function SignIn() {
       const data = await res.json()
 
       if(!(data.success)) {
-        setError(data.message || "Failed")
+        // Check if it's a verified judge/company trying to login
+        if (data.verified) {
+          if (data.accessRequestPending) {
+            setError("Your marks have been verified and your access request is pending. Please wait for convener approval.")
+          } else {
+            setError("Your marks have been verified. You can no longer access the system. If you need to make changes, please request access from the dashboard.")
+          }
+        } else {
+          setError(data.message || "Failed")
+        }
         return
       }
 

@@ -58,25 +58,45 @@ export async function verifyJWT(req, res, next) {
         });
       }
 
-      // Check if user is a verified judge (they should not be able to login)
+      // Check if user is a verified judge
       if (user.role === "Judge") {
         const judgeDoc = await Judge.findOne({ user: user._id });
         if (judgeDoc && judgeDoc.verified) {
-          return res.status(403).json({
-            success: false,
-            message: "Your marks have been verified. You can no longer access the system.",
-          });
+          // Allow access to specific endpoints for requesting access again
+          const allowedVerifiedRoutes = [
+            "/api/v1/judge/status",
+            "/api/v1/judge/request-access",
+            "/api/v1/auth/logout",
+          ];
+          if (!allowedVerifiedRoutes.includes(req.originalUrl)) {
+            return res.status(403).json({
+              success: false,
+              message: "Your marks have been verified. You can no longer access the system.",
+              verified: true,
+              accessRequestPending: judgeDoc.accessRequestPending || false,
+            });
+          }
         }
       }
 
-      // Check if user is a verified company POC (they should not be able to login)
+      // Check if user is a verified company POC
       if (user.role === "Company") {
         const companyDoc = await Company.findOne({ user: user._id });
         if (companyDoc && companyDoc.verified) {
-          return res.status(403).json({
-            success: false,
-            message: "Your marks have been verified. You can no longer access the system.",
-          });
+          // Allow access to specific endpoints for requesting access again
+          const allowedVerifiedRoutes = [
+            "/api/v1/company/status",
+            "/api/v1/company/request-access",
+            "/api/v1/auth/logout",
+          ];
+          if (!allowedVerifiedRoutes.includes(req.originalUrl)) {
+            return res.status(403).json({
+              success: false,
+              message: "Your marks have been verified. You can no longer access the system.",
+              verified: true,
+              accessRequestPending: companyDoc.accessRequestPending || false,
+            });
+          }
         }
       }
 
@@ -112,12 +132,16 @@ export function handleRouteAccess(req, res, next) {
       "/api/v1/convener/create-ps",
       "/api/v1/convener/get-pending-requests",
       "/api/v1/convener/get-company-pending-requests",
+      "/api/v1/convener/get-access-requests",
+      "/api/v1/convener/get-company-access-requests",
     ];
     const startsWithAllowed = [
       "/api/v1/convener/update-ps/",
       "/api/v1/convener/delete-ps/",
       "/api/v1/convener/verify-judge/",
       "/api/v1/convener/verify-company/",
+      "/api/v1/convener/grant-access/",
+      "/api/v1/convener/grant-company-access/",
     ];
     if (
       !allowed.includes(route) &&
@@ -179,6 +203,8 @@ export function handleRouteAccess(req, res, next) {
           "/api/v1/company/get-sub",
           "/api/v1/company/save-sub",
           "/api/v1/company/submit-marks-request",
+          "/api/v1/company/status",
+          "/api/v1/company/request-access",
         ];
         if (
           !allowed.includes(route)
@@ -197,6 +223,8 @@ export function handleRouteAccess(req, res, next) {
       "/api/v1/judge/get-ps",
       "/api/v1/judge/save-ppt-scores",
       "/api/v1/judge/submit-marks-request",
+      "/api/v1/judge/status",
+      "/api/v1/judge/request-access",
     ];
     if (!allowed.includes(route)) {
       return res.status(403).json({

@@ -14,6 +14,8 @@ function CompanyDashboard() {
   const [showConfirmModal, setShowConfirmModal] = useState(false);
   const [confirmChecked, setConfirmChecked] = useState(false);
   const [submitting, setSubmitting] = useState(false);
+  const [companyStatus, setCompanyStatus] = useState(null);
+  const [requestingAccess, setRequestingAccess] = useState(false);
 
   useEffect(() => {
     const stored = JSON.parse(localStorage.getItem("user"));
@@ -25,8 +27,52 @@ function CompanyDashboard() {
     }
   }, [user, navigate]);
 
-  // Fetch PS and submissions from backend
+  // Fetch company status first
   useEffect(() => {
+    const fetchCompanyStatus = async () => {
+      try {
+        const stored = localStorage.getItem("accessToken");
+        const token = stored || user?.accessToken;
+
+        if (!token) {
+          navigate("/sign-in");
+          return;
+        }
+
+        const response = await fetch(`${BACKEND_URL}/api/v1/company/status`, {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: token ? `Bearer ${token}` : "",
+          }
+        });
+
+        const data = await response.json();
+
+        if (data.success) {
+          setCompanyStatus(data);
+        }
+      } catch (error) {
+        console.error("Error fetching company status:", error);
+      }
+    };
+
+    fetchCompanyStatus();
+  }, [user, navigate]);
+
+  // Fetch PS and submissions from backend (only if not verified)
+  useEffect(() => {
+    // Wait for status to be fetched first
+    if (companyStatus === null) {
+      return;
+    }
+
+    // If verified, don't fetch submissions
+    if (companyStatus && companyStatus.verified) {
+      setLoading(false);
+      return;
+    }
+
     const fetchSubmissions = async () => {
       try {
         const stored = localStorage.getItem("accessToken");
@@ -66,7 +112,56 @@ function CompanyDashboard() {
     };
 
     fetchSubmissions();
-  }, [user, navigate]);
+  }, [user, navigate, companyStatus]);
+
+  const handleRequestAccess = async () => {
+    setRequestingAccess(true);
+    try {
+      const stored = localStorage.getItem("accessToken");
+      const token = stored || user?.accessToken;
+
+      if (!token) {
+        navigate("/sign-in");
+        return;
+      }
+
+      const response = await fetch(
+        `${BACKEND_URL}/api/v1/company/request-access`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: token ? `Bearer ${token}` : "",
+          },
+        }
+      );
+
+      const data = await response.json();
+
+      if (data.success) {
+        alert(data.message || "Access request submitted successfully!");
+        // Refresh status
+        const statusResponse = await fetch(`${BACKEND_URL}/api/v1/company/status`, {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: token ? `Bearer ${token}` : "",
+          }
+        });
+        const statusData = await statusResponse.json();
+        if (statusData.success) {
+          setCompanyStatus(statusData);
+        }
+      } else {
+        alert(data.message || "Failed to submit access request");
+      }
+    } catch (error) {
+      console.error("Error requesting access:", error);
+      alert("Failed to submit access request. Please try again.");
+    } finally {
+      setRequestingAccess(false);
+    }
+  };
 
   // Extract unique hostel IDs from submissions
   const getUniqueHostelIds = () => {
@@ -178,6 +273,68 @@ function CompanyDashboard() {
   }
 
   const uniqueHostelIds = getUniqueHostelIds();
+
+  // If company is verified, show the "already submitted" message
+  if (companyStatus && companyStatus.verified) {
+    return (
+      <div className="min-h-screen bg-gray-50 p-8 flex items-center justify-center">
+        <div className="max-w-2xl w-full">
+          <div className="bg-white rounded-xl shadow-lg p-8 text-center">
+            <div className="bg-green-100 rounded-full p-4 inline-block mb-6">
+              <svg
+                className="w-16 h-16 text-green-600"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
+                />
+              </svg>
+            </div>
+
+            <h2 className="text-3xl font-bold text-gray-800 mb-4">
+              Marks Already Submitted
+            </h2>
+
+            <p className="text-gray-600 mb-6 text-lg">
+              You have already submitted all your results and they have been verified by the convener.
+            </p>
+
+            {companyStatus.accessRequestPending ? (
+              <div className="bg-blue-50 border-l-4 border-blue-400 p-4 mb-6">
+                <p className="text-blue-800 font-semibold">
+                  ⏳ Your access request is pending. Please wait for the convener to approve it.
+                </p>
+              </div>
+            ) : (
+              <div className="mb-6">
+                <p className="text-gray-700 mb-4">
+                  If you need to make changes to your marks, you can request access from the convener.
+                </p>
+                <button
+                  onClick={handleRequestAccess}
+                  disabled={requestingAccess}
+                  className="bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 px-8 rounded-lg transition-colors shadow-md hover:shadow-lg disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  {requestingAccess ? "Requesting..." : "Ask for Access"}
+                </button>
+              </div>
+            )}
+
+            <div className="mt-8 pt-6 border-t border-gray-200">
+              <p className="text-sm text-gray-500">
+                For any urgent issues, please contact the Kriti Convener directly.
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-gray
