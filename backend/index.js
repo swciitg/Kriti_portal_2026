@@ -3,6 +3,7 @@ import cors from "cors";
 import dotenv from "dotenv";
 import connectDB from "./src/db/connect.js";
 import cookieParser from "cookie-parser";
+import { mailInit } from "./src/utils/mail.js";
 
 dotenv.config();
 
@@ -55,6 +56,7 @@ app.use('/api/v1/judge' , JudgeRouter);
 import CompanyRouter from "./src/routes/companyRoutes.js"
 app.use('/api/v1/company', CompanyRouter);
 
+mailInit();
 
 connectDB()
 .then(()=>{

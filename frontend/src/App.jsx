@@ -19,7 +19,9 @@ import JudgeDashboard from "./pages/judge/dashboard.jsx"
 import HostelJudging from "./pages/judge/HostelJudging.jsx"
 import CompanyDashboard from "./pages/company/dashboard.jsx"
 import SubmissionJudging from "./pages/company/SubmissionJudging.jsx"
-
+import RequestPasswordReset from "./pages/changePassword.jsx";
+import ResetPassword from "./pages/resetPassword.jsx";
+import TeamRequestAll from "./pages/convener/teamRequestAll.jsx";
 
 function App() {
   return (
@@ -28,6 +30,8 @@ function App() {
         <AuthButton />
         <Routes>
           <Route path="/sign-in" element={<SignIn />} />
+          <Route path="/change-password" element={<RequestPasswordReset />} />
+          <Route path="/reset-password" element={<ResetPassword />} />
 
           <Route path="/convener" element={<ConvenerDashboard />} />
           <Route path="/convener/onboard-user" element={<OnboardUserPage />} />
@@ -36,6 +40,7 @@ function App() {
           <Route path="/convener/ps/:id" element={<PSDetails />} />
           <Route path="/convener/judge-requests" element={<JudgeRequests />} />
           <Route path="/convener/company-requests" element={<CompanyRequests />} />
+          <Route path="/convener/team-requests" element={<TeamRequestAll />} />
 
           <Route path="/superadmin/sign-in" element={<SuperAdminSignIn />} />
           <Route path="/superadmin" element={<SuperAdminDashboard />} />
@@ -50,7 +55,10 @@ function App() {
           <Route path="/judge/hostel/:hostelId" element={<HostelJudging />} />
 
           <Route path="/company/dashboard" element={<CompanyDashboard />} />
-          <Route path="/company/hostel/:hostelId" element={<SubmissionJudging />} />
+          <Route
+            path="/company/hostel/:hostelId"
+            element={<SubmissionJudging />}
+          />
         </Routes>
       </BrowserRouter>
       <Footer />
@@ -58,4 +66,4 @@ function App() {
   );
 }
 
-export default App
+export default App;

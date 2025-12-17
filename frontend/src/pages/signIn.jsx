@@ -25,11 +25,12 @@ export default function SignIn() {
     try {
       const res = await fetch(`${BACKEND_URL}/api/v1/auth/sign-in`, {
         method: "POST",
+        credentials: "include",
         headers: {
-          "Content-Type": "application/json"
+          "Content-Type": "application/json",
         },
-        body: JSON.stringify(form)
-      })
+        body: JSON.stringify(form),
+      });
       const data = await res.json()
 
       if(!(data.success)) {
@@ -62,6 +63,9 @@ export default function SignIn() {
 
       if(data.user.role === "Company") {
         navigate('/company/dashboard')
+      }
+      if (data.user.role === "TechSecy") {
+        navigate("/techsecy");
       }
       // page redirect login based on role
 
@@ -141,6 +145,15 @@ export default function SignIn() {
         className="text-blue-500 text-md cursor-pointer"
         >
             Sign-In as Super Admin
+        </p>
+      
+        <p
+        onClick={() => {
+            navigate('/change-password')
+        }}
+        className="text-blue-500 text-md cursor-pointer"
+        >
+            Change Password
         </p>
       </form>
     </div>

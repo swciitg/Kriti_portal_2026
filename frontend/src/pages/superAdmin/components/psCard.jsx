@@ -31,8 +31,8 @@ export default function ProblemCard({ ps }) {
       <h3 className="text-lg font-semibold text-gray-900 mb-2">{ps.name}</h3>
 
       <div className="text-sm text-gray-600 space-y-1">
-        <p>Registration: <span className="text-gray-800 font-medium">{ps.registrationDeadline}</span></p>
-        <p>Submission: <span className="text-gray-800 font-medium">{ps.submissionDeadline}</span></p>
+        <p>Registration deadline: <span className="text-gray-800 font-medium">{ps.registrationDeadline}</span></p>
+        <p>Submission deadline: <span className="text-gray-800 font-medium">{ps.submissionDeadline}</span></p>
       </div>
 
       <div className="flex justify-between items-center gap-2">

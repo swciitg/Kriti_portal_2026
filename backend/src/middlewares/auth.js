@@ -134,6 +134,7 @@ export function handleRouteAccess(req, res, next) {
       "/api/v1/convener/get-company-pending-requests",
       "/api/v1/convener/get-access-requests",
       "/api/v1/convener/get-company-access-requests",
+      "/api/v1/convener/get-requests",
     ];
     const startsWithAllowed = [
       "/api/v1/convener/update-ps/",
@@ -142,6 +143,8 @@ export function handleRouteAccess(req, res, next) {
       "/api/v1/convener/verify-company/",
       "/api/v1/convener/grant-access/",
       "/api/v1/convener/grant-company-access/",
+      "/api/v1/convener/get-requests/",
+      "/api/v1/convener/update-status/",
     ];
     if (
       !allowed.includes(route) &&
@@ -186,7 +189,14 @@ export function handleRouteAccess(req, res, next) {
 
   if (role === "TechSecy") {
     const allowed = [];
-    const startsWithAllowed = ["/api/v1/techsecy/register-team/"];
+    const startsWithAllowed = [
+      "/api/v1/techsecy/register-team/",
+      "/api/v1/techsecy/get-team/",
+      "/api/v1/techsecy/edit-registered-team/",
+      "/api/v1/techsecy/update-registered-team/",
+      "/api/v1/techsecy/delete/",
+      "/api/v1/techsecy/get-requests/",
+    ];
     if (
       !allowed.includes(route) &&
       !startsWithAllowed.some((p) => route.startsWith(p))

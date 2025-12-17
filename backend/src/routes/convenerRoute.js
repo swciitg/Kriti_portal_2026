@@ -16,6 +16,9 @@ import {
   grantCompanyAccess 
 } from "../controllers/convener/companyManagement.js";
 import { handleRouteAccess, verifyJWT } from "../middlewares/auth.js";
+import { GetAllRequests } from "../controllers/convener/requests/getAllRequests.js";
+import { GetRequestById } from "../controllers/convener/requests/getRequestById.js";
+import { statusUpdate } from "../controllers/convener/requests/statusUpdate.js";
 
 const router = Router();
 
@@ -31,5 +34,8 @@ router.route("/get-access-requests").get(verifyJWT, handleRouteAccess, getAccess
 router.route("/grant-access/:judgeId").post(verifyJWT, handleRouteAccess, grantAccess);
 router.route("/get-company-access-requests").get(verifyJWT, handleRouteAccess, getCompanyAccessRequests);
 router.route("/grant-company-access/:companyId").post(verifyJWT, handleRouteAccess, grantCompanyAccess);
+router.route("/get-requests").get(verifyJWT, handleRouteAccess, GetAllRequests);
+router.route("/get-requests/:id").get(verifyJWT, handleRouteAccess, GetRequestById);
+router.route("/update-status/:id").put(verifyJWT, handleRouteAccess, statusUpdate);
 
 export default router;

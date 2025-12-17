@@ -24,11 +24,12 @@ export async function GetPoints(req, res) {
         const groupByPS = points?.reduce((acc , item) => {
             const psId = item.ps._id.toString();
             if(!acc[psId] || acc[psId] === undefined) {
-                acc[psId] = {...item.ps};
-                acc[psId].submissions = [];
+                acc[psId] = {...item.ps.toObject() , submissions : []};
             }
-            delete item.ps;
-            acc[psId].submissions.push(item)
+            let _submission = item.toObject();
+            delete _submission.ps;
+            acc[psId].submissions.push(_submission);
+            return acc;
         } , {});
 
         /**
