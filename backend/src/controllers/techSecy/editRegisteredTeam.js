@@ -43,7 +43,8 @@ export async function editRegisteredTeam(req, res) {
       psId,
       requestType: "EDIT_TEAM",
       hostelId: techSecy.hostelId,
-      psName: ps.name
+      psName: ps.name,
+      status: "pending",
     });
     return res.status(201).json({
       success: "true",
