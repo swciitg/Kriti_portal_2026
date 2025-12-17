@@ -40,6 +40,24 @@ function ConvenerDashboard() {
                     Manage Problem Statements
                 </button>
             </div>
+            <div className="flex flex-row gap-4">
+            <div className="w-full max-w-md bg-white shadow-xl rounded-xl p-8">
+                <button
+                    onClick={() => navigate("/convener/judge-requests")}
+                    className="w-full py-3 rounded-lg bg-blue-600 text-white text-lg font-medium hover:bg-blue-700 transition"
+                >
+                    Manage Judge Requests
+                </button>
+            </div>
+            <div className="w-full max-w-md bg-white shadow-xl rounded-xl p-8">
+                <button
+                    onClick={() => navigate("/convener/company-requests")}
+                    className="w-full py-3 rounded-lg bg-blue-600 text-white text-lg font-medium hover:bg-blue-700 transition"
+                >
+                    Manage Company Requests
+                </button>
+            </div>
+            </div>
             <div className="w-full max-w-md bg-white shadow-xl rounded-xl p-8">
                 <button
                     onClick={() => navigate("/convener/team-requests")}
