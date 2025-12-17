@@ -143,6 +143,7 @@ export function handleRouteAccess(req, res, next) {
       "/api/v1/techsecy/edit-registered-team/",
       "/api/v1/techsecy/update-registered-team/",
       "/api/v1/techsecy/delete/",
+      "/api/v1/techsecy/get-requests/",
     ];
     if (
       !allowed.includes(route) &&

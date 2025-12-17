@@ -1,5 +1,5 @@
 import { useParams, useNavigate } from "react-router-dom";
-import { useEffect, useState, useContext } from "react";
+import { useEffect, useState, useContext, useCallback } from "react";
 import { BACKEND_URL } from "../../../constants";
 import { userContext } from "../../../context/userContext";
 
@@ -9,13 +9,17 @@ export default function RegisterTeam() {
   const { user } = useContext(userContext);
   const [psDetails, setPsDetails] = useState(null);
   const [existingTeam, setExistingTeam] = useState(null);
-  const [loading, setLoading] = useState(true);
   const [teamMembers, setTeamMembers] = useState([
     { name: "", email: "", rollNumber: "", discordId: "" },
   ]);
+  const [requestStatus, setRequestStatus] = useState("none");
+  const [loading, setLoading] = useState(true);
+  const [requestingEdit, setRequestingEdit] = useState(false);
   const [error, setError] = useState("");
   const [message, setMessage] = useState("");
-  const [requestingEdit, setRequestingEdit] = useState(false);
+
+  const canEdit = requestStatus === "approved";
+  const isEditing = Boolean(existingTeam);
 
   useEffect(() => {
     const stored = JSON.parse(localStorage.getItem("user"));
@@ -26,6 +30,24 @@ export default function RegisterTeam() {
       navigate("/sign-in");
     }
   }, [user, navigate]);
+
+  const fetchRequestStatus = useCallback(async () => {
+    try {
+      const res = await fetch(
+        `${BACKEND_URL}/api/v1/techsecy/get-requests/${psId}`,
+        { credentials: "include" }
+      );
+
+      if (res.ok) {
+        const data = await res.json();
+        setRequestStatus(data.data.status);
+      } else if (res.status === 404) {
+        setRequestStatus("none");
+      }
+    } catch {
+      console.error("Failed to fetch request status");
+    }
+  }, [psId]);
 
   useEffect(() => {
     async function fetchAll() {
@@ -44,24 +66,46 @@ export default function RegisterTeam() {
         );
         if (teamRes.ok) {
           const teamData = await teamRes.json();
-          if (teamData.teams && teamData.teams.length > 0) {
-            setExistingTeam(teamData.teams[0]);
-          } else {
-            setExistingTeam(null);
-          }
-        } else {
-          setExistingTeam(null);
+          setExistingTeam(teamData.teams?.[0] || null);
         }
-        setLoading(true);
-        setTimeout(() => setLoading(false), 200);
-      } catch (err) {
-        console.error(err);
+
+        await fetchRequestStatus();
+      } catch {
         setError("Failed to fetch details");
       } finally {
         setLoading(false);
       }
     }
     fetchAll();
+  }, [psId, fetchRequestStatus]);
+
+  useEffect(() => {
+    const interval = setInterval(fetchRequestStatus, 5000);
+    return () => clearInterval(interval);
+  }, [fetchRequestStatus]);
+
+  useEffect(() => {
+    if (existingTeam && canEdit) {
+      setTeamMembers(existingTeam.teamMembers);
+    }
+  }, [existingTeam, canEdit]);
+
+  useEffect(() => {
+    localStorage.setItem(`teamMembers-${psId}`, JSON.stringify(teamMembers));
+  }, [teamMembers, psId]);
+
+  useEffect(() => {
+    const saved = localStorage.getItem(`teamMembers-${psId}`);
+    if (saved) setTeamMembers(JSON.parse(saved));
+  }, [psId]);
+
+  useEffect(() => {
+    localStorage.setItem(`requestStatus-${psId}`, requestStatus);
+  }, [requestStatus, psId]);
+
+  useEffect(() => {
+    const saved = localStorage.getItem(`requestStatus-${psId}`);
+    if (saved) setRequestStatus(saved);
   }, [psId]);
 
   async function requestEditAccess() {
@@ -81,54 +125,20 @@ export default function RegisterTeam() {
         setError(data.message || "Failed to request edit access");
         return;
       }
-      setMessage("Edit access request sent successfully!");
-    } catch (err) {
-      setError("Server error while requesting edit access");
+
+      setMessage("Edit request sent for approval");
+      setRequestStatus("pending");
+    } catch {
+      setError("Server error");
     } finally {
       setRequestingEdit(false);
     }
   }
 
-  if (loading) {
-    return <div className="p-4">Loading ...</div>;
-  }
-
-  if (existingTeam) {
-    return (
-      <div className="p-4 max-w-3xl mx-auto">
-        <h1 className="text-3xl font-semibold">Your Team</h1>
-        <p className="text-gray-700 mt-2">PS: {psDetails.name}</p>
-
-        <div className="mt-6 space-y-4">
-          {existingTeam.teamMembers.map((m, i) => (
-            <div key={i} className="border p-4 rounded">
-              <h2 className="font-semibold">Member {i + 1}</h2>
-              <p>Name: {m.name}</p>
-              <p>Email: {m.email}</p>
-              <p>Roll Number: {m.rollNumber}</p>
-              <p>Discord ID: {m.discordId}</p>
-            </div>
-          ))}
-        </div>
-
-        <button
-          onClick={requestEditAccess}
-          disabled={requestingEdit}
-          className={`mt-6 px-4 py-2 rounded text-white ${
-            requestingEdit
-              ? "bg-gray-400 cursor-not-allowed"
-              : "bg-yellow-500 hover:bg-yellow-600"
-          }`}
-        >
-          {requestingEdit ? "Requesting..." : "Request Edit Access"}
-        </button>
-      </div>
-    );
-  }
-
   function addMember() {
     if (teamMembers.length >= psDetails.teamStrength) {
-      return setError(`Maximum ${psDetails.teamStrength} members allowed`);
+      setError(`Maximum ${psDetails.teamStrength} members allowed`);
+      return;
     }
     setTeamMembers([
       ...teamMembers,
@@ -145,99 +155,129 @@ export default function RegisterTeam() {
   }
   async function submitTeam() {
     try {
-      const res = await fetch(
-        `${BACKEND_URL}/api/v1/techsecy/register-team/${psId}`,
-        {
-          method: "POST",
-          credentials: "include",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ teamMembers }),
-        }
-      );
+      setError("");
+      setMessage("");
+
+      const url = isEditing
+        ? `${BACKEND_URL}/api/v1/techsecy/update-registered-team/${psId}`
+        : `${BACKEND_URL}/api/v1/techsecy/register-team/${psId}`;
+
+      const res = await fetch(url, {
+        method: isEditing ? "PUT" : "POST",
+        credentials: "include",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ teamMembers }),
+      });
 
       const data = await res.json();
 
       if (!res.ok) {
-        setError(data.message);
+        setError(data.message || "Failed to save team");
         return;
       }
-      setMessage("Team registered successfully!");
-      setTimeout(() => navigate(0), 700);
-    } catch (err) {
+
+      localStorage.removeItem(`teamMembers-${psId}`);
+      localStorage.removeItem(`requestStatus-${psId}`);
+
+      setMessage(
+        isEditing
+          ? "Team updated successfully!"
+          : "Team registered successfully!"
+      );
+
+      setTimeout(() => navigate(0), 800);
+    } catch {
       setError("Server error");
     }
   }
+
+  if (loading) return <div className="p-4">Loading...</div>;
+
+  if (existingTeam && !canEdit) {
+    return (
+      <div className="p-4 max-w-3xl mx-auto">
+        <h1 className="text-3xl font-semibold">Your Team</h1>
+
+        {existingTeam.teamMembers.map((m, i) => (
+          <div key={i} className="border p-4 rounded mt-3">
+            <p>Name: {m.name}</p>
+            <p>Email: {m.email}</p>
+            <p>Roll: {m.rollNumber}</p>
+            <p>Discord: {m.discordId}</p>
+          </div>
+        ))}
+
+        <div className="mt-6">
+          {requestStatus === "pending" && (
+            <p className="text-yellow-600">Requested for approval</p>
+          )}
+
+          {(requestStatus === "none" || requestStatus === "rejected") && (
+            <button
+              onClick={requestEditAccess}
+              disabled={requestingEdit}
+              className="bg-yellow-500 text-white px-4 py-2 rounded"
+            >
+              {requestingEdit ? "Requesting..." : "Request Edit Access"}
+            </button>
+          )}
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="p-4 max-w-3xl mx-auto">
-      <h1 className="text-3xl font-semibold">Register Team</h1>
-
-      <p className="mt-2 text-gray-700">PS: {psDetails.name}</p>
-      <p className="text-gray-600 mb-4">
-        Max Team Size: {psDetails.teamStrength}
-      </p>
-
-      {error && <p className="text-red-500 mb-3">{error}</p>}
-      {message && <p className="text-green-600 mb-3">{message}</p>}
-
+      <h1 className="text-3xl font-semibold">
+        {isEditing ? "Edit Team" : "Register Team"}
+      </h1>
       {teamMembers.map((m, i) => (
-        <div key={i} className="border p-4 rounded mb-3">
-          <h2 className="font-semibold">Member {i + 1}</h2>
-
+        <div key={i} className="border p-4 rounded mt-3">
           <input
-            type="text"
-            placeholder="Name"
             className="border p-2 w-full mt-2"
+            placeholder="Name"
             value={m.name}
             onChange={(e) => updateMember(i, "name", e.target.value)}
           />
-
           <input
-            type="email"
-            placeholder="Email"
             className="border p-2 w-full mt-2"
+            placeholder="Email"
             value={m.email}
             onChange={(e) => updateMember(i, "email", e.target.value)}
           />
-
           <input
-            type="number"
-            placeholder="Roll Number"
             className="border p-2 w-full mt-2"
+            placeholder="Roll Number"
             value={m.rollNumber}
             onChange={(e) => updateMember(i, "rollNumber", e.target.value)}
           />
-
           <input
-            type="text"
-            placeholder="Discord ID"
             className="border p-2 w-full mt-2"
+            placeholder="Discord ID"
             value={m.discordId}
             onChange={(e) => updateMember(i, "discordId", e.target.value)}
           />
-
           {i > 0 && (
             <button
-              onClick={() => removeMember(i)}
               className="text-red-500 mt-2"
+              onClick={() => removeMember(i)}
             >
               Remove Member
             </button>
           )}
         </div>
       ))}
-
       <button
-        className="bg-blue-600 text-white px-4 py-2 rounded"
+        className="bg-blue-600 text-white px-4 py-2 mt-4 rounded"
         onClick={addMember}
       >
         Add Member
       </button>
-
       <button
-        className="bg-green-600 text-white px-4 py-2 rounded ml-3"
+        className="bg-green-600 text-white px-4 py-2 mt-4 ml-3 rounded"
         onClick={submitTeam}
       >
-        Submit Team
+        Save Team
       </button>
     </div>
   );

@@ -5,6 +5,7 @@ import { GetTeamsForProblemStatement } from "../controllers/teams/getByProblemSt
 import { editRegisteredTeam } from "../controllers/techSecy/editRegisteredTeam.js";
 import { updateRegisterTeam } from "../controllers/techSecy/updateRegisterTeam.js";
 import { DeleteRequest } from "../controllers/convener/requests/deleteRequest.js";
+import { GetRequestById } from "../controllers/techSecy/getRequestByID.js";
 
 const router = Router();
 
@@ -21,5 +22,8 @@ router
   .route("/update-registered-team/:psId")
   .put(verifyJWT, handleRouteAccess, updateRegisterTeam);
 router.route("/delete/:id").delete(verifyJWT, handleRouteAccess, DeleteRequest);
+router
+  .route("/get-requests/:psId")
+  .get(verifyJWT, handleRouteAccess, GetRequestById);
 
 export default router;

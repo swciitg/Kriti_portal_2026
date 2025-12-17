@@ -1,6 +1,7 @@
 import team from "../../model/team.js";
 import TechSecy from "../../model/techSecy.js";
 import PS from "../../model/ps.js";
+import Request from "../../model/request.js";
 
 export async function updateRegisterTeam(req, res) {
   try {
@@ -37,6 +38,14 @@ export async function updateRegisterTeam(req, res) {
     }
     existingTeam.teamMembers = teamMembers;
     const updatedTeam = await existingTeam.save();
+    const editRequest = await Request.findOneAndDelete({
+      from: req.user._id,
+      psId,
+      requestType: "EDIT_TEAM",
+    });
+    if(!editRequest){
+      return res.status(400).json({success: "false", message: "No edit request found"});
+    }
     return res
       .status(201)
       .json({
