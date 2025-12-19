@@ -18,7 +18,7 @@ export const getCompanyPS = async (req, res) => {
 
     // Get the PS details with pptPointsDistribution
     const ps = await PS.findById(companyDoc.ps).select(
-      "name pptPointsDistribution pptSchedule registrationDeadline submissionPointsDistribution submissionDeadline"
+      "name pptPointsDistribution pptSchedule registrationDeadline submissionPointsDistribution submissionDeadline overallPointsDistribution"
     );
 
     if (!ps) {
@@ -41,7 +41,8 @@ export const getCompanyPS = async (req, res) => {
         pptSchedule: ps.pptSchedule,
         registrationDeadline: ps.registrationDeadline,
         submissionDeadline: ps.submissionDeadline,
-        submissions: allSubmissions
+        submissions: allSubmissions,
+        overallPointsDistribution: ps.overallPointsDistribution
       }
     });
   } catch (error) {
