@@ -13,6 +13,7 @@ function SubmissionJudging() {
   const [psInfo, setPsInfo] = useState(null);
   const [currentSubmission, setCurrentSubmission] = useState(null);
   const [saving, setSaving] = useState(false);
+  const [maxSubmissionScore, setMaxSubmissionScore] = useState(100); // Store the max score from overallPointsDistribution[0]
 
   useEffect(() => {
     const stored = JSON.parse(localStorage.getItem("user"));
@@ -56,6 +57,10 @@ function SubmissionJudging() {
           const submissionCriteria = data.ps.submissionPointsDistribution || [];
           setCriteria(submissionCriteria);
 
+          // Get the max submission score from overallPointsDistribution[0]
+          const maxScore = data.ps.overallPointsDistribution?.[0] || 100;
+          setMaxSubmissionScore(maxScore);
+
           // Find the submission for this hostel
           const submission = data.ps.submissions?.find(
             (sub) => sub.hostelId === parseInt(hostelId)
@@ -65,12 +70,20 @@ function SubmissionJudging() {
 
           // Initialize scores based on submission data or zeros
           // submissionPointsDistribution is an array where index corresponds to criteria order
+          // Convert from storage format (weighted out of maxScore) to display format (out of 100)
           const initialScores = submissionCriteria.reduce((acc, criterion, index) => {
             // Get the score from the array at this index
             const existingScore = submission?.submissionPointsDistribution?.[index];
 
-            // If score exists at this index, use it; otherwise default to 0
-            acc[criterion.field] = existingScore !== undefined ? existingScore : 0;
+            // Convert from storage format to display format (out of 100)
+            // Storage format: (displayScore/100) * (weightage/100) * maxScore
+            // So: displayScore = (existingScore / maxScore) / (weightage/100) * 100
+            if (existingScore !== undefined) {
+              const maxForCriterion = (criterion.weightage / 100) * maxScore;
+              acc[criterion.field] = Math.round(((existingScore / maxForCriterion) * 100) * 100) / 100;
+            } else {
+              acc[criterion.field] = 0;
+            }
             return acc;
           }, {});
 
@@ -101,13 +114,13 @@ function SubmissionJudging() {
     }));
   };
 
-  // Calculate weighted score for each criterion
+  // Calculate weighted score for each criterion (displayed out of 100)
   const calculateWeightedScore = (field, score) => {
     const criterion = criteria.find((c) => c.field === field);
     return ((score / 100) * criterion.weightage).toFixed(2);
   };
 
-  // Calculate total weighted score
+  // Calculate total weighted score (displayed out of 100)
   const calculateTotalScore = () => {
     return criteria
       .reduce((total, criterion) => {
@@ -124,9 +137,12 @@ function SubmissionJudging() {
       setSaving(true);
 
       // Convert scores object to array matching criteria order
-      const submissionPointsDistribution = criteria.map((criterion) =>
-        scores[criterion.field] || 0
-      );
+      // Convert from display format (out of 100) to storage format (out of maxSubmissionScore)
+      // Storage score = (displayScore/100) * (weightage/100) * maxSubmissionScore
+      const submissionPointsDistribution = criteria.map((criterion) => {
+        const displayScore = scores[criterion.field] || 0;
+        return (displayScore / 100) * (criterion.weightage / 100) * maxSubmissionScore;
+      });
 
       const token = localStorage.getItem("accessToken") || user?.accessToken;
       const response = await fetch(`${BACKEND_URL}/api/v1/company/save-sub`, {
