@@ -16,6 +16,7 @@ function CompanyDashboard() {
   const [submitting, setSubmitting] = useState(false);
   const [companyStatus, setCompanyStatus] = useState(null);
   const [requestingAccess, setRequestingAccess] = useState(false);
+  const [selectedTab, setSelectedTab] = useState("final"); // "final" or "midEval"
 
   useEffect(() => {
     const stored = JSON.parse(localStorage.getItem("user"));
@@ -96,6 +97,7 @@ function CompanyDashboard() {
         }
 
         const data = await response.json();
+        console.log(data)
 
         if (data.success && data.ps) {
           setPsInfo(data.ps);
@@ -163,15 +165,19 @@ function CompanyDashboard() {
     }
   };
 
-  // Extract unique hostel IDs from submissions
+  // Extract unique hostel IDs from submissions based on selected tab
   const getUniqueHostelIds = () => {
-    const hostelIds = submissions.map((submission
-) => submission.hostelId);
+    const filteredSubmissions = submissions.filter(sub =>
+      selectedTab === "final" ? !sub.midEval : sub.midEval
+    );
+    const hostelIds = filteredSubmissions.map((submission) => submission.hostelId);
     return [...new Set(hostelIds)].sort((a, b) => a - b);
   };
 
   const handleHostelClick = (hostelId) => {
-    navigate(`/company/hostel/${hostelId}`);
+    navigate(`/company/hostel/${hostelId}`, {
+      state: { isMidEval: selectedTab === "midEval" }
+    });
   };
 
   const handleSubmitMarksRequest = async () => {
@@ -385,9 +391,35 @@ function CompanyDashboard() {
 
         {/* Hostel List Section */}
         <div className="bg-white rounded-xl shadow-lg p-6">
-          <h2 className="text-2xl font-semibold text-gray-800 mb-6 pb-3 border-b-2 border-gray-200">
+          <h2 className="text-2xl font-semibold text-gray-800 mb-4 pb-3 border-b-2 border-gray-200">
             Select Hostel to Judge
           </h2>
+
+          {/* Tab Selector - Only show if midEval exists */}
+          {psInfo?.midEvalExist && (
+            <div className="flex gap-2 mb-6">
+              <button
+                onClick={() => setSelectedTab("final")}
+                className={`flex-1 py-2 px-4 rounded-lg font-medium transition-colors ${
+                  selectedTab === "final"
+                    ? "bg-blue-600 text-white shadow-md"
+                    : "bg-gray-100 text-gray-700 hover:bg-gray-200"
+                }`}
+              >
+                Final Submissions
+              </button>
+              <button
+                onClick={() => setSelectedTab("midEval")}
+                className={`flex-1 py-2 px-4 rounded-lg font-medium transition-colors ${
+                  selectedTab === "midEval"
+                    ? "bg-blue-600 text-white shadow-md"
+                    : "bg-gray-100 text-gray-700 hover:bg-gray-200"
+                }`}
+              >
+                Mid Eval Submissions
+              </button>
+            </div>
+          )}
 
           {uniqueHostelIds.length === 0 ? (
             <div className="text-center py-8">
@@ -410,8 +442,11 @@ function CompanyDashboard() {
             <ul className="space-y-3">
               {uniqueHostelIds.map((hostelId) => {
                 const hostelSubmissions = submissions.filter(
-                  (sub) => sub.hostelId === hostelId
+                  (sub) => sub.hostelId === hostelId && (
+                    selectedTab === "final" ? !sub.midEval : sub.midEval
+                  )
                 );
+
                 return (
                   <li key={hostelId}>
                     <button
@@ -419,13 +454,12 @@ function CompanyDashboard() {
                       className="w-full text-left px-6 py-4 bg-gradient-to-r from-blue-50 to-blue-100 hover:from-blue-100 hover:to-blue-200 rounded-lg transition-all duration-200 hover:shadow-md border border-blue-200 hover:border-blue-300"
                     >
                       <div className="flex items-center justify-between">
-                        <div>
+                        <div className="flex-1">
                           <span className="text-lg font-medium text-gray-800">
                             Hostel {hostelId}
                           </span>
                           <p className="text-sm text-gray-600 mt-1">
-                            {hostelSubmissions.length} submission
-                            {hostelSubmissions.length !== 1 ? "s" : ""}
+                            {hostelSubmissions.length} submission{hostelSubmissions.length !== 1 ? "s" : ""}
                           </p>
                         </div>
                         <svg

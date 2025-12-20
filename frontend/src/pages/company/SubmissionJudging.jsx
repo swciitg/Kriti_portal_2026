@@ -1,4 +1,4 @@
-import { useNavigate, useParams } from "react-router-dom";
+import { useNavigate, useParams, useLocation } from "react-router-dom";
 import { useContext, useState, useEffect } from "react";
 import { userContext } from "../../context/userContext";
 import { BACKEND_URL } from "../../constants"
@@ -6,14 +6,16 @@ import { BACKEND_URL } from "../../constants"
 function SubmissionJudging() {
   const navigate = useNavigate();
   const { hostelId } = useParams();
+  const location = useLocation();
   const { user } = useContext(userContext);
+  const isMidEval = location.state?.isMidEval || false; // Get whether this is mid eval from navigation state
 
   const [criteria, setCriteria] = useState([]);
   const [loading, setLoading] = useState(true);
   const [psInfo, setPsInfo] = useState(null);
   const [currentSubmission, setCurrentSubmission] = useState(null);
   const [saving, setSaving] = useState(false);
-  const [maxSubmissionScore, setMaxSubmissionScore] = useState(100); // Store the max score from overallPointsDistribution[0]
+  const [maxSubmissionScore, setMaxSubmissionScore] = useState(100); // Store the max score from overallPointsDistribution[0] or [2] for midEval
 
   useEffect(() => {
     const stored = JSON.parse(localStorage.getItem("user"));
@@ -54,16 +56,22 @@ function SubmissionJudging() {
 
         if (data.success && data.ps) {
           setPsInfo(data.ps);
-          const submissionCriteria = data.ps.submissionPointsDistribution || [];
+          
+          // Use midEvalPointsDistribution if isMidEval, otherwise use submissionPointsDistribution
+          const submissionCriteria = isMidEval 
+            ? (data.ps.midEvalPointsDistribution || [])
+            : (data.ps.submissionPointsDistribution || []);
           setCriteria(submissionCriteria);
 
-          // Get the max submission score from overallPointsDistribution[0]
-          const maxScore = data.ps.overallPointsDistribution?.[0] || 100;
+          // Get the max score from overallPointsDistribution[2] for midEval, [0] for final
+          const maxScore = isMidEval 
+            ? (data.ps.overallPointsDistribution?.[2] || 100)
+            : (data.ps.overallPointsDistribution?.[0] || 100);
           setMaxSubmissionScore(maxScore);
 
-          // Find the submission for this hostel
+          // Find the submission for this hostel based on isMidEval flag
           const submission = data.ps.submissions?.find(
-            (sub) => sub.hostelId === parseInt(hostelId)
+            (sub) => sub.hostelId === parseInt(hostelId) && sub.midEval === isMidEval
           );
 
           setCurrentSubmission(submission);
@@ -98,7 +106,7 @@ function SubmissionJudging() {
     };
 
     fetchPSCriteria();
-  }, [user, navigate, hostelId]);
+  }, [user, navigate, hostelId, isMidEval]);
 
   // State to store scores for each field (out of 100)
   const [scores, setScores] = useState({});

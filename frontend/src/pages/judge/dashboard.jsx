@@ -99,7 +99,9 @@ function JudgeDashboard() {
 
         if (data.success && data.ps) {
           setPsInfo(data.ps);
-          setSubmissions(data.ps.submissions || []);
+          // Filter out mid eval submissions - only show final submissions
+          const finalSubmissions = (data.ps.submissions || []).filter(sub => !sub.midEval);
+          setSubmissions(finalSubmissions);
         } else {
           setError("No submissions found");
         }
