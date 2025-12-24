@@ -12,30 +12,19 @@ export default function PSCreate() {
   const { user } = useContext(userContext);
 
   const [ps, setPs] = useState({
-    // basic
     name: "",
     prep: "high",
     startDate: "",
     submissionDeadline: "",
     registrationDeadline: "",
-
-    // mid eval
     midEvalExist: false,
     midEvalSubmissionDeadline: "",
-
-    // roles (ObjectId string or empty)
     judge: "",
     companyPOC: "",
-
-    // links
     pdf: "",
     pptSchedule: "",
-
-    // deliverables
     submissionDeliverables: [],
     midEvalSubmissionDeliverables: [],
-
-    // points
     submissionPointsDistribution: [],
     pptPointsDistribution: [],
     midEvalPointsDistribution: [],
@@ -54,7 +43,6 @@ export default function PSCreate() {
     midEvalPointsDistribution: false,
   });
 
-  // Protect route: only Convener
   useEffect(() => {
     const stored = JSON.parse(localStorage.getItem("user"));
     const role = stored?.role || user?.role;
@@ -84,7 +72,7 @@ export default function PSCreate() {
     setPs((prev) => {
       const arr = [...prev[field]];
       arr[index] = { ...arr[index], [key]: value };
-      if(VALIDATED_FIELDS.includes(field)){
+      if (VALIDATED_FIELDS.includes(field)) {
         const total = calculateTotal(arr);
         setPointsValidation((prevVal) => ({
           ...prevVal,
@@ -135,7 +123,7 @@ export default function PSCreate() {
       const ppt = arr[1] || 0;
       const mid = prev.midEvalExist ? arr[2] || 0 : 0;
       const total = sub + ppt + mid;
-      if(total!==Number(prev.points)){
+      if (total !== Number(prev.points)) {
         setIsOverallPointsValid(false);
       } else {
         setIsOverallPointsValid(true);
@@ -143,18 +131,18 @@ export default function PSCreate() {
       return {
         ...prev,
         overallPointsDistribution: arr,
-      }
-    })
-  }
+      };
+    });
+  };
 
   const validateBeforeSubmit = () => {
     if (!ps.name.trim()) return "Name is required.";
     if (!ps.prep) return "Prep level is required.";
     if (!ps.startDate) return "Start date is required.";
     if (!ps.submissionDeadline) return "Submission deadline is required.";
-    if(!ps.registrationDeadline) return "Registration deadline is required.";
+    if (!ps.registrationDeadline) return "Registration deadline is required.";
     if (!ps.pdf.trim()) return "PDF link is required.";
-    if (ps.points === "" || ps.points === null) return "Points are required.";
+    if (ps.points === "" || ps.points === null || ps.points === 0) return "Points are required.";
     if (!ps.teamStrength) return "Team strength is required.";
 
     const urlRegex = /^https?:\/\/.+/;
@@ -168,7 +156,7 @@ export default function PSCreate() {
       return "Mid evaluation submission date is required when mid evaluation exists.";
     }
 
-    if(isOverallPointsValid===false){
+    if (!isOverallPointsValid) {
       return "Overall points distribution does not match total points.";
     }
 
@@ -182,9 +170,12 @@ export default function PSCreate() {
       return "PPT points distribution must total 100.";
     }
 
-    const midTotal = calculateTotal(ps.midEvalPointsDistribution);
-    if (ps.pptPointsDistribution.length && midTotal !== 100) {
-      return "Mid term points distribution must total 100.";
+    // FIX: Only validate mid-eval if it exists
+    if (ps.midEvalExist) {
+      const midTotal = calculateTotal(ps.midEvalPointsDistribution);
+      if (ps.midEvalPointsDistribution.length && midTotal !== 100) {
+        return "Mid term points distribution must total 100.";
+      }
     }
 
     return "";
@@ -210,24 +201,20 @@ export default function PSCreate() {
     try {
       setSaving(true);
       const token = localStorage.getItem("accessToken");
-      console.log("Payload: ", payload);
-      console.log("-------------------------------------");
       const res = await fetch(`${BACKEND_URL}/api/v1/convener/create-ps`, {
         method: "POST",
         headers: {
-             "Content-Type": "application/json",
-           Authorization: token ? `Bearer ${token}` : "",
+          "Content-Type": "application/json",
+          Authorization: token ? `Bearer ${token}` : "",
         },
         body: JSON.stringify(payload),
       });
       const data = await res.json();
-      console.log("Data:", data);
       if (!res.ok || !data.success) {
         throw new Error(data.message || "Failed to create PS.");
       }
       setSuccess("Problem statement created successfully.");
-      // optional navigation
-      // setTimeout(() => navigate("/convener/ps-list"), 800);
+      setTimeout(() => navigate("/convener/ps"), 1500);
     } catch (e) {
       setError(e.message);
     } finally {
@@ -237,7 +224,7 @@ export default function PSCreate() {
 
   const subTotal = calculateTotal(ps.submissionPointsDistribution);
   const pptTotal = calculateTotal(ps.pptPointsDistribution);
-  const midTotal = calculateTotal(ps.midEvalPointsDistribution)
+  const midTotal = calculateTotal(ps.midEvalPointsDistribution);
 
   return (
     <div className="min-h-screen w-full flex justify-center bg-gray-100 p-4">
@@ -260,7 +247,7 @@ export default function PSCreate() {
         <div className="flex-1 overflow-y-auto space-y-6 pr-1">
           {/* Basic Information */}
           <section className="space-y-3">
-            <h2 className="text-2xl font-semibold">Basic Information</h2>
+            <h2 className="text-2xl font-semibold">📋 Basic Information</h2>
             <div className="grid gap-3 md:grid-cols-2">
               <div>
                 <label className="block text-sm font-medium">
@@ -320,16 +307,18 @@ export default function PSCreate() {
                 />
               </div>
             </div>
-            <label className="block text-sm font-medium">
-              PS PDF Link <span className="text-red-500">*</span>
-            </label>
-            <input
-              className="-mt-2 w-full border rounded px-3 py-2 text-sm"
-              name="pdf"
-              value={ps.pdf}
-              onChange={handleChange}
-              placeholder="https://..."
-            />
+            <div>
+              <label className="block text-sm font-medium">
+                PS PDF Link <span className="text-red-500">*</span>
+              </label>
+              <input
+                className="mt-1 w-full border rounded px-3 py-2 text-sm"
+                name="pdf"
+                value={ps.pdf}
+                onChange={handleChange}
+                placeholder="https://..."
+              />
+            </div>
             <label className="inline-flex items-center gap-2 text-lg">
               <input
                 type="checkbox"
@@ -344,7 +333,7 @@ export default function PSCreate() {
 
           {/*Deadlines*/}
           <section className="space-y-3">
-            <h2 className="text-2xl font-semibold">Deadlines</h2>
+            <h2 className="text-2xl font-semibold">⏰ Deadlines</h2>
             <div className="grid gap-3 md:grid-cols-2">
               <div>
                 <label className="block text-sm font-medium">
@@ -392,10 +381,10 @@ export default function PSCreate() {
             </div>
           </section>
 
-          {/* Over all points distribution */}
+          {/* Overall points distribution */}
           <section className="space-y-3">
             <h2 className="text-2xl font-semibold">
-              Overall Points Distribution
+              📊 Overall Points Distribution
             </h2>
             <div>
               <label className="block text-sm font-medium">
@@ -411,8 +400,8 @@ export default function PSCreate() {
               />
             </div>
             <p className="text-xs text-gray-500 mb-2">
-              Define all submission components and their weightages total must
-              be {ps.points} points, current total is:{" "}
+              Define all submission components and their weightages. Total must
+              be {ps.points} points. Current total:{" "}
               <span
                 className={
                   isOverallPointsValid
@@ -425,7 +414,7 @@ export default function PSCreate() {
                   (ps.midEvalExist ? ps.overallPointsDistribution[2] : 0)}
               </span>
             </p>
-            <div className="flex gap-6">
+            <div className="grid gap-3 md:grid-cols-2 lg:grid-cols-3">
               <div>
                 <label className="block text-sm font-medium">
                   End term submission score{" "}
@@ -435,7 +424,6 @@ export default function PSCreate() {
                   type="number"
                   min="0"
                   className="mt-1 w-full border rounded px-3 py-2 text-sm"
-                  name="points"
                   value={ps.overallPointsDistribution[0]}
                   onChange={(e) => handleOverallPointsChange(0, e.target.value)}
                 />
@@ -448,7 +436,6 @@ export default function PSCreate() {
                   type="number"
                   min="0"
                   className="mt-1 w-full border rounded px-3 py-2 text-sm"
-                  name="points"
                   value={ps.overallPointsDistribution[1]}
                   onChange={(e) => handleOverallPointsChange(1, e.target.value)}
                 />
@@ -463,7 +450,6 @@ export default function PSCreate() {
                     type="number"
                     min="0"
                     className="mt-1 w-full border rounded px-3 py-2 text-sm"
-                    name="points"
                     value={ps.overallPointsDistribution[2]}
                     onChange={(e) =>
                       handleOverallPointsChange(2, e.target.value)
@@ -477,8 +463,10 @@ export default function PSCreate() {
           {/* Category wise points distribution */}
           <section className="space-y-4">
             <h2 className="text-2xl font-semibold">
-              Category wise points Distribution
+              🎯 Category wise Points Distribution
             </h2>
+            
+            {/* Submission Points */}
             <div>
               <div className="flex items-center justify-between mb-1">
                 <span className="text-sm font-medium">
@@ -492,7 +480,7 @@ export default function PSCreate() {
                       emptyPointsItem
                     )
                   }
-                  className="text-xs px-2 py-1 bg-blue-500 text-white rounded"
+                  className="text-xs px-3 py-1 bg-blue-500 text-white rounded hover:bg-blue-600"
                 >
                   Add Criterion
                 </button>
@@ -546,13 +534,15 @@ export default function PSCreate() {
                     onClick={() =>
                       removeArrayItem("submissionPointsDistribution", idx)
                     }
-                    className="text-xs px-2 py-1 bg-red-500 text-white rounded"
+                    className="text-xs px-2 py-1 bg-red-500 text-white rounded hover:bg-red-600"
                   >
                     X
                   </button>
                 </div>
               ))}
             </div>
+
+            {/* PPT Points */}
             <div>
               <div className="flex items-center justify-between mb-1">
                 <span className="text-sm font-medium">
@@ -563,7 +553,7 @@ export default function PSCreate() {
                   onClick={() =>
                     addArrayItem("pptPointsDistribution", emptyPointsItem)
                   }
-                  className="text-xs px-2 py-1 bg-blue-500 text-white rounded"
+                  className="text-xs px-3 py-1 bg-blue-500 text-white rounded hover:bg-blue-600"
                 >
                   Add Criterion
                 </button>
@@ -616,13 +606,15 @@ export default function PSCreate() {
                     onClick={() =>
                       removeArrayItem("pptPointsDistribution", idx)
                     }
-                    className="text-xs px-2 py-1 bg-red-500 text-white rounded"
+                    className="text-xs px-2 py-1 bg-red-500 text-white rounded hover:bg-red-600"
                   >
                     X
                   </button>
                 </div>
               ))}
             </div>
+
+            {/* Mid Eval Points - Only show if mid eval exists */}
             {ps.midEvalExist && (
               <div>
                 <div className="flex items-center justify-between mb-1">
@@ -634,7 +626,7 @@ export default function PSCreate() {
                     onClick={() =>
                       addArrayItem("midEvalPointsDistribution", emptyPointsItem)
                     }
-                    className="text-xs px-2 py-1 bg-blue-500 text-white rounded"
+                    className="text-xs px-3 py-1 bg-blue-500 text-white rounded hover:bg-blue-600"
                   >
                     Add Criterion
                   </button>
@@ -688,7 +680,7 @@ export default function PSCreate() {
                       onClick={() =>
                         removeArrayItem("midEvalPointsDistribution", idx)
                       }
-                      className="text-xs px-2 py-1 bg-red-500 text-white rounded"
+                      className="text-xs px-2 py-1 bg-red-500 text-white rounded hover:bg-red-600"
                     >
                       X
                     </button>
@@ -698,24 +690,24 @@ export default function PSCreate() {
             )}
           </section>
 
-          {/* Final Submission Deliverables */}
+          {/* Submission Deliverables */}
           <section className="space-y-3">
-            <h2 className="text-2xl font-semibold">Submission Deliverables</h2>
+            <h2 className="text-2xl font-semibold">📦 Submission Deliverables</h2>
             <div>
               <div className="flex items-center justify-between mb-1">
-                <span className="text-sm font-medium">Deliverables</span>
+                <span className="text-sm font-medium">Final Submission Deliverables</span>
                 <button
                   type="button"
                   onClick={() =>
                     addArrayItem("submissionDeliverables", emptyDeliverable)
                   }
-                  className="text-xs px-2 py-1 bg-blue-500 text-white rounded"
+                  className="text-xs px-3 py-1 bg-blue-500 text-white rounded hover:bg-blue-600"
                 >
                   Add Deliverable
                 </button>
               </div>
               <p className="text-xs text-gray-500 mb-2">
-                Zip, PDF, PPT, URL, images, etc. You can add as many as needed.
+                Files or links required for final submission.
               </p>
               {ps.submissionDeliverables.map((item, idx) => (
                 <div key={idx} className="flex gap-2 mb-2">
@@ -764,95 +756,97 @@ export default function PSCreate() {
                     onClick={() =>
                       removeArrayItem("submissionDeliverables", idx)
                     }
-                    className="text-xs px-2 py-1 bg-red-500 text-white rounded"
+                    className="text-xs px-2 py-1 bg-red-500 text-white rounded hover:bg-red-600"
                   >
                     X
                   </button>
                 </div>
               ))}
-              {ps.midEvalExist && (
-                <div>
-                  <div className="flex items-center justify-between mb-1">
-                    <span className="text-sm font-medium">
-                      Mid Evaluation Deliverables
-                    </span>
+            </div>
+
+            {/* Mid Eval Deliverables - Only show if mid eval exists */}
+            {ps.midEvalExist && (
+              <div>
+                <div className="flex items-center justify-between mb-1">
+                  <span className="text-sm font-medium">
+                    Mid Evaluation Deliverables
+                  </span>
+                  <button
+                    type="button"
+                    onClick={() =>
+                      addArrayItem(
+                        "midEvalSubmissionDeliverables",
+                        emptyDeliverable
+                      )
+                    }
+                    className="text-xs px-3 py-1 bg-blue-500 text-white rounded hover:bg-blue-600"
+                  >
+                    Add Deliverable
+                  </button>
+                </div>
+                <p className="text-xs text-gray-500 mb-2">
+                  Files or links required for mid evaluation.
+                </p>
+                {ps.midEvalSubmissionDeliverables.map((item, idx) => (
+                  <div key={idx} className="flex gap-2 mb-2">
+                    <input
+                      className="border rounded px-2 py-1 text-sm flex-1"
+                      placeholder="Name"
+                      value={item.name}
+                      onChange={(e) =>
+                        handleArrayChange(
+                          "midEvalSubmissionDeliverables",
+                          idx,
+                          "name",
+                          e.target.value
+                        )
+                      }
+                    />
+                    <select
+                      className="border rounded px-2 py-1 text-sm w-28"
+                      value={item.type}
+                      onChange={(e) =>
+                        handleArrayChange(
+                          "midEvalSubmissionDeliverables",
+                          idx,
+                          "type",
+                          e.target.value
+                        )
+                      }
+                    >
+                      {[
+                        "url",
+                        "pdf",
+                        "zip",
+                        "ipynb",
+                        "doc",
+                        "pptx",
+                        "png",
+                        "jpg",
+                      ].map((t) => (
+                        <option key={t} value={t}>
+                          {t.toUpperCase()}
+                        </option>
+                      ))}
+                    </select>
                     <button
                       type="button"
                       onClick={() =>
-                        addArrayItem(
-                          "midEvalSubmissionDeliverables",
-                          emptyDeliverable
-                        )
+                        removeArrayItem("midEvalSubmissionDeliverables", idx)
                       }
-                      className="text-xs px-2 py-1 bg-blue-500 text-white rounded"
+                      className="text-xs px-2 py-1 bg-red-500 text-white rounded hover:bg-red-600"
                     >
-                      Add Deliverable
+                      X
                     </button>
                   </div>
-                  <p className="text-xs text-gray-500 mb-2">
-                    Dynamic list of files/links required at mid evaluation.
-                  </p>
-                  {ps.midEvalSubmissionDeliverables.map((item, idx) => (
-                    <div key={idx} className="flex gap-2 mb-2">
-                      <input
-                        className="border rounded px-2 py-1 text-sm flex-1"
-                        placeholder="Name"
-                        value={item.name}
-                        onChange={(e) =>
-                          handleArrayChange(
-                            "midEvalSubmissionDeliverables",
-                            idx,
-                            "name",
-                            e.target.value
-                          )
-                        }
-                      />
-                      <select
-                        className="border rounded px-2 py-1 text-sm w-28"
-                        value={item.type}
-                        onChange={(e) =>
-                          handleArrayChange(
-                            "midEvalSubmissionDeliverables",
-                            idx,
-                            "type",
-                            e.target.value
-                          )
-                        }
-                      >
-                        {[
-                          "url",
-                          "pdf",
-                          "zip",
-                          "ipynb",
-                          "doc",
-                          "pptx",
-                          "png",
-                          "jpg",
-                        ].map((t) => (
-                          <option key={t} value={t}>
-                            {t.toUpperCase()}
-                          </option>
-                        ))}
-                      </select>
-                      <button
-                        type="button"
-                        onClick={() =>
-                          removeArrayItem("midEvalSubmissionDeliverables", idx)
-                        }
-                        className="text-xs px-2 py-1 bg-red-500 text-white rounded"
-                      >
-                        X
-                      </button>
-                    </div>
-                  ))}
-                </div>
-              )}
-            </div>
+                ))}
+              </div>
+            )}
           </section>
 
           {/* Roles & Links */}
           <section className="space-y-3">
-            <h2 className="text-2xl font-semibold">Roles & Links</h2>
+            <h2 className="text-2xl font-semibold">👥 Roles & Links</h2>
             <div className="grid gap-3 md:grid-cols-2">
               <div>
                 <label className="block text-sm font-medium">
@@ -864,7 +858,7 @@ export default function PSCreate() {
                   name="judge"
                   value={ps.judge}
                   onChange={handleChange}
-                  placeholder="Paste Judge user _id when assigned"
+                  placeholder="Paste Judge user _id"
                 />
               </div>
 
@@ -878,7 +872,7 @@ export default function PSCreate() {
                   name="companyPOC"
                   value={ps.companyPOC}
                   onChange={handleChange}
-                  placeholder="Paste Company user _id when assigned"
+                  placeholder="Paste Company user _id"
                 />
               </div>
 

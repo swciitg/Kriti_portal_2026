@@ -22,6 +22,10 @@ import SubmissionJudging from "./pages/company/SubmissionJudging.jsx"
 import RequestPasswordReset from "./pages/changePassword.jsx";
 import ResetPassword from "./pages/resetPassword.jsx";
 import TeamRequestAll from "./pages/convener/teamRequestAll.jsx";
+import SubmissionsPage from "./pages/techSecy/submissions.jsx";
+import SubmissionForm from "./pages/techSecy/submissionForm.jsx";
+import ViewSubmission from "./pages/techSecy/viewSubmission.jsx";
+
 
 function App() {
   return (
@@ -50,6 +54,10 @@ function App() {
             path="/techsecy/register-team/:psId"
             element={<RegisterTeam />}
           />
+
+          <Route path="/techsecy/submissions" element={<SubmissionsPage />} />
+          <Route path="/techsecy/submissions/submit/:psId" element={<SubmissionForm />} />
+          <Route path="/techsecy/submissions/view/:submissionId" element={<ViewSubmission />} />
 
           <Route path="/judge/dashboard" element={<JudgeDashboard />} />
           <Route path="/judge/hostel/:hostelId" element={<HostelJudging />} />

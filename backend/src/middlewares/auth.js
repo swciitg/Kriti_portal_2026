@@ -196,6 +196,11 @@ export function handleRouteAccess(req, res, next) {
       "/api/v1/techsecy/update-registered-team/",
       "/api/v1/techsecy/delete/",
       "/api/v1/techsecy/get-requests/",
+      "/api/v1/pssubmission/user-info/",
+      "/api/v1/pssubmission/ps/open",
+      "/api/v1/pssubmission/ps/",
+      "/api/v1/pssubmission/submit",
+      "/api/v1/pssubmission/view/",
     ];
     if (
       !allowed.includes(route) &&

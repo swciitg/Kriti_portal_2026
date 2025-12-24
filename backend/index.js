@@ -4,11 +4,22 @@ import dotenv from "dotenv";
 import connectDB from "./src/db/connect.js";
 import cookieParser from "cookie-parser";
 import { mailInit } from "./src/utils/mail.js";
+import fs from 'fs';
+import path from 'path';
+import { fileURLToPath } from 'url';
 
 dotenv.config();
 
 const app = express();
 const PORT = process.env.PORT || 5000;
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
+const uploadsDir = path.join(__dirname, 'uploads', 'submissions');
+if (!fs.existsSync(uploadsDir)) {
+  fs.mkdirSync(uploadsDir, { recursive: true });
+  console.log('Created uploads/submissions directory');
+}
 
 app.use(cookieParser());
 app.use(
@@ -19,6 +30,8 @@ app.use(
   })
 );
 app.use(express.json());
+
+app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
 // app.get("/", (req, res) => {
 //   res.send("Hi");
@@ -55,6 +68,9 @@ app.use('/api/v1/judge' , JudgeRouter);
 
 import CompanyRouter from "./src/routes/companyRoutes.js"
 app.use('/api/v1/company', CompanyRouter);
+
+import PSsubmissionRouter from "./src/routes/pssubmissionRoutes.js"
+app.use('/api/v1/pssubmission' , PSsubmissionRouter);
 
 mailInit();
 

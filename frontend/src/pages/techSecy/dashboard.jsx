@@ -1,7 +1,6 @@
 import { useNavigate } from "react-router-dom";
-import { useContext } from "react";
+import { useContext, useEffect } from "react";
 import { userContext } from "../../context/userContext";
-import { useEffect } from "react";
 
 function TechSecyDashboard() {
   const navigate = useNavigate();
@@ -26,12 +25,19 @@ function TechSecyDashboard() {
       </nav>
 
       <div className="flex flex-col flex-1 items-center justify-center px-4 gap-10">
-        <div className="w-full max-w-md bg-white shadow-xl rounded-xl p-8">
+        <div className="w-full max-w-md bg-white shadow-xl rounded-xl p-8 flex flex-col gap-4">
           <button
             onClick={() => navigate("/techsecy/register-team")}
             className="w-full py-3 rounded-lg bg-blue-600 text-white text-lg font-medium hover:bg-blue-700 transition"
           >
             Register Team
+          </button>
+          
+          <button
+            onClick={() => navigate("/techsecy/submissions")}
+            className="w-full py-3 rounded-lg bg-green-600 text-white text-lg font-medium hover:bg-green-700 transition"
+          >
+            PS Submission
           </button>
         </div>
       </div>
