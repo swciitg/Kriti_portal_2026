@@ -1,0 +1,20 @@
+# docker-compose.yml
+version: "3.3"
+
+services:
+  kriti_submission_frontend:
+    image: kriti_submission_frontend
+    container_name: kriti_submission_frontend
+    restart: always
+    build:
+      context: .
+    ports:
+      - "7410:3000"
+    env_file:
+      - .env
+    networks:
+      - frontend_default
+
+networks:
+  frontend_default:
+    external: true

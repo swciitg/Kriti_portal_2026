@@ -43,34 +43,34 @@ app.use((req, res, next) => {
 });
 
 import ConvenerRouter from "./src/routes/convenerRoute.js"
-app.use('/api/v1/convener' , ConvenerRouter);
+app.use('/v1/convener' , ConvenerRouter);
 
 import AuthRouter from  "./src/routes/authRoutes.js"
-app.use('/api/v1/auth' , AuthRouter);
+app.use('/v1/auth' , AuthRouter);
 
 import SuperAdminRouter from "./src/routes/superAdminRoutes.js"
-app.use('/api/v1/superadmin' , SuperAdminRouter);
+app.use('/v1/superadmin' , SuperAdminRouter);
 
 import PSRouter from "./src/routes/psRoutes.js"
-app.use('/api/v1/ps', PSRouter);
+app.use('/v1/ps', PSRouter);
 
 import SubmissionRouter from "./src/routes/submissionRoutes.js"
-app.use('/api/v1/submission' , SubmissionRouter);
+app.use('/v1/submission' , SubmissionRouter);
 
 import TeamsRouter from "./src/routes/teamsRoutes.js"
-app.use('/api/v1/teams' , TeamsRouter);
+app.use('/v1/teams' , TeamsRouter);
 
 import TechSecyRouter from "./src/routes/techSecyRoutes.js";
-app.use('/api/v1/techsecy', TechSecyRouter);
+app.use('/v1/techsecy', TechSecyRouter);
 
 import JudgeRouter from "./src/routes/judgeRoutes.js"
-app.use('/api/v1/judge' , JudgeRouter);
+app.use('/v1/judge' , JudgeRouter);
 
 import CompanyRouter from "./src/routes/companyRoutes.js"
-app.use('/api/v1/company', CompanyRouter);
+app.use('/v1/company', CompanyRouter);
 
 import PSsubmissionRouter from "./src/routes/pssubmissionRoutes.js"
-app.use('/api/v1/pssubmission' , PSsubmissionRouter);
+app.use('/v1/pssubmission' , PSsubmissionRouter);
 
 mailInit();
 

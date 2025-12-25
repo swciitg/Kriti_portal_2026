@@ -30,9 +30,10 @@ import ViewSubmission from "./pages/techSecy/viewSubmission.jsx";
 function App() {
   return (
     <UserProvider>
-      <BrowserRouter>
+      <BrowserRouter basename="/kriti-submission">
         <AuthButton />
         <Routes>
+          <Route path="/" element={<SignIn />} />
           <Route path="/sign-in" element={<SignIn />} />
           <Route path="/change-password" element={<RequestPasswordReset />} />
           <Route path="/reset-password" element={<ResetPassword />} />
