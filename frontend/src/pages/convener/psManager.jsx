@@ -10,6 +10,7 @@ export default function PSManager() {
   const [problemStatements, setProblemStatements] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  const [searchTerm, setSearchTerm] = useState("");
 
   useEffect(() => {
     const stored = JSON.parse(localStorage.getItem("user"));
@@ -34,6 +35,8 @@ export default function PSManager() {
           id: item._id,
           name: item.name,
           prep: item.prep,
+          teamStrength: item.teamStrength,
+          points: item.points,
         }));
 
         setProblemStatements(filtered);
@@ -48,49 +51,185 @@ export default function PSManager() {
 
   const handleView = (id) => navigate(`/convener/ps/${id}`);
 
-  return (
-    <div className="min-h-screen w-full bg-gray-100 flex justify-center px-4 py-10">
-      <div className="w-full max-w-4xl bg-white shadow rounded-xl p-8 flex flex-col h-[calc(100vh-5rem)]">
-        <div className="overflow-y-auto space-y-6 pr-6">
-          <h1 className="text-2xl font-semibold text-gray-800">
-            Problem Statements
-          </h1>
-          <button
-            onClick={() => navigate("/convener/ps/create")}
-            className="bg-green-500 text-white px-4 py-2 rounded-lg hover:bg-green-600 transition"
-          >
-            Create New Problem Statement
-          </button>
-          {error && <p className="text-red-600 text-center">{error}</p>}
-          {loading && <p className="text-center text-gray-600">Loading...</p>}
-          {!loading && problemStatements.length === 0 && (
-            <p className="text-center text-gray-600">
-              No Problem statements Found
-            </p>
-          )}
+  const filteredPS = problemStatements.filter((ps) =>
+    ps.name.toLowerCase().includes(searchTerm.toLowerCase())
+  );
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-            {problemStatements.map((ps) => (
+  const getPrepColor = (prep) => {
+    const colors = {
+      high: "bg-red-100 text-red-700 border-red-200",
+      mid: "bg-yellow-100 text-yellow-700 border-yellow-200",
+      low: "bg-green-100 text-green-700 border-green-200",
+      no: "bg-gray-100 text-gray-700 border-gray-200",
+    };
+    return colors[prep] || colors.no;
+  };
+
+  return (
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-gray-50 to-slate-100">
+      <div className="container mx-auto px-4 py-8 max-w-7xl">
+        {/* Header Section */}
+        <div className="mb-8">
+          <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+            <div>
+              <h1 className="text-4xl font-bold text-gray-800 mb-2">
+                Problem Statements
+              </h1>
+              <p className="text-gray-600">
+                Manage and monitor all problem statements
+              </p>
+            </div>
+            <button
+              onClick={() => navigate("/convener/ps/create")}
+              className="bg-gradient-to-r from-green-600 to-green-700 text-white px-6 py-3 rounded-xl font-semibold hover:from-green-700 hover:to-green-800 transition-all shadow-lg hover:shadow-xl"
+            >
+              + Create Problem Statement
+            </button>
+          </div>
+        </div>
+
+        {/* Search Bar */}
+        <div className="mb-6">
+          <input
+            type="text"
+            placeholder="Search problem statements..."
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            className="w-full max-w-md px-4 py-3 rounded-xl border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-transparent shadow-sm transition-all"
+          />
+        </div>
+
+        {/* Error Message */}
+        {error && (
+          <div className="mb-6 bg-red-50 border border-red-200 text-red-700 px-6 py-4 rounded-xl">
+            <p className="font-medium">{error}</p>
+          </div>
+        )}
+
+        {/* Loading State */}
+        {loading && (
+          <div className="flex justify-center items-center py-20">
+            <div className="text-center">
+              <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-blue-600 mx-auto mb-4"></div>
+              <p className="text-gray-600 font-medium">Loading problem statements...</p>
+            </div>
+          </div>
+        )}
+
+        {/* Empty State */}
+        {!loading && filteredPS.length === 0 && !error && (
+          <div className="text-center py-20">
+            <div className="bg-gray-100 rounded-full w-24 h-24 flex items-center justify-center mx-auto mb-4">
+              <svg
+                className="w-12 h-12 text-gray-400"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
+                />
+              </svg>
+            </div>
+            <h3 className="text-xl font-semibold text-gray-700 mb-2">
+              {searchTerm ? "No results found" : "No problem statements yet"}
+            </h3>
+            <p className="text-gray-500">
+              {searchTerm
+                ? "Try adjusting your search terms"
+                : "Create your first problem statement to get started"}
+            </p>
+          </div>
+        )}
+
+        {/* Problem Statements Grid */}
+        {!loading && filteredPS.length > 0 && (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {filteredPS.map((ps) => (
               <div
                 key={ps.id}
-                className="border rounded-xl p-5 shadow-sm bg-gray-50 hover:shadow transition"
+                className="bg-white rounded-2xl shadow-md hover:shadow-xl transition-all duration-300 overflow-hidden border border-gray-200 flex flex-col"
               >
-                <h3 className="text-lg font-semibold text-gray-800">
-                  {ps.name}
-                </h3>
-                <p className="mt-1 text-gray-600">
-                  <b>Prep:</b> {ps.prep}
-                </p>
-                <button
-                  onClick={() => handleView(ps.id)}
-                  className="mt-4 w-full bg-blue-600 text-white py-2 rounded-lg hover:bg-blue-700 transition"
-                >
-                  View
-                </button>
+                {/* Card Header */}
+                <div className="bg-gradient-to-r from-slate-700 to-slate-800 p-6 text-white">
+                  <h3 className="text-xl font-bold mb-3 line-clamp-2 min-h-[3.5rem]">
+                    {ps.name}
+                  </h3>
+                  <div className="flex items-center gap-2">
+                    <span
+                      className={`px-3 py-1 rounded-full text-xs font-semibold border ${getPrepColor(
+                        ps.prep
+                      )} bg-white`}
+                    >
+                      {ps.prep.toUpperCase()} Prep
+                    </span>
+                  </div>
+                </div>
+
+                {/* Card Body */}
+                <div className="p-6 flex-grow">
+                  <div className="space-y-3">
+                    <div className="flex items-center justify-between">
+                      <span className="text-sm text-gray-600 font-medium">Team Size</span>
+                      <span className="text-sm text-gray-800 font-semibold">
+                        {ps.teamStrength} members
+                      </span>
+                    </div>
+                    <div className="flex items-center justify-between">
+                      <span className="text-sm text-gray-600 font-medium">Points</span>
+                      <span className="text-sm text-gray-800 font-semibold">
+                        {ps.points} pts
+                      </span>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Card Footer */}
+                <div className="p-6 pt-0">
+                  <button
+                    onClick={() => handleView(ps.id)}
+                    className="w-full bg-gradient-to-r from-blue-600 to-blue-700 text-white py-3 rounded-xl font-semibold hover:from-blue-700 hover:to-blue-800 transition-all shadow-md hover:shadow-lg"
+                  >
+                    View Details
+                  </button>
+                </div>
               </div>
             ))}
           </div>
-        </div>
+        )}
+
+        {/* Stats Summary */}
+        {!loading && filteredPS.length > 0 && (
+          <div className="mt-8 bg-white rounded-xl shadow-md p-6 border border-gray-200">
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+              <div className="text-center">
+                <p className="text-3xl font-bold text-gray-800">{problemStatements.length}</p>
+                <p className="text-sm text-gray-600 mt-1">Total PS</p>
+              </div>
+              <div className="text-center">
+                <p className="text-3xl font-bold text-red-600">
+                  {problemStatements.filter(ps => ps.prep === "high").length}
+                </p>
+                <p className="text-sm text-gray-600 mt-1">High Prep</p>
+              </div>
+              <div className="text-center">
+                <p className="text-3xl font-bold text-yellow-600">
+                  {problemStatements.filter(ps => ps.prep === "mid").length}
+                </p>
+                <p className="text-sm text-gray-600 mt-1">Mid Prep</p>
+              </div>
+              <div className="text-center">
+                <p className="text-3xl font-bold text-green-600">
+                  {problemStatements.filter(ps => ps.prep === "low").length}
+                </p>
+                <p className="text-sm text-gray-600 mt-1">Low Prep</p>
+              </div>
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );
