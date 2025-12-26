@@ -4,6 +4,7 @@ import { useContext } from "react"
 import { userContext } from "../../context/userContext"
 import { BACKEND_URL } from "../../constants"
 import { Eye, EyeOff } from "lucide-react"
+import UsersPage from "./components/usersList"
 
 export default function OnboardUserPage() {
   const navigate = useNavigate()
@@ -20,6 +21,7 @@ export default function OnboardUserPage() {
 
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState("")
+  const [message , setMessage] = useState("");
 
   const [showPassword , setShowPassword] = useState(false);
 
@@ -60,7 +62,7 @@ export default function OnboardUserPage() {
         setLoading(false)
         return
       }
-
+      setMessage("User Created successfully");
       setLoading(false)
     } catch (err) {
       setError("Something went wrong")
@@ -69,12 +71,38 @@ export default function OnboardUserPage() {
   }
 
   return (
-    <div className="min-h-screen w-full flex items-center justify-center bg-gray-100 px-4">
-      <div className="w-full max-w-lg bg-white rounded-xl shadow p-8 space-y-6">
+    <>
+     <div className="absolute top-5 left-5">
+          <button
+            onClick={() => navigate("/convener")}
+            className="flex cursor-pointer items-center text-blue-600 hover:text-blue-700 mb-4 transition-colors"
+          >
+            <svg
+              className="w-5 h-5 mr-2"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M15 19l-7-7 7-7"
+              />
+            </svg>
+            Back to Dashboard
+          </button>
+      </div>
+    <div className="min-h-screen w-full flex sm:flex-row flex-col items-center justify-center gap-10 bg-gray-100 px-4">
+      <div className="w-full max-w-lg bg-white rounded-xl shadow p-8 space-y-6 mt-32 sm:mt-0">
         <h1 className="text-2xl font-semibold text-gray-800">Onboard User</h1>
 
         {error && (
           <p className="w-full text-center text-red-600 text-md">{error}</p>
+        )}
+
+        {message && (
+          <p className="w-full text-center text-green-600 text-md">{message}</p>
         )}
 
         <form onSubmit={handleSubmit} className="space-y-4">
@@ -177,6 +205,9 @@ export default function OnboardUserPage() {
           </button>
         </form>
       </div>
+
+      <UsersPage/>
     </div>
+    </>
   )
 }
