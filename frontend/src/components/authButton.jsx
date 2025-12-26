@@ -18,20 +18,20 @@ export default function AuthButton() {
         try {
             const token = localStorage.getItem("accessToken");
             const res = await fetch(`${BACKEND_URL}/v1/auth/logout` , {
-                method : "GET" , 
+                method : "GET" ,
                 headers : {
                     "Content-Type": "application/json"  ,
                     "Authorization" : token ? `Bearer ${token}` : ""
                 }
             });
-    
+
             const data = await res.json();
-    
+
             if(res.status === 401 || data.success) {
                 updateUser(null);
                 localStorage.removeItem("accessToken");
                 navigate('/sign-in');
-            } 
+            }
         } catch (error) {
             console.log(error);
         }
@@ -42,17 +42,17 @@ export default function AuthButton() {
             LogoutHandler();
         } else {
             navigate('/sign-in')
-        }    
+        }
     }
 
     return  (
-        <div className="fixed top-0 right-0 flex justify-between items-center">
+        <div className="absolute top-0 right-4 z-40 flex gap-1.5 justify-end items-center">
         <button
             onClick={() => handleClick()}
             className=" bg-blue-600 text-white py-2 px-4 font-semibold rounded-lg hover:bg-blue-700 transition disabled:bg-blue-400 cursor-pointer"
         >
-          { 
-            isSignedIn()? 
+          {
+            isSignedIn()?
             "Log Out" : "Sign In"
           }
         </button>
@@ -65,8 +65,8 @@ export default function AuthButton() {
             >
                 Change Password
             </button>
-        
-        
+
+
         </div>
     )
 

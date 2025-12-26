@@ -74,7 +74,7 @@ function HostelJudging() {
           const initialScores = pptCriteria.reduce((acc, criterion, index) => {
             // Get the score from the array at this index
             const existingScore = submission?.pptPointsDistribution?.[index];
-            
+
             // Convert from storage format to display format (out of 100)
             // Storage format: (displayScore/100) * (weightage/100) * maxScore
             // So: displayScore = (existingScore / maxScore) / (weightage/100) * 100
@@ -135,7 +135,7 @@ function HostelJudging() {
   const handleSave = async () => {
     try {
       setSaving(true);
-      
+
       // Convert scores object to array matching criteria order
       // Convert from display format (out of 100) to storage format (out of maxPptScore)
       // Storage score = (displayScore/100) * (weightage/100) * maxPptScore
@@ -167,7 +167,7 @@ function HostelJudging() {
         const totalScore = calculateTotalScore();
         alert(`Scores saved successfully! Total Score: ${totalScore}/100`);
         // Optionally navigate back to dashboard
-        // navigate("/judge/dashboard");
+        navigate("/judge/dashboard");
       } else {
         throw new Error(data.message || "Failed to save scores");
       }
@@ -336,7 +336,7 @@ function HostelJudging() {
                         Score (out of 100)
                       </label>
                       <input
-                        type="number"
+                        type="text"
                         min="0"
                         max="100"
                         step="0.01"

@@ -346,7 +346,7 @@ function JudgeRequests() {
               </div>
               <button
                 onClick={fetchAllRequests}
-                className="bg-white bg-opacity-20 hover:bg-opacity-30 text-white px-4 py-2 rounded-lg transition-colors flex items-center gap-2"
+                className="bg-white bg-opacity-20 hover:bg-opacity-30 text-black px-4 py-2 rounded-lg transition-colors flex items-center gap-2"
               >
                 <svg
                   className="w-4 h-4"

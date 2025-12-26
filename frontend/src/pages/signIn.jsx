@@ -4,6 +4,8 @@ import { useContext } from "react"
 import { userContext } from "../context/userContext.jsx"
 import { useNavigate } from "react-router-dom"
 import { Eye, EyeOff } from "lucide-react"
+import swcLogo from "../assets/swc.svg"
+import techLogo from "../assets/tech.jpg"
 
 export default function SignIn() {
   const [form, setForm] = useState({
@@ -67,7 +69,6 @@ export default function SignIn() {
       if (data.user.role === "TechSecy") {
         navigate("/techsecy");
       }
-      // page redirect login based on role
 
     } catch (error) {
       setError("Something went wrong")
@@ -75,87 +76,100 @@ export default function SignIn() {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-100">
-      <form onSubmit={handleSubmit} className="w-full max-w-md bg-white p-8 rounded-xl shadow-md space-y-5">
-        <h1 className="text-2xl font-bold text-center text-gray-900">Sign In</h1>
-
-        {error && (
-          <p className="w-full text-center text-red-600 text-md">{error}</p>
-        )}
-
-        <input
-          type="text"
-          className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring"
-          placeholder="Username"
-          value={form.username}
-          onChange={(e) => setForm({ ...form, username: e.target.value })}
-        />
-
-        <div className="relative">
-          <input
-          type={showPassword ? "text" : "password"}
-          className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring"
-          placeholder="Password"
-          value={form.password}
-          onChange={(e) => setForm({ ...form, password: e.target.value })}
-        />
-
-        <span
-          className="absolute right-3 top-3 cursor-pointer"
-          onClick={() => setShowPassword(!showPassword)}
-        >
-            {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
-        </span>
-        </div>
-
-        <div className="space-y-2">
-          <p className="text-sm font-medium text-gray-700">Select Role</p>
-          <div className="grid grid-cols-2 gap-2 text-gray-700">
-            {[
-            // ["SuperAdmin" , "Super Admin"],
-            ["Convener" , "Kriti Convener"],
-            ["Company" , "Company POC"],
-            ["Judge" , "Problem Statement Judge"],
-            ["TechSecy" , "Hostel Technical Secretary"]].map(r => (
-              <label key={r[0]} className="flex items-center gap-2 bg-gray-50 px-3 py-2 rounded-lg border cursor-pointer">
-                <input
-                  type="radio"
-                  name="role"
-                  value={r[0]}
-                  checked={form.role === r[0]}
-                  onChange={() => setForm({ ...form, role: r[0] })}
-                />
-                <span className="text-sm font-semibold">{r[1]}</span>
-              </label>
-            ))}
+    <div className="min-h-screen flex items-center justify-center bg-gray-50 p-8">
+      <div className="w-full max-w-md">
+        <form onSubmit={handleSubmit} className="bg-white rounded-xl shadow-lg p-6 space-y-6">
+          <div className="flex items-center justify-center gap-4 mb-2">
+            <img src={swcLogo} alt="SWC Logo" className="h-12 w-12" />
+            <img src={techLogo} alt="Tech Logo" className="h-12 w-12 rounded-lg" />
+            <h1 className="text-3xl font-bold text-gray-800">Sign In</h1>
           </div>
-        </div>
 
-        <button
-          type="submit"
-          className="w-full bg-blue-600 text-white py-2 rounded-lg hover:bg-blue-700 transition disabled:bg-blue-400 cursor-pointer"
-        >
-          Sign In
-        </button>
+          <p className="text-sm text-gray-600 text-center">Welcome to Kriti Portal</p>
 
-        <p
-        onClick={() => {
-            navigate('/superadmin/sign-in')
-        }}
-        className="text-blue-500 text-md cursor-pointer"
-        >
-            Sign-In as Super Admin
-        </p>
-      
-        <p
-        onClick={() => {
-            navigate('/change-password')
-        }}
-        className="text-blue-500 text-md cursor-pointer"
-        >
-            Change Password
-        </p>
-      </form>
+          {error && (
+            <div className="bg-red-50 border border-red-200 rounded-lg p-4">
+              <p className="text-sm text-red-600 text-center">{error}</p>
+            </div>
+          )}
+
+          <div className="space-y-4">
+            <div>
+              <label className="block text-sm font-medium text-gray-500 mb-1">
+                Username
+              </label>
+              <input
+                type="text"
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500 transition-colors"
+                placeholder="Enter your username"
+                value={form.username}
+                onChange={(e) => setForm({ ...form, username: e.target.value })}
+              />
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-500 mb-1">
+                Password
+              </label>
+              <div className="relative">
+                <input
+                  type={showPassword ? "text" : "password"}
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500 transition-colors"
+                  placeholder="Enter your password"
+                  value={form.password}
+                  onChange={(e) => setForm({ ...form, password: e.target.value })}
+                />
+                <span
+                  className="absolute right-3 top-3 cursor-pointer text-gray-500 hover:text-gray-700"
+                  onClick={() => setShowPassword(!showPassword)}
+                >
+                  {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
+                </span>
+              </div>
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-500 mb-2">
+                Select Role
+              </label>
+              <div className="grid grid-cols-2 gap-3">
+                {[
+                  ["Convener", "Kriti Convener"],
+                  ["Company", "Company POC"],
+                  ["Judge", "Problem Statement Judge"],
+                  ["TechSecy", "Hostel Technical Secretary"]
+                ].map(r => (
+                  <label
+                    key={r[0]}
+                    className={`flex items-center gap-2 px-3 py-2 rounded-lg border-2 cursor-pointer transition-all ${
+                      form.role === r[0]
+                        ? 'border-blue-500 bg-blue-50'
+                        : 'border-gray-200 bg-gray-50 hover:border-gray-300'
+                    }`}
+                  >
+                    <input
+                      type="radio"
+                      name="role"
+                      value={r[0]}
+                      checked={form.role === r[0]}
+                      onChange={() => setForm({ ...form, role: r[0] })}
+                      className="text-blue-600 focus:ring-blue-500"
+                    />
+                    <span className="text-sm font-medium text-gray-800">{r[1]}</span>
+                  </label>
+                ))}
+              </div>
+            </div>
+          </div>
+
+          <button
+            type="submit"
+            className="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 rounded-lg transition-colors duration-200 shadow-md hover:shadow-lg"
+          >
+            Sign In
+          </button>
+        </form>
+      </div>
     </div>
   )
 }

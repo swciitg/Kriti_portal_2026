@@ -56,15 +56,15 @@ function SubmissionJudging() {
 
         if (data.success && data.ps) {
           setPsInfo(data.ps);
-          
+
           // Use midEvalPointsDistribution if isMidEval, otherwise use submissionPointsDistribution
-          const submissionCriteria = isMidEval 
+          const submissionCriteria = isMidEval
             ? (data.ps.midEvalPointsDistribution || [])
             : (data.ps.submissionPointsDistribution || []);
           setCriteria(submissionCriteria);
 
           // Get the max score from overallPointsDistribution[2] for midEval, [0] for final
-          const maxScore = isMidEval 
+          const maxScore = isMidEval
             ? (data.ps.overallPointsDistribution?.[2] || 100)
             : (data.ps.overallPointsDistribution?.[0] || 100);
           setMaxSubmissionScore(maxScore);
@@ -175,7 +175,7 @@ function SubmissionJudging() {
         const totalScore = calculateTotalScore();
         alert(`Scores saved successfully! Total Score: ${totalScore}/100`);
         // Optionally navigate back to dashboard
-        // navigate("/company/dashboard");
+        navigate("/company/dashboard");
       } else {
         throw new Error(data.message || "Failed to save scores");
       }
@@ -393,7 +393,7 @@ function SubmissionJudging() {
                         Score (out of 100)
                       </label>
                       <input
-                        type="number"
+                        type="text"
                         min="0"
                         max="100"
                         step="0.01"
