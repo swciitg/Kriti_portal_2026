@@ -27,7 +27,7 @@ export default function TeamRequestAll() {
       try {
         setLoading(true);
         const res = await fetch(
-          `${BACKEND_URL}/api/v1/convener/get-requests/`,
+          `${BACKEND_URL}/v1/convener/get-requests/`,
           { credentials: "include" }
         );
         const data = await res.json();
@@ -53,7 +53,7 @@ export default function TeamRequestAll() {
       setLoading(true);
       setSuccess("");
       const res = await fetch(
-        `${BACKEND_URL}/api/v1/convener/update-status/${id}`,
+        `${BACKEND_URL}/v1/convener/update-status/${id}`,
         {
           method: "PUT",
           headers: {

@@ -39,7 +39,7 @@ function SubmissionJudging() {
           return;
         }
 
-        const response = await fetch(`${BACKEND_URL}/api/v1/company/get-sub`, {
+        const response = await fetch(`${BACKEND_URL}/v1/company/get-sub`, {
           method: "GET",
           headers : {
             "Content-Type" : "application/json" ,
@@ -153,7 +153,7 @@ function SubmissionJudging() {
       });
 
       const token = localStorage.getItem("accessToken") || user?.accessToken;
-      const response = await fetch(`${BACKEND_URL}/api/v1/company/save-sub`, {
+      const response = await fetch(`${BACKEND_URL}/v1/company/save-sub`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

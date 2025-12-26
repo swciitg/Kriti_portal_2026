@@ -23,7 +23,7 @@ export default function SignIn() {
     setError("")
 
     try {
-      const res = await fetch(`${BACKEND_URL}/api/v1/auth/sign-in`, {
+      const res = await fetch(`${BACKEND_URL}/v1/auth/sign-in`, {
         method: "POST",
         credentials: "include",
         headers: {

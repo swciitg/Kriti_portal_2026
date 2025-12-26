@@ -259,7 +259,7 @@ export const createSubmission = async (req, res) => {
     // Add file deliverables
     files.forEach((file) => {
       const nameFromClient = mapping[file.originalname] || file.originalname;
-      const url = `/uploads/submissions/${file.filename}`;
+      const url = `${process.env.BACKEND_URL}/uploads/submissions/${file.filename}`;
       deliverablesDocs.push({
         name: nameFromClient,
         url,

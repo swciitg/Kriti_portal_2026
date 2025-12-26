@@ -42,7 +42,7 @@ export default function ResetPassword() {
               return;
             } 
       
-            const response = await fetch(`${BACKEND_URL}/api/v1/auth/reset-password` , {
+            const response = await fetch(`${BACKEND_URL}/v1/auth/reset-password` , {
               method : "POST" , 
               headers : {
                 "Content-type" : "application/json" , 

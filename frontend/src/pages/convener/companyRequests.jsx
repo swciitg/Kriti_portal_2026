@@ -44,7 +44,7 @@ function CompanyRequests() {
       }
 
       const response = await fetch(
-        `${BACKEND_URL}/api/v1/convener/get-company-pending-requests`,
+        `${BACKEND_URL}/v1/convener/get-company-pending-requests`,
         {
           method: "GET",
           headers: {
@@ -79,7 +79,7 @@ function CompanyRequests() {
       }
 
       const response = await fetch(
-        `${BACKEND_URL}/api/v1/convener/get-company-access-requests`,
+        `${BACKEND_URL}/v1/convener/get-company-access-requests`,
         {
           method: "GET",
           headers: {
@@ -124,7 +124,7 @@ function CompanyRequests() {
       }
 
       const response = await fetch(
-        `${BACKEND_URL}/api/v1/convener/verify-company/${companyId}`,
+        `${BACKEND_URL}/v1/convener/verify-company/${companyId}`,
         {
           method: "POST",
           headers: {
@@ -175,7 +175,7 @@ function CompanyRequests() {
       }
 
       const response = await fetch(
-        `${BACKEND_URL}/api/v1/convener/grant-company-access/${companyId}`,
+        `${BACKEND_URL}/v1/convener/grant-company-access/${companyId}`,
         {
           method: "POST",
           headers: {

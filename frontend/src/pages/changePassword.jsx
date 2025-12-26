@@ -30,7 +30,7 @@ export default function RequestPasswordReset() {
           return;
         } 
   
-        const response = await fetch(`${BACKEND_URL}/api/v1/auth/request-password-change` , {
+        const response = await fetch(`${BACKEND_URL}/v1/auth/request-password-change` , {
           method : "POST" , 
           headers : {
             "Content-type" : "application/json" , 

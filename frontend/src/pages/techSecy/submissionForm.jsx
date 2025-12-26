@@ -34,7 +34,7 @@ export default function SubmissionForm() {
       try {
         const token = localStorage.getItem("accessToken");
         const response = await fetch(
-          `${BACKEND_URL}/api/v1/pssubmission/ps/${psId}?type=${type}`,
+          `${BACKEND_URL}/v1/pssubmission/ps/${psId}?type=${type}`,
           {
             method: "GET",
             headers: {
@@ -146,7 +146,7 @@ export default function SubmissionForm() {
       formData.append("urlDeliverables", JSON.stringify(urlDeliverables));
 
       const token = localStorage.getItem("accessToken");
-      const response = await fetch(`${BACKEND_URL}/api/v1/pssubmission/submit`, {
+      const response = await fetch(`${BACKEND_URL}/v1/pssubmission/submit`, {
         method: "POST",
         headers: {
           Authorization: token ? `Bearer ${token}` : "",

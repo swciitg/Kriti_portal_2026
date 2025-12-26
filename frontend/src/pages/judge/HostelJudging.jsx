@@ -37,7 +37,7 @@ function HostelJudging() {
           return;
         }
 
-        const response = await fetch(`${BACKEND_URL}/api/v1/judge/get-ps`, {
+        const response = await fetch(`${BACKEND_URL}/v1/judge/get-ps`, {
           method: "GET",
           headers : {
             "Content-Type" : "application/json" ,
@@ -145,7 +145,7 @@ function HostelJudging() {
       });
 
       const token = localStorage.getItem("accessToken") || user?.accessToken;
-      const response = await fetch(`${BACKEND_URL}/api/v1/judge/save-ppt-scores`, {
+      const response = await fetch(`${BACKEND_URL}/v1/judge/save-ppt-scores`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

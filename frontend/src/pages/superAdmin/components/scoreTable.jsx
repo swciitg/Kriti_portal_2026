@@ -12,7 +12,7 @@ export default function ScoreTable({problemStatements , hostelIds , setError}) {
             try {
                 setError('');
                 const token = localStorage.getItem("accessToken");
-                const response = await fetch(`${BACKEND_URL}/api/v1/superadmin/get-points` , {
+                const response = await fetch(`${BACKEND_URL}/v1/superadmin/get-points` , {
                     method : 'GET' , 
                     headers : {
                         "Content-Type" : "application/json" , 

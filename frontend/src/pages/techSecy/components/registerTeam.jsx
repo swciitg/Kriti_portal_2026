@@ -34,7 +34,7 @@ export default function RegisterTeam() {
   const fetchRequestStatus = useCallback(async () => {
     try {
       const res = await fetch(
-        `${BACKEND_URL}/api/v1/techsecy/get-requests/${psId}`,
+        `${BACKEND_URL}/v1/techsecy/get-requests/${psId}`,
         { credentials: "include" }
       );
 
@@ -53,7 +53,7 @@ export default function RegisterTeam() {
     async function fetchAll() {
       try {
         setLoading(true);
-        const psRes = await fetch(`${BACKEND_URL}/api/v1/ps/${psId}`, {
+        const psRes = await fetch(`${BACKEND_URL}/v1/ps/${psId}`, {
           credentials: "include",
         });
         if (psRes.ok) {
@@ -62,7 +62,7 @@ export default function RegisterTeam() {
         }
 
         const teamRes = await fetch(
-          `${BACKEND_URL}/api/v1/techsecy/get-team/${psId}`,
+          `${BACKEND_URL}/v1/techsecy/get-team/${psId}`,
           { credentials: "include" }
         );
         if (teamRes.ok) {
@@ -110,7 +110,7 @@ export default function RegisterTeam() {
       setMessage("");
       setRequestingEdit(true);
       const res = await fetch(
-        `${BACKEND_URL}/api/v1/techsecy/edit-registered-team/${psId}`,
+        `${BACKEND_URL}/v1/techsecy/edit-registered-team/${psId}`,
         {
           method: "POST",
           credentials: "include",
@@ -168,8 +168,8 @@ export default function RegisterTeam() {
       }
 
       const url = isEditing
-        ? `${BACKEND_URL}/api/v1/techsecy/update-registered-team/${psId}`
-        : `${BACKEND_URL}/api/v1/techsecy/register-team/${psId}`;
+        ? `${BACKEND_URL}/v1/techsecy/update-registered-team/${psId}`
+        : `${BACKEND_URL}/v1/techsecy/register-team/${psId}`;
 
       const res = await fetch(url, {
         method: isEditing ? "PUT" : "POST",

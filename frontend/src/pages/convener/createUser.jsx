@@ -44,7 +44,7 @@ export default function OnboardUserPage() {
 
     try {
       const token = localStorage.getItem("accessToken");
-      const res = await fetch(`${BACKEND_URL}/api/v1/convener/create-user`, {
+      const res = await fetch(`${BACKEND_URL}/v1/convener/create-user`, {
         method: "POST",
         headers: {
             "Content-Type": "application/json",

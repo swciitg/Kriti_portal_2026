@@ -27,7 +27,7 @@ export default function ViewSubmission() {
       try {
         const token = localStorage.getItem("accessToken");
         const response = await fetch(
-          `${BACKEND_URL}/api/v1/pssubmission/view/${submissionId}`,
+          `${BACKEND_URL}/v1/pssubmission/view/${submissionId}`,
           {
             method: "GET",
             headers: {

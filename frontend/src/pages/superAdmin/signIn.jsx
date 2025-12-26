@@ -23,7 +23,7 @@ export default function SignIn() {
     setError("")
 
     try {
-      const res = await fetch(`${BACKEND_URL}/api/v1/superadmin/sign-in`, {
+      const res = await fetch(`${BACKEND_URL}/v1/superadmin/sign-in`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(form)

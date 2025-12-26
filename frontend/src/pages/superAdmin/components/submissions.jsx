@@ -28,7 +28,7 @@ export default function SubmissionsCard({ id, name, close }) {
       try {
         setError('');
         const token = localStorage.getItem("accessToken");
-        const response = await fetch(`${BACKEND_URL}/api/v1/submission/get-all/${id}` , {
+        const response = await fetch(`${BACKEND_URL}/v1/submission/get-all/${id}` , {
           method : "GET" , 
           headers : {
             "Content-Type" : "application/json" , 

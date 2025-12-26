@@ -33,7 +33,7 @@ export default function SuperAdminDashboard() {
     try {
       setError("");
       const token = localStorage.getItem("accessToken");
-      const response = await fetch(`${BACKEND_URL}/api/v1/superadmin/get-info` , {
+      const response = await fetch(`${BACKEND_URL}/v1/superadmin/get-info` , {
         method : "GET" , 
         headers : {
           "Content-Type" : "application/json" , 

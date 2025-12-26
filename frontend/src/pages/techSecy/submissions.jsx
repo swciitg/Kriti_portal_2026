@@ -26,7 +26,7 @@ export default function SubmissionsPage() {
       try {
         const token = localStorage.getItem("accessToken");
         
-        const response = await fetch(`${BACKEND_URL}/api/v1/pssubmission/ps/open`, {
+        const response = await fetch(`${BACKEND_URL}/v1/pssubmission/ps/open`, {
           method: "GET",
           headers: {
             "Content-Type": "application/json",

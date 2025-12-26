@@ -64,9 +64,9 @@ export async function verifyJWT(req, res, next) {
         if (judgeDoc && judgeDoc.verified) {
           // Allow access to specific endpoints for requesting access again
           const allowedVerifiedRoutes = [
-            "/api/v1/judge/status",
-            "/api/v1/judge/request-access",
-            "/api/v1/auth/logout",
+            "/v1/judge/status",
+            "/v1/judge/request-access",
+            "/v1/auth/logout",
           ];
           if (!allowedVerifiedRoutes.includes(req.originalUrl)) {
             return res.status(403).json({
@@ -85,9 +85,9 @@ export async function verifyJWT(req, res, next) {
         if (companyDoc && companyDoc.verified) {
           // Allow access to specific endpoints for requesting access again
           const allowedVerifiedRoutes = [
-            "/api/v1/company/status",
-            "/api/v1/company/request-access",
-            "/api/v1/auth/logout",
+            "/v1/company/status",
+            "/v1/company/request-access",
+            "/v1/auth/logout",
           ];
           if (!allowedVerifiedRoutes.includes(req.originalUrl)) {
             return res.status(403).json({
@@ -128,23 +128,23 @@ export function handleRouteAccess(req, res, next) {
 
   if (role === "Convener") {
     const allowed = [
-      "/api/v1/convener/create-user",
-      "/api/v1/convener/create-ps",
-      "/api/v1/convener/get-pending-requests",
-      "/api/v1/convener/get-company-pending-requests",
-      "/api/v1/convener/get-access-requests",
-      "/api/v1/convener/get-company-access-requests",
-      "/api/v1/convener/get-requests",
+      "/v1/convener/create-user",
+      "/v1/convener/create-ps",
+      "/v1/convener/get-pending-requests",
+      "/v1/convener/get-company-pending-requests",
+      "/v1/convener/get-access-requests",
+      "/v1/convener/get-company-access-requests",
+      "/v1/convener/get-requests",
     ];
     const startsWithAllowed = [
-      "/api/v1/convener/update-ps/",
-      "/api/v1/convener/delete-ps/",
-      "/api/v1/convener/verify-judge/",
-      "/api/v1/convener/verify-company/",
-      "/api/v1/convener/grant-access/",
-      "/api/v1/convener/grant-company-access/",
-      "/api/v1/convener/get-requests/",
-      "/api/v1/convener/update-status/",
+      "/v1/convener/update-ps/",
+      "/v1/convener/delete-ps/",
+      "/v1/convener/verify-judge/",
+      "/v1/convener/verify-company/",
+      "/v1/convener/grant-access/",
+      "/v1/convener/grant-company-access/",
+      "/v1/convener/get-requests/",
+      "/v1/convener/update-status/",
     ];
     if (
       !allowed.includes(route) &&
@@ -166,13 +166,13 @@ export function handleRouteAccess(req, res, next) {
     }
 
         const allowed = [
-            "/api/v1/superadmin/get-info",
-            "/api/v1/superadmin/get-points"
+            "/v1/superadmin/get-info",
+            "/v1/superadmin/get-points"
         ];
 
     const startsWithAllowed = [
-      "/api/v1/submission/get-all/",
-      "/api/v1/teams/get-all/",
+      "/v1/submission/get-all/",
+      "/v1/teams/get-all/",
     ];
 
     const isAllowed =
@@ -190,17 +190,17 @@ export function handleRouteAccess(req, res, next) {
   if (role === "TechSecy") {
     const allowed = [];
     const startsWithAllowed = [
-      "/api/v1/techsecy/register-team/",
-      "/api/v1/techsecy/get-team/",
-      "/api/v1/techsecy/edit-registered-team/",
-      "/api/v1/techsecy/update-registered-team/",
-      "/api/v1/techsecy/delete/",
-      "/api/v1/techsecy/get-requests/",
-      "/api/v1/pssubmission/user-info/",
-      "/api/v1/pssubmission/ps/open",
-      "/api/v1/pssubmission/ps/",
-      "/api/v1/pssubmission/submit",
-      "/api/v1/pssubmission/view/",
+      "/v1/techsecy/register-team/",
+      "/v1/techsecy/get-team/",
+      "/v1/techsecy/edit-registered-team/",
+      "/v1/techsecy/update-registered-team/",
+      "/v1/techsecy/delete/",
+      "/v1/techsecy/get-requests/",
+      "/v1/pssubmission/user-info/",
+      "/v1/pssubmission/ps/open",
+      "/v1/pssubmission/ps/",
+      "/v1/pssubmission/submit",
+      "/v1/pssubmission/view/",
     ];
     if (
       !allowed.includes(route) &&
@@ -215,11 +215,11 @@ export function handleRouteAccess(req, res, next) {
 
   if(role === "Company") {
         const allowed = [
-          "/api/v1/company/get-sub",
-          "/api/v1/company/save-sub",
-          "/api/v1/company/submit-marks-request",
-          "/api/v1/company/status",
-          "/api/v1/company/request-access",
+          "/v1/company/get-sub",
+          "/v1/company/save-sub",
+          "/v1/company/submit-marks-request",
+          "/v1/company/status",
+          "/v1/company/request-access",
         ];
         if (
           !allowed.includes(route)
@@ -235,11 +235,11 @@ export function handleRouteAccess(req, res, next) {
 
   if (role === "Judge") {
     const allowed = [
-      "/api/v1/judge/get-ps",
-      "/api/v1/judge/save-ppt-scores",
-      "/api/v1/judge/submit-marks-request",
-      "/api/v1/judge/status",
-      "/api/v1/judge/request-access",
+      "/v1/judge/get-ps",
+      "/v1/judge/save-ppt-scores",
+      "/v1/judge/submit-marks-request",
+      "/v1/judge/status",
+      "/v1/judge/request-access",
     ];
     if (!allowed.includes(route)) {
       return res.status(403).json({
@@ -248,9 +248,6 @@ export function handleRouteAccess(req, res, next) {
       });
     }
   }
-
-    // will do similar for other roles as well
-  
 
   next();
 }

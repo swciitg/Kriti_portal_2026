@@ -4,7 +4,7 @@ import user from "../../model/user.js";
 import { mailUtil } from "../../utils/mail.js";
 import Token from "../../model/resetPassToken.js";
 
-const FRONTEND_URL = "http://localhost:5173"; 
+const FRONTEND_URL = process.env.FRONTEND_URL || "http://localhost:3000"; 
 const TOKEN_EXPIRY_MS = 5 * 60 * 1000;
 
 async function removeExpiredTokens() {

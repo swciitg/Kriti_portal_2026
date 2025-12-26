@@ -44,7 +44,7 @@ function JudgeRequests() {
       }
 
       const response = await fetch(
-        `${BACKEND_URL}/api/v1/convener/get-pending-requests`,
+        `${BACKEND_URL}/v1/convener/get-pending-requests`,
         {
           method: "GET",
           headers: {
@@ -79,7 +79,7 @@ function JudgeRequests() {
       }
 
       const response = await fetch(
-        `${BACKEND_URL}/api/v1/convener/get-access-requests`,
+        `${BACKEND_URL}/v1/convener/get-access-requests`,
         {
           method: "GET",
           headers: {
@@ -124,7 +124,7 @@ function JudgeRequests() {
       }
 
       const response = await fetch(
-        `${BACKEND_URL}/api/v1/convener/verify-judge/${judgeId}`,
+        `${BACKEND_URL}/v1/convener/verify-judge/${judgeId}`,
         {
           method: "POST",
           headers: {
@@ -175,7 +175,7 @@ function JudgeRequests() {
       }
 
       const response = await fetch(
-        `${BACKEND_URL}/api/v1/convener/grant-access/${judgeId}`,
+        `${BACKEND_URL}/v1/convener/grant-access/${judgeId}`,
         {
           method: "POST",
           headers: {

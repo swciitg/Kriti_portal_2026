@@ -209,7 +209,7 @@ export default function PSCreate() {
     try {
       setSaving(true);
       const token = localStorage.getItem("accessToken");
-      const res = await fetch(`${BACKEND_URL}/api/v1/convener/create-ps`, {
+      const res = await fetch(`${BACKEND_URL}/v1/convener/create-ps`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

@@ -39,7 +39,7 @@ function JudgeDashboard() {
           return;
         }
 
-        const response = await fetch(`${BACKEND_URL}/api/v1/judge/status`, {
+        const response = await fetch(`${BACKEND_URL}/v1/judge/status`, {
           method: "GET",
           headers: {
             "Content-Type": "application/json",
@@ -83,7 +83,7 @@ function JudgeDashboard() {
           return;
         }
 
-        const response = await fetch(`${BACKEND_URL}/api/v1/judge/get-ps`, {
+        const response = await fetch(`${BACKEND_URL}/v1/judge/get-ps`, {
           method: "GET",
           headers: {
             "Content-Type": "application/json",
@@ -139,7 +139,7 @@ function JudgeDashboard() {
       }
 
       const response = await fetch(
-        `${BACKEND_URL}/api/v1/judge/request-access`,
+        `${BACKEND_URL}/v1/judge/request-access`,
         {
           method: "POST",
           headers: {
@@ -154,7 +154,7 @@ function JudgeDashboard() {
       if (data.success) {
         alert(data.message || "Access request submitted successfully!");
         // Refresh status
-        const statusResponse = await fetch(`${BACKEND_URL}/api/v1/judge/status`, {
+        const statusResponse = await fetch(`${BACKEND_URL}/v1/judge/status`, {
           method: "GET",
           headers: {
             "Content-Type": "application/json",
@@ -193,7 +193,7 @@ function JudgeDashboard() {
       }
 
       const response = await fetch(
-        `${BACKEND_URL}/api/v1/judge/submit-marks-request`,
+        `${BACKEND_URL}/v1/judge/submit-marks-request`,
         {
           method: "POST",
           headers: {

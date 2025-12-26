@@ -5,7 +5,7 @@ export async function LogOut(req, res) {
                 "success" : true , 
                 "message" : "Already Logged out"
             })
-        } 
+        }
 
         res.clearCookie("accessToken" , {
             httpOnly : true ,

@@ -59,7 +59,7 @@ export default function PSDetails() {
     async function fetchPS() {
       try {
         const token = localStorage.getItem("accessToken");
-        const res = await fetch(`${BACKEND_URL}/api/v1/ps/${id}`, {
+        const res = await fetch(`${BACKEND_URL}/v1/ps/${id}`, {
           method: "GET",
           headers: {
             "Content-Type": "application/json",
@@ -271,7 +271,7 @@ export default function PSDetails() {
     try {
       setSaving(true);
       const token = localStorage.getItem("accessToken");
-      const res = await fetch(`${BACKEND_URL}/api/v1/convener/update-ps/${id}`, {
+      const res = await fetch(`${BACKEND_URL}/v1/convener/update-ps/${id}`, {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",
@@ -299,7 +299,7 @@ export default function PSDetails() {
     try {
       setDeleting(true);
       const token = localStorage.getItem("accessToken");
-      const res = await fetch(`${BACKEND_URL}/api/v1/convener/delete-ps/${id}`, {
+      const res = await fetch(`${BACKEND_URL}/v1/convener/delete-ps/${id}`, {
         method: "DELETE",
         headers: {
           Authorization: token ? `Bearer ${token}` : "",

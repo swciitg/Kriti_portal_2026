@@ -40,7 +40,7 @@ function CompanyDashboard() {
           return;
         }
 
-        const response = await fetch(`${BACKEND_URL}/api/v1/company/status`, {
+        const response = await fetch(`${BACKEND_URL}/v1/company/status`, {
           method: "GET",
           headers: {
             "Content-Type": "application/json",
@@ -84,7 +84,7 @@ function CompanyDashboard() {
           return;
         }
 
-        const response = await fetch(`${BACKEND_URL}/api/v1/company/get-sub`, {
+        const response = await fetch(`${BACKEND_URL}/v1/company/get-sub`, {
           method: "GET",
           headers: {
             "Content-Type": "application/json",
@@ -128,7 +128,7 @@ function CompanyDashboard() {
       }
 
       const response = await fetch(
-        `${BACKEND_URL}/api/v1/company/request-access`,
+        `${BACKEND_URL}/v1/company/request-access`,
         {
           method: "POST",
           headers: {
@@ -143,7 +143,7 @@ function CompanyDashboard() {
       if (data.success) {
         alert(data.message || "Access request submitted successfully!");
         // Refresh status
-        const statusResponse = await fetch(`${BACKEND_URL}/api/v1/company/status`, {
+        const statusResponse = await fetch(`${BACKEND_URL}/v1/company/status`, {
           method: "GET",
           headers: {
             "Content-Type": "application/json",
@@ -197,7 +197,7 @@ function CompanyDashboard() {
       }
 
       const response = await fetch(
-        `${BACKEND_URL}/api/v1/company/submit-marks-request`,
+        `${BACKEND_URL}/v1/company/submit-marks-request`,
         {
           method: "POST",
           headers: {
