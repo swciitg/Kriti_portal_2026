@@ -3,7 +3,7 @@ import techSecy from "../../model/techSecy.js";
 
 export async function GetInfo(req, res) {
     try {
-        const allPS = await ps.find({}).select("name registrationDeadline registrationDeadline pdf prep points");
+        const allPS = await ps.find({}).select("name registrationDeadline submissionDeadline pdf prep points");
         const allHostelId = await techSecy.find({}).select("hostelId");
 
         const hostelIds = allHostelId.reduce((acc , item) => {

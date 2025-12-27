@@ -122,7 +122,7 @@ export default function TeamsCard({id , name , close}) {
                 <h4 className="text-lg font-semibold text-blue-700 mb-4">Team Members</h4>
 
                 <div className="space-y-4 overflow-y-auto max-h-[50vh] pr-1">
-                  {activeTeam.teamMember.map((member, i) => (
+                  {activeTeam?.teamMembers.map((member, i) => (
                     <div
                       key={i}
                       className="p-4 bg-blue-50 rounded-lg shadow-sm hover:shadow-md transition"

@@ -239,22 +239,22 @@ export default function ScoreTable({problemStatements , hostelIds , setError}) {
                                                 _scores.map((score , idx) => {
                                                     return(
                                                         <div key={idx} className="px-4 py-1 flex-col justify-center items-center">
-                                                            <div className="text-gray-700 text-center">{score === null ? "-" : score}</div>
+                                                            <div className="text-gray-700 text-center">{score === null ? "-" : score.toFixed(3)}</div>
                                                         </div>
                                                     )
                                                 })
                                             }
 
                                             <div className="px-4 py-1 flex-col justify-center items-center">
-                                                <div className="text-gray-700 text-center">{_totalPenaltyPercent} </div>
+                                                <div className="text-gray-700 text-center">{_totalPenaltyPercent.toFixed(3)} </div>
                                             </div>
 
                                             <div className="px-4 py-1 flex-col justify-center items-center">
-                                                <div className="text-gray-700 text-center">{_totalScore}</div>
+                                                <div className="text-gray-700 text-center">{_totalScore.toFixed(3)}</div>
                                             </div>
                                             
                                             <div className="px-4 py-1 flex-col justify-center items-center">
-                                                <div className="text-gray-700 text-center">{_finalScore}</div>
+                                                <div className="text-gray-700 text-center">{_finalScore.toFixed(3)}</div>
                                             </div>
                                             </>
                                         )
