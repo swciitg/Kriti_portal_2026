@@ -10,7 +10,8 @@ const UserSchema = new mongoose.Schema({
     type : String, 
     enum : ["SuperAdmin", "Convener", "TechSecy", "Judge", "Company"], 
     required : true 
-  }
+  },
+  lastLogin : { type : Date, default : null }
 });
 
 UserSchema.pre("save", async function () {
