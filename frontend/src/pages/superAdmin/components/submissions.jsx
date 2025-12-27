@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react"
 import { ChevronRight, ChevronDown, ChevronUp } from "lucide-react"
 import {BACKEND_URL} from "../../../constants.js" 
+import Loader from "../../../components/loader.jsx"
 
 export default function SubmissionsCard({ id, name, close }) {
   const [selectedHostel, setSelectedHostel] = useState(null)
@@ -166,9 +167,7 @@ export default function SubmissionsCard({ id, name, close }) {
             }
             {
               loading && 
-              <div className="text-gray-500 text-lg">
-                Loading Submissions...
-              </div>
+              <Loader text="Loading Submissions..."/>
             }
           </div>
         </div>
