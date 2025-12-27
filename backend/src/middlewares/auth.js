@@ -129,6 +129,7 @@ export function handleRouteAccess(req, res, next) {
   if (role === "Convener") {
     const allowed = [
       "/v1/convener/create-user",
+      "/v1/convener/get-all-users",
       "/v1/convener/create-ps",
       "/v1/convener/get-pending-requests",
       "/v1/convener/get-company-pending-requests",

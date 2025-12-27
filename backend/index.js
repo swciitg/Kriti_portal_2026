@@ -21,6 +21,8 @@ if (!fs.existsSync(uploadsDir)) {
   console.log('Created uploads/submissions directory');
 }
 
+app.set("view engine", "ejs");
+app.set("views", "./src/views");
 app.use(cookieParser());
 app.use(
   cors({

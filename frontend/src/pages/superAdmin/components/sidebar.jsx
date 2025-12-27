@@ -6,7 +6,7 @@ export default function SideBar({activePage , setActivePage})  {
     const pages = ["Problem Statements", "Score Table", "Schedule"]
 
     return (
-        <div className={`fixed left-0 top-0 h-full bg-white shadow-lg transition-all duration-300 
+        <div className={`fixed left-0 top-0 h-full bg-white shadow-lg z-100
                 ${sidebarOpen ? "w-64" : "w-6 lg:w-12"}`}>
         
                 <div className="flex items-center justify-between p-1 lg:p-4 ">

@@ -19,10 +19,12 @@ import { handleRouteAccess, verifyJWT } from "../middlewares/auth.js";
 import { GetAllRequests } from "../controllers/convener/requests/getAllRequests.js";
 import { GetRequestById } from "../controllers/convener/requests/getRequestById.js";
 import { statusUpdate } from "../controllers/convener/requests/statusUpdate.js";
+import { getAllUsers } from "../controllers/convener/getAllUsers.js";
 
 const router = Router();
 
 router.route("/create-user").post(verifyJWT, handleRouteAccess, OnBoardUser);
+router.route("/get-all-users").get(verifyJWT , handleRouteAccess , getAllUsers);
 router.route("/create-ps").post(verifyJWT, handleRouteAccess, createPS);
 router.route("/update-ps/:id").put(verifyJWT, handleRouteAccess, updatePS);
 router.route("/delete-ps/:id").delete(verifyJWT, handleRouteAccess, deletePS);

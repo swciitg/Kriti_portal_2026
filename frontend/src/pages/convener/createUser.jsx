@@ -4,10 +4,12 @@ import { useContext } from "react"
 import { userContext } from "../../context/userContext"
 import { BACKEND_URL } from "../../constants"
 import { Eye, EyeOff } from "lucide-react"
+import UsersPage from "./components/usersList"
 
 export default function OnboardUserPage() {
   const navigate = useNavigate()
   const { user } = useContext(userContext)
+  const [psList , setPSList] = useState([]);
 
   const [form, setForm] = useState({
     username: "",
@@ -20,6 +22,7 @@ export default function OnboardUserPage() {
 
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState("")
+  const [message , setMessage] = useState("");
 
   const [showPassword , setShowPassword] = useState(false);
 
@@ -32,6 +35,35 @@ export default function OnboardUserPage() {
       navigate("/sign-in");
     }
   }, [user])
+
+
+  useEffect(() => {
+    async function getAllPS() {
+      try {
+        setError("");
+        const token = localStorage.getItem("accessToken");
+        const res = await fetch(`${BACKEND_URL}/v1/ps` , {
+          method : "GET" , 
+          headers : {
+             "Content-Type": "application/json",
+              Authorization: token ? `Bearer ${token}` : "",
+          }
+        })
+        const data = await res.json();
+        if(!res.ok || !data.ps) {
+          setError(data.message);
+          return;
+        }
+
+        setPSList(data.ps);
+      } catch (error) {
+        setError("Some error occured in fetching the Problem Statements")
+      }
+    }
+
+    getAllPS();
+  } , [])
+
 
   const handleChange = e => {
     setForm({ ...form, [e.target.name]: e.target.value })
@@ -60,7 +92,7 @@ export default function OnboardUserPage() {
         setLoading(false)
         return
       }
-
+      setMessage("User Created successfully");
       setLoading(false)
     } catch (err) {
       setError("Something went wrong")
@@ -68,13 +100,44 @@ export default function OnboardUserPage() {
     }
   }
 
+  useEffect(() => {
+    console.log(psList)
+  },[psList])
+
   return (
-    <div className="min-h-screen w-full flex items-center justify-center bg-gray-100 px-4">
-      <div className="w-full max-w-lg bg-white rounded-xl shadow p-8 space-y-6">
-        <h1 className="text-2xl font-semibold text-gray-800">Onboard User</h1>
+    <>
+    <div className="min-h-screen w-full flex sm:flex-row flex-col items-center justify-center gap-10 bg-slate-50 px-4">
+      <div className="w-full max-w-lg bg-white rounded-2xl shadow-lg p-8 space-y-6 mt-32 sm:mt-0 border border-slate-200">
+        <div className="absolute top-5 left-5">
+          <button
+            onClick={() => navigate("/convener")}
+            className="flex cursor-pointer items-center text-blue-600 hover:text-blue-700 mb-4 transition-colors font-medium"
+          >
+            <svg
+              className="w-5 h-5 mr-2"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M15 19l-7-7 7-7"
+              />
+            </svg>
+            Back to Dashboard
+          </button>
+        </div>
+
+        <h1 className="text-3xl font-bold text-slate-900">Onboard User</h1>
 
         {error && (
-          <p className="w-full text-center text-red-600 text-md">{error}</p>
+          <p className="w-full text-center text-red-600 text-sm font-medium">{error}</p>
+        )}
+
+        {message && (
+          <p className="w-full text-center text-green-600 text-sm font-medium">{message}</p>
         )}
 
         <form onSubmit={handleSubmit} className="space-y-4">
@@ -83,7 +146,7 @@ export default function OnboardUserPage() {
             type="text"
             name="username"
             placeholder="Username"
-            className="w-full border rounded-lg px-4 py-2 outline-none"
+            className="w-full border border-slate-300 rounded-lg px-4 py-2 outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
             value={form.username}
             onChange={handleChange}
           />
@@ -92,7 +155,7 @@ export default function OnboardUserPage() {
             type="email"
             name="email"
             placeholder="Email"
-            className="w-full border rounded-lg px-4 py-2 outline-none"
+            className="w-full border border-slate-300 rounded-lg px-4 py-2 outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
             value={form.email}
             onChange={handleChange}
           />
@@ -102,34 +165,35 @@ export default function OnboardUserPage() {
               type={showPassword ? "text" : "password"}
               name="password"
               placeholder="Password"
-              className="w-full border rounded-lg px-4 py-2 outline-none"
+              className="w-full border border-slate-300 rounded-lg px-4 py-2 outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
               value={form.password}
               onChange={handleChange}
             />
 
             <span
-              className="absolute right-3 top-3 cursor-pointer"
+              className="absolute right-3 top-3 cursor-pointer text-slate-500 hover:text-slate-700"
               onClick={() => setShowPassword(!showPassword)}
             >
-                {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
+              {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
             </span>
           </div>
 
           <div className="space-y-2">
-            <p className="text-gray-700 text-md font-semibold">Role</p>
+            <p className="text-slate-800 text-sm font-semibold">Role</p>
             <div className="flex flex-col gap-2">
-              {[["TechSecy" , "Hostel Technical Secretary"],
-              ["Judge" , "Judge"],
-              ["Company" , "Company POC"]].map(r => (
-                <label key={r[0]} className="flex items-center gap-2">
+              {[["TechSecy", "Hostel Technical Secretary"],
+                ["Judge", "Judge"],
+                ["Company", "Company POC"]].map(r => (
+                <label key={r[0]} className="flex items-center gap-2 text-slate-700 font-medium">
                   <input
                     type="radio"
                     name="role"
                     value={r[0]}
                     checked={form.role === r[0]}
                     onChange={handleChange}
+                    className="accent-blue-600"
                   />
-                  <span className="text-gray-700 font-semibold">{r[1]}</span>
+                  <span>{r[1]}</span>
                 </label>
               ))}
             </div>
@@ -140,43 +204,43 @@ export default function OnboardUserPage() {
               type="text"
               name="hostelId"
               placeholder="Hostel ID"
-              className="w-full border rounded-lg px-4 py-2 outline-none"
+              className="w-full border border-slate-300 rounded-lg px-4 py-2 outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
               value={form.hostelId}
               onChange={handleChange}
             />
           )}
 
-          {form.role === "Judge" && (
-            <input
-              type="text"
-              name="ps"
-              placeholder="Problem Statement Name"
-              className="w-full border rounded-lg px-4 py-2 outline-none"
-              value={form.ps}
-              onChange={handleChange}
-            />
-          )}
-
-          {form.role === "Company" && (
-            <input
-              type="text"
-              name="ps"
-              placeholder="Problem Statement Name"
-              className="w-full border rounded-lg px-4 py-2 outline-none"
-              value={form.ps}
-              onChange={handleChange}
-            />
+          {(form.role === "Judge" || form.role === "Company") && (
+            <div className="mb-4">
+              <select
+                id="ps"
+                name="ps"
+                value={form.ps}
+                onChange={handleChange}
+                className="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm text-slate-800
+                  focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 cursor-pointer"
+                required
+              >
+                <option value="">--- Select Problem Statement ---</option>
+                {psList.map((_ps, idx) => (
+                  <option key={idx} value={_ps.name}>{_ps.name}</option>
+                ))}
+              </select>
+            </div>
           )}
 
           <button
             type="submit"
             disabled={loading}
-            className="w-full bg-blue-600 text-white py-2 rounded-lg hover:bg-blue-700 transition disabled:bg-blue-400 cursor-pointer"
+            className="w-full bg-blue-600 text-white py-2.5 rounded-xl hover:bg-blue-700 transition disabled:bg-blue-400 font-semibold shadow-sm cursor-pointer"
           >
             {loading ? "Creating..." : "Create User"}
           </button>
         </form>
       </div>
+
+      <UsersPage />
     </div>
+    </>
   )
 }
