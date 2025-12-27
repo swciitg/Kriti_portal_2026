@@ -1,5 +1,5 @@
 import { useNavigate } from "react-router-dom";
-import { useContext } from "react";
+import { useContext, useState } from "react";
 import { userContext } from "../../context/userContext";
 import { useEffect } from "react";
 import swcLogo from "../../assets/swc.svg";
@@ -8,6 +8,7 @@ import techLogo from "../../assets/tech.jpg"
 function ConvenerDashboard() {
   const navigate = useNavigate();
   const { user } = useContext(userContext);
+  const [lastLogin, setLastLogin] = useState(null);
 
   useEffect(() => {
     const stored = JSON.parse(localStorage.getItem("user"));
@@ -16,6 +17,12 @@ function ConvenerDashboard() {
       (stored?.role !== "Convener" && user?.role !== "Convener")
     ) {
       navigate("/sign-in");
+    } else {
+      // Get last login from stored user data
+      const userData = user || stored;
+      if (userData?.previousLastLogin) {
+        setLastLogin(userData.previousLastLogin);
+      }
     }
   }, [user]);
 
@@ -132,7 +139,7 @@ function ConvenerDashboard() {
       {/* Header */}
       <div className="bg-white-700 shadow-lg">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
-          <div className="flex items-center justify-between">
+          <div className="flex items-center justify-start gap-3">
             <div className="flex items-center gap-4">
               <div className="flex items-center gap-3">
                 <img src={swcLogo} alt="SWC Logo" className="h-12 w-12" />
@@ -142,11 +149,36 @@ function ConvenerDashboard() {
                 <h1 className="text-3xl font-bold text-black">
                   Convener Dashboard
                 </h1>
-                {/* <p className="text-gray-700 mt-1">
-                  Manage users, problem statements, and requests
-                </p>*/}
               </div>
             </div>
+            {/* Last Login Info */}
+            {lastLogin && (
+              <div className="flex items-center gap-2 bg-red-50 px-4 py-2 rounded-lg border border-red-200">
+                <svg
+                  className="w-5 h-5 text-red-600"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"
+                  />
+                </svg>
+                <div>
+                  <p className="text-xs font-medium text-red-800">Last Login</p>
+                  <p className="text-xs text-red-700">
+                    {new Date(lastLogin).toLocaleString('en-IN', {
+                      dateStyle: 'medium',
+                      timeStyle: 'short',
+                      timeZone: 'Asia/Kolkata'
+                    })}
+                  </p>
+                </div>
+              </div>
+            )}
           </div>
         </div>
       </div>
