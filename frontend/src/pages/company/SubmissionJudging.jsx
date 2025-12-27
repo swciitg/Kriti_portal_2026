@@ -270,7 +270,7 @@ function SubmissionJudging() {
   return (
     <div className="min-h-screen bg-gray-50 p-8">
       {/* Header */}
-      <div className="max-w-4xl mx-auto mb-6">
+      <div className="max-w-7xl mx-auto mb-6">
         <button
           onClick={handleBack}
           className="flex items-center text-blue-600 hover:text-blue-800 mb-4 transition-colors"
@@ -294,9 +294,16 @@ function SubmissionJudging() {
         <div className="bg-white rounded-xl shadow-lg p-6">
           <div className="flex items-center justify-between">
             <div>
-              <h1 className="text-3xl font-bold text-gray-800">
-                Judge Submissions
-              </h1>
+              <div className="flex items-center gap-3">
+                <h1 className="text-3xl font-bold text-gray-800">
+                  Judge Submissions
+                </h1>
+                {isMidEval && (
+                  <span className="bg-purple-100 text-purple-800 text-sm font-semibold px-3 py-1 rounded-full">
+                    Mid Evaluation
+                  </span>
+                )}
+              </div>
               {psInfo && (
                 <p className="text-sm text-gray-600 mt-1">
                   Problem Statement: {psInfo.name}
@@ -315,11 +322,13 @@ function SubmissionJudging() {
         </div>
       </div>
 
-      {/* Scoring Form */}
-      <div className="max-w-4xl mx-auto">
-        {/* Deliverables Section */}
-        {currentSubmission && currentSubmission.deliverables && currentSubmission.deliverables.length > 0 && (
-          <div className="bg-white rounded-xl shadow-lg p-6 mb-6">
+      {/* Two Column Layout */}
+      <div className="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-3 gap-6">
+        {/* Left Column - Scoring Form */}
+        <div className="lg:col-span-2">
+          {/* Deliverables Section */}
+          {currentSubmission && currentSubmission.deliverables && currentSubmission.deliverables.length > 0 && (
+            <div className="bg-white rounded-xl shadow-lg p-6 mb-6">
             <h2 className="text-2xl font-semibold text-gray-800 mb-6 pb-3 border-b-2 border-gray-200">
               Submission Deliverables
             </h2>
@@ -362,114 +371,246 @@ function SubmissionJudging() {
                   </div>
                 </div>
               ))}
+              </div>
             </div>
-          </div>
-        )}
+          )}
 
-        <div className="bg-white rounded-xl shadow-lg p-6 mb-6">
-          <h2 className="text-2xl font-semibold text-gray-800 mb-6 pb-3 border-b-2 border-gray-200">
-            Evaluation Criteria
-          </h2>
+          <div className="bg-white rounded-xl shadow-lg p-6 mb-6">
+            <h2 className="text-2xl font-semibold text-gray-800 mb-6 pb-3 border-b-2 border-gray-200">
+              Evaluation Criteria
+            </h2>
 
-          <div className="space-y-6">
-            {criteria.map((criterion, index) => (
-              <div
-                key={index}
-                className="p-5 bg-gray-50 rounded-lg border border-gray-200"
-              >
-                <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-                  <div className="flex-1">
-                    <h3 className="text-lg font-semibold text-gray-800 mb-1">
-                      {criterion.field}
-                    </h3>
-                    <p className="text-sm text-gray-500">
-                      Weightage: {criterion.weightage}% of total score
-                    </p>
-                  </div>
-
-                  <div className="flex items-center gap-4">
-                    <div className="flex flex-col">
-                      <label className="text-xs text-gray-500 mb-1">
-                        Score (out of 100)
-                      </label>
-                      <input
-                        type="text"
-                        min="0"
-                        max="100"
-                        step="0.01"
-                        value={scores[criterion.field] || 0}
-                        onChange={(e) =>
-                          handleScoreChange(criterion.field, e.target.value)
-                        }
-                        className="w-32 px-4 py-2 border-2 border-gray-300 rounded-lg focus:border-blue-500 focus:outline-none text-center text-lg font-semibold"
-                      />
+            <div className="space-y-6">
+              {criteria.map((criterion, index) => (
+                <div
+                  key={index}
+                  className="p-5 bg-gray-50 rounded-lg border border-gray-200"
+                >
+                  <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+                    <div className="flex-1">
+                      <h3 className="text-lg font-semibold text-gray-800 mb-1">
+                        {criterion.field}
+                      </h3>
+                      <p className="text-sm text-gray-500">
+                        Weightage: {criterion.weightage}% of total score
+                      </p>
                     </div>
 
-                    <div className="flex flex-col items-center">
-                      <span className="text-xs text-gray-500 mb-1">
-                        Weighted
-                      </span>
-                      <div className="bg-blue-100 px-4 py-2 rounded-lg min-w-[80px] text-center">
-                        <span className="text-xl font-bold text-blue-600">
-                          {calculateWeightedScore(
-                            criterion.field,
-                            scores[criterion.field]
-                          )}
+                    <div className="flex items-center gap-4">
+                      <div className="flex flex-col">
+                        <label className="text-xs text-gray-500 mb-1">
+                          Score (out of 100)
+                        </label>
+                        <input
+                          type="number"
+                          min="0"
+                          max="100"
+                          step="0.01"
+                          value={scores[criterion.field] || 0}
+                          onChange={(e) =>
+                            handleScoreChange(criterion.field, e.target.value)
+                          }
+                          className="w-32 px-4 py-2 border-2 border-gray-300 rounded-lg focus:border-blue-500 focus:outline-none text-center text-lg font-semibold"
+                        />
+                      </div>
+
+                      <div className="flex flex-col items-center">
+                        <span className="text-xs text-gray-500 mb-1">
+                          Weighted
                         </span>
+                        <div className="bg-blue-100 px-4 py-2 rounded-lg min-w-[80px] text-center">
+                          <span className="text-xl font-bold text-blue-600">
+                            {calculateWeightedScore(
+                              criterion.field,
+                              scores[criterion.field]
+                            )}
+                          </span>
+                        </div>
                       </div>
                     </div>
                   </div>
                 </div>
+              ))}
+            </div>
+          </div>
+
+          {/* Total Score Summary */}
+          <div className="bg-gradient-to-r from-blue-500 to-blue-600 rounded-xl shadow-lg p-6 mb-6">
+            <div className="flex items-center justify-between">
+              <div>
+                <h2 className="text-white text-2xl font-semibold mb-2">
+                  Total Weighted Score
+                </h2>
+                <p className="text-blue-100 text-sm">
+                  Sum of all weighted scores
+                </p>
               </div>
-            ))}
+              <div className="bg-white rounded-lg px-8 py-4">
+                <span className="text-5xl font-bold text-blue-600">
+                  {calculateTotalScore()}
+                </span>
+                <span className="text-2xl text-gray-600 ml-2">/100</span>
+              </div>
+            </div>
+          </div>
+
+          {/* Action Buttons */}
+          <div className="flex gap-4">
+            <button
+              onClick={handleBack}
+              className="flex-1 bg-gray-200 hover:bg-gray-300 text-gray-800 font-semibold py-3 px-6 rounded-lg transition-colors duration-200"
+            >
+              Cancel
+            </button>
+            <button
+              onClick={handleSave}
+              disabled={saving}
+              className="flex-1 bg-green-600 hover:bg-green-700 text-white font-semibold py-3 px-6 rounded-lg transition-colors duration-200 shadow-md hover:shadow-lg disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              {saving ? (
+                <span className="flex items-center justify-center">
+                  <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                  </svg>
+                  Saving...
+                </span>
+              ) : (
+                "Save Scores"
+              )}
+            </button>
           </div>
         </div>
 
-        {/* Total Score Summary */}
-        <div className="bg-gradient-to-r from-blue-500 to-blue-600 rounded-xl shadow-lg p-6 mb-6">
-          <div className="flex items-center justify-between">
-            <div>
-              <h2 className="text-white text-2xl font-semibold mb-2">
-                Total Weighted Score
-              </h2>
-              <p className="text-blue-100 text-sm">
-                Sum of all weighted scores
-              </p>
+        {/* Right Column - Guidelines Panel */}
+        <div className="lg:col-span-1">
+          <div className="bg-white rounded-xl shadow-lg p-6 sticky top-8">
+            <div className="flex items-center gap-2 mb-4">
+              <svg className="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+              <h3 className="text-xl font-bold text-gray-800">Marking Guidelines</h3>
             </div>
-            <div className="bg-white rounded-lg px-8 py-4">
-              <span className="text-5xl font-bold text-blue-600">
-                {calculateTotalScore()}
-              </span>
-              <span className="text-2xl text-gray-600 ml-2">/100</span>
+
+            <div className="space-y-4">
+              {/* Evaluation Type Info */}
+              <div className="bg-blue-50 border-l-4 border-blue-500 p-4 rounded">
+                <h4 className="font-semibold text-blue-900 mb-1">Evaluation Type</h4>
+                <p className="text-sm text-blue-800">
+                  {isMidEval ? "Mid-term evaluation scores" : "Final submission scores"}
+                </p>
+              </div>
+
+              {/* How Scoring Works */}
+              <div className="border-l-4 border-purple-500 bg-purple-50 p-4 rounded">
+                <h4 className="font-semibold text-purple-900 mb-2">How Scoring Works</h4>
+                <ul className="text-sm text-purple-800 space-y-2">
+                  <li className="flex items-start">
+                    <span className="text-purple-600 mr-2">•</span>
+                    <span>Enter scores from 0-100 for each criterion</span>
+                  </li>
+                  <li className="flex items-start">
+                    <span className="text-purple-600 mr-2">•</span>
+                    <span>Each score is weighted by its percentage</span>
+                  </li>
+                  <li className="flex items-start">
+                    <span className="text-purple-600 mr-2">•</span>
+                    <span>Total weighted score = sum of all weighted criteria</span>
+                  </li>
+                </ul>
+              </div>
+
+              {/* Max Score Distribution */}
+              {psInfo && (
+                <div className="border-l-4 border-green-500 bg-green-50 p-4 rounded">
+                  <h4 className="font-semibold text-green-900 mb-2">Score Distribution</h4>
+                  <div className="text-sm text-green-800 space-y-2">
+                    <div className="flex justify-between items-center">
+                      <span>Max {isMidEval ? "Mid Eval" : "Submission"} Score:</span>
+                      <span className="font-bold">{maxSubmissionScore} pts</span>
+                    </div>
+                    <div className="text-xs mt-2 pt-2 border-t border-green-200">
+                      <p className="font-medium mb-1">Overall Distribution:</p>
+                      <div className="space-y-1">
+                        <div className="flex justify-between">
+                          <span>Final Submission:</span>
+                          <span>{psInfo.overallPointsDistribution?.[0] || 0} pts</span>
+                        </div>
+                        <div className="flex justify-between">
+                          <span>Presentation:</span>
+                          <span>{psInfo.overallPointsDistribution?.[1] || 0} pts</span>
+                        </div>
+                        {psInfo.midEvalExist && (
+                          <div className="flex justify-between">
+                            <span>Mid Evaluation:</span>
+                            <span>{psInfo.overallPointsDistribution?.[2] || 0} pts</span>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {/* Final Score Calculation */}
+              {/* <div className="border-l-4 border-orange-500 bg-orange-50 p-4 rounded">
+                <h4 className="font-semibold text-orange-900 mb-2">Final Score Calculation</h4>
+                <p className="text-sm text-orange-800 mb-2">
+                  Your weighted score (out of 100) is converted to the actual point value:
+                </p>
+                <div className="bg-white p-3 rounded border border-orange-200">
+                  <code className="text-xs text-orange-900 break-all">
+                    Actual Score = (Weighted Score / 100) × {maxSubmissionScore}
+                  </code>
+                </div>
+                <p className="text-xs text-orange-700 mt-2">
+                  Example: If weighted score is 85/100, actual score = 85% of {maxSubmissionScore} = {Math.round(maxSubmissionScore * 0.85)} points
+                </p>
+              </div>*/}
+
+              {/* Important Notes */}
+              <div className="border-l-4 border-red-500 bg-red-50 p-4 rounded">
+                <h4 className="font-semibold text-red-900 mb-2">⚠️ Important Notes</h4>
+                <ul className="text-sm text-red-800 space-y-2">
+                  <li className="flex items-start">
+                    <span className="text-red-600 mr-2">•</span>
+                    <span>Scores are saved per submission</span>
+                  </li>
+                  <li className="flex items-start">
+                    <span className="text-red-600 mr-2">•</span>
+                    <span>You can edit and re-save anytime before final verification</span>
+                  </li>
+                  <li className="flex items-start">
+                    <span className="text-red-600 mr-2">•</span>
+                    <span>Review all deliverables before scoring</span>
+                  </li>
+                  <li className="flex items-start">
+                    <span className="text-red-600 mr-2">•</span>
+                    <span>Be fair and consistent across all hostels</span>
+                  </li>
+                </ul>
+              </div>
+
+              {/* Criteria Breakdown */}
+              <div className="border-l-4 border-indigo-500 bg-indigo-50 p-4 rounded">
+                <h4 className="font-semibold text-indigo-900 mb-2">Criteria Weightage</h4>
+                <div className="space-y-2">
+                  {criteria.map((criterion, idx) => (
+                    <div key={idx} className="flex justify-between items-center text-sm">
+                      <span className="text-indigo-800 font-medium">{criterion.field}</span>
+                      <span className="bg-indigo-200 text-indigo-900 px-2 py-1 rounded text-xs font-bold">
+                        {criterion.weightage}%
+                      </span>
+                    </div>
+                  ))}
+                  <div className="pt-2 border-t border-indigo-200 flex justify-between font-bold text-indigo-900">
+                    <span>Total:</span>
+                    <span>100%</span>
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
-        </div>
-
-        {/* Action Buttons */}
-        <div className="flex gap-4">
-          <button
-            onClick={handleBack}
-            className="flex-1 bg-gray-200 hover:bg-gray-300 text-gray-800 font-semibold py-3 px-6 rounded-lg transition-colors duration-200"
-          >
-            Cancel
-          </button>
-          <button
-            onClick={handleSave}
-            disabled={saving}
-            className="flex-1 bg-green-600 hover:bg-green-700 text-white font-semibold py-3 px-6 rounded-lg transition-colors duration-200 shadow-md hover:shadow-lg disabled:opacity-50 disabled:cursor-not-allowed"
-          >
-            {saving ? (
-              <span className="flex items-center justify-center">
-                <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                </svg>
-                Saving...
-              </span>
-            ) : (
-              "Save Scores"
-            )}
-          </button>
         </div>
       </div>
     </div>
