@@ -48,6 +48,16 @@ export async function SignIn(req, res) {
     const responseUser = existingUser.toObject();
     delete responseUser.password;
 
+    // Store previous last login before updating
+    const previousLastLogin = existingUser.lastLogin;
+
+    // Update last login timestamp
+    existingUser.lastLogin = new Date();
+    await existingUser.save();
+
+    // Add previous last login to response
+    responseUser.previousLastLogin = previousLastLogin;
+
     if (existingUser.role === "TechSecy") {
       const techSecyProfile = await TechSecy.findOne({
         user: existingUser._id,
