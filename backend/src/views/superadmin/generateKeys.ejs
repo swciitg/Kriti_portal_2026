@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Create SuperAdmin</title>
+
+  <style>
+    :root {
+      --primary: #2563eb;
+      --primary-dark: #1e40af;
+      --bg: #f8fafc;
+      --card: #ffffff;
+      --border: #e5e7eb;
+      --text: #0f172a;
+      --muted: #64748b;
+      --danger: #dc2626;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      font-family: Inter, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background: linear-gradient(180deg, #eef4ff 0%, var(--bg) 60%);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--text);
+    }
+
+    .container {
+      width: 100%;
+      max-width: 520px;
+      padding: 24px;
+    }
+
+    .card {
+      background: var(--card);
+      border-radius: 14px;
+      box-shadow: 0 20px 40px rgba(15, 23, 42, 0.08);
+      border: 1px solid var(--border);
+      overflow: hidden;
+    }
+
+    .card-header {
+      padding: 28px 28px 20px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .title {
+      font-size: 32px;
+      font-weight: 700;
+      margin: 0 0 6px;
+    }
+
+    .subtitle {
+      font-size: 18px;
+      color: var(--muted);
+    }
+
+    .card-body {
+      padding: 28px;
+    }
+
+    .error {
+      background: #fee2e2;
+      color: var(--danger);
+      border: 1px solid #fecaca;
+      padding: 12px 14px;
+      border-radius: 8px;
+      font-size: 18px;
+      margin-bottom: 18px;
+    }
+
+    .key-section {
+      margin-bottom: 22px;
+    }
+
+    .key-label {
+      font-size: 16px;
+      font-weight: 600;
+      margin-bottom: 8px;
+      display: block;
+    }
+
+    .key-box {
+      background: #f1f5f9;
+      border: 1px dashed #cbd5f5;
+      border-radius: 10px;
+      padding: 14px;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      font-size: 20px;
+      color: #1e293b;
+      word-break: break-all;
+      margin-bottom: 10px;
+    }
+
+    .copy-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 8px 14px;
+      border-radius: 8px;
+      border: 1px solid var(--border);
+      background: #ffffff;
+      color: var(--primary);
+      font-size: 16px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.15s ease;
+    }
+
+    .copy-btn:hover {
+      background: #eff6ff;
+      border-color: #bfdbfe;
+    }
+
+    .info {
+      margin-top: 18px;
+      padding: 14px;
+      background: #eff6ff;
+      border: 1px solid #bfdbfe;
+      border-radius: 10px;
+      font-size: 18px;
+      color: #1e3a8a;
+    }
+
+    .action {
+      display: flex;
+      justify-content: center;
+      margin-top: 12px;
+    }
+
+    .primary-btn {
+      background: var(--primary);
+      color: #ffffff;
+      border: none;
+      padding: 12px 26px;
+      font-size: 15px;
+      font-weight: 600;
+      border-radius: 10px;
+      cursor: pointer;
+      transition: background 0.15s ease, transform 0.05s ease;
+    }
+
+    .primary-btn:hover {
+      background: var(--primary-dark);
+    }
+
+    .primary-btn:active {
+      transform: translateY(1px);
+    }
+  </style>
+</head>
+
+<body>
+  <div class="container">
+    <div class="card">
+      <div class="card-header">
+        <h2 class="title">Create SuperAdmin Keys</h2>
+        <p class="subtitle">Generate and securely store the SuperAdmin credentials</p>
+      </div>
+
+      <div class="card-body">
+        <% if (error) { %>
+          <div class="error"><%= error %></div>
+        <% } %>
+
+        <% if (publicKey && privateKey) { %>
+          <div class="key-section">
+            <span class="key-label">Public Key</span>
+            <div id="publicKey" class="key-box"><%= publicKey %></div>
+            <button class="copy-btn" onclick="copyText('publicKey')">Copy Public Key</button>
+          </div>
+
+          <div class="key-section">
+            <span class="key-label">Private Key</span>
+            <div id="privateKey" class="key-box"><%= privateKey %></div>
+            <button class="copy-btn" onclick="copyText('privateKey')">Copy Private Key</button>
+          </div>
+
+          <div class="info">
+            Store these securely. This page will not be available again.
+          </div>
+        <% } else { %>
+          <form method="GET" action="/v1/superadmin/generate-keys" class="action">
+            <button type="submit" class="primary-btn">Create SuperAdmin</button>
+          </form>
+        <% } %>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    function copyText(id) {
+      const text = document.getElementById(id).innerText;
+      navigator.clipboard.writeText(text);
+    }
+  </script>
+</body>
+</html>

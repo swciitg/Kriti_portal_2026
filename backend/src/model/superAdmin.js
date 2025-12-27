@@ -9,12 +9,6 @@ const SuperAdminSchema = new mongoose.Schema({
 });
 
 
-SuperAdminSchema.pre("save", async function () {
-    if(this.isModified("password"))
-        this.publicKey = await bcrypt.hash(this.publicKey, 10);
-        this.privateKey = await bcrypt.hash(this.privateKey, 10);
-} )
-
 SuperAdminSchema.methods.areKeyCorrect = async function(publicKey , privateKey) {
     const publicKeyCheck = await bcrypt.compare(publicKey , this.publicKey)
     const privateKeyCheck = await bcrypt.compare(privateKey , this.privateKey)
