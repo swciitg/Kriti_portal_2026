@@ -9,6 +9,7 @@ import UsersPage from "./components/usersList"
 export default function OnboardUserPage() {
   const navigate = useNavigate()
   const { user } = useContext(userContext)
+  const [psList , setPSList] = useState([]);
 
   const [form, setForm] = useState({
     username: "",
@@ -34,6 +35,35 @@ export default function OnboardUserPage() {
       navigate("/sign-in");
     }
   }, [user])
+
+
+  useEffect(() => {
+    async function getAllPS() {
+      try {
+        setError("");
+        const token = localStorage.getItem("accessToken");
+        const res = await fetch(`${BACKEND_URL}/v1/ps` , {
+          method : "GET" , 
+          headers : {
+             "Content-Type": "application/json",
+              Authorization: token ? `Bearer ${token}` : "",
+          }
+        })
+        const data = await res.json();
+        if(!res.ok || !data.ps) {
+          setError(data.message);
+          return;
+        }
+
+        setPSList(data.ps);
+      } catch (error) {
+        setError("Some error occured in fetching the Problem Statements")
+      }
+    }
+
+    getAllPS();
+  } , [])
+
 
   const handleChange = e => {
     setForm({ ...form, [e.target.name]: e.target.value })
@@ -70,9 +100,15 @@ export default function OnboardUserPage() {
     }
   }
 
+  useEffect(() => {
+    console.log(psList)
+  },[psList])
+
   return (
     <>
-     <div className="absolute top-5 left-5">
+    <div className="min-h-screen w-full flex sm:flex-row flex-col items-center justify-center gap-10 bg-gray-100 px-4">
+      <div className="w-full max-w-lg bg-white rounded-xl shadow p-8 space-y-6 mt-32 sm:mt-0">
+        <div className="absolute top-5 left-5">
           <button
             onClick={() => navigate("/convener")}
             className="flex cursor-pointer items-center text-blue-600 hover:text-blue-700 mb-4 transition-colors"
@@ -93,8 +129,6 @@ export default function OnboardUserPage() {
             Back to Dashboard
           </button>
       </div>
-    <div className="min-h-screen w-full flex sm:flex-row flex-col items-center justify-center gap-10 bg-gray-100 px-4">
-      <div className="w-full max-w-lg bg-white rounded-xl shadow p-8 space-y-6 mt-32 sm:mt-0">
         <h1 className="text-2xl font-semibold text-gray-800">Onboard User</h1>
 
         {error && (
@@ -174,17 +208,36 @@ export default function OnboardUserPage() {
             />
           )}
 
-          {form.role === "Judge" && (
-            <input
-              type="text"
-              name="ps"
-              placeholder="Problem Statement Name"
-              className="w-full border rounded-lg px-4 py-2 outline-none"
-              value={form.ps}
-              onChange={handleChange}
-            />
+          {(form.role === "Judge" || form.role === "Company") && (
+            // <input
+            //   type="text"
+            //   name="ps"
+            //   placeholder="Problem Statement Name"
+            //   className="w-full border rounded-lg px-4 py-2 outline-none"
+            //   value={form.ps}
+            //   onChange={handleChange}
+            // />
+            <div className="mb-4">
+              <select
+                id="ps"
+                name="ps"
+                value={form.ps}
+                onChange={handleChange}
+                className="w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm text-gray-800
+                      focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 cursor-pointer"
+                required
+              >
+                <option value="">--- Select Problem Statement ---</option>
+                {
+                  // psList?.length > 0 && 
+                  psList.map((_ps , idx) => (
+                     <option key={idx} value={_ps.name}>{_ps.name}</option>
+                  ))
+                 }
+              </select>
+            </div>
           )}
-
+{/* 
           {form.role === "Company" && (
             <input
               type="text"
@@ -194,7 +247,7 @@ export default function OnboardUserPage() {
               value={form.ps}
               onChange={handleChange}
             />
-          )}
+          )} */}
 
           <button
             type="submit"

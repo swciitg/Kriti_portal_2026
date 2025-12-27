@@ -1,10 +1,12 @@
 import {useState } from 'react'
 import TeamsCard from './teams.jsx';
 import SubmissionCard from './submissions.jsx'
+import PdfViewer from './viewPS.jsx';
 
 export default function ProblemCard({ ps }) {
   const [teamSelected , setTeamSelected] = useState(null);
   const [submissionSelected , setSubmissionSelected] = useState(null);
+  const [pdfUrl , setPdfUrl] = useState(null);
 
 
   function handleTeamsClick() {
@@ -17,6 +19,11 @@ export default function ProblemCard({ ps }) {
 
   return (
     <>
+    {
+      pdfUrl && 
+      <PdfViewer pdfUrl={pdfUrl} setPdfUrl={setPdfUrl}/>
+    }
+
     {
       teamSelected && 
       <TeamsCard id = {ps._id} name = {ps.name} close = {handleTeamsClick}/>
@@ -62,8 +69,11 @@ export default function ProblemCard({ ps }) {
         </button>
       </div>
 
-      <button className="mt-4 w-full cursor-pointer gap-2 bg-blue-600 text-white py-2 rounded-lg hover:bg-blue-700 transition">
-        Download Problem Statement
+      <button onClick={() => {
+        setPdfUrl(ps.pdf)
+      }}
+      className="mt-4 w-full cursor-pointer gap-2 bg-blue-600 text-white py-2 rounded-lg hover:bg-blue-700 transition">
+        View Problem Statement
       </button>
     </div>
     </>

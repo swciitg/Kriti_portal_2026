@@ -9,6 +9,7 @@ export default function TeamsCard({id , name , close}) {
 
 
     const [error, setError] = useState("");
+    const [loading, setLoading] = useState(false);
   
     useEffect(() => {
       if(!error || error.trim().length === 0) {
@@ -27,6 +28,7 @@ export default function TeamsCard({id , name , close}) {
       async function getSubmission() {
         try {
           setError('');
+          setLoading(true);
           const token = localStorage.getItem("accessToken");
           const response = await fetch(`${BACKEND_URL}/v1/teams/get-all/${id}` , {
             method : "GET" , 
@@ -39,6 +41,7 @@ export default function TeamsCard({id , name , close}) {
           const data = await response.json();
           if(response.status != 200 || !data?.success) {
             setError(data.message);
+            setLoading(false);
             return;
           }
           if(data.teams?.length > 0) {
@@ -47,6 +50,8 @@ export default function TeamsCard({id , name , close}) {
         } catch (error) {
           console.log(error)
           setError("Some Error Occured!");
+        } finally {
+          setLoading(false);
         }
       }
   
@@ -77,7 +82,7 @@ export default function TeamsCard({id , name , close}) {
             { teams.length > 0 &&
             teams.map((t) => (
               <button
-                key={t.hostelId}
+                key={t.hostelId + Math.random()}
                 onClick={() => setSelectedHostel(t.hostelId)}
                 className={`w-full px-3 py-2 flex items-center gap-2 rounded-lg transition 
                 ${selectedHostel === t.hostelId ? "bg-blue-100 text-blue-700" : "hover:bg-gray-100"}`}
@@ -87,9 +92,15 @@ export default function TeamsCard({id , name , close}) {
               </button>
             ))}
              {
-              teams.length === 0 && 
+              teams.length === 0 && !loading &&
               <div className="text-gray-500 text-lg">
                 No Hostels have Registered yet!
+              </div>
+             }
+             {
+              loading && 
+              <div className="text-gray-500 text-lg">
+                Loading Teams...
               </div>
              }
           </div>

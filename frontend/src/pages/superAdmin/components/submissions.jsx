@@ -9,6 +9,7 @@ export default function SubmissionsCard({ id, name, close }) {
 
 
   const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     if(!error || error.trim().length === 0) {
@@ -27,6 +28,7 @@ export default function SubmissionsCard({ id, name, close }) {
     async function getSubmission() {
       try {
         setError('');
+        setLoading(true);
         const token = localStorage.getItem("accessToken");
         const response = await fetch(`${BACKEND_URL}/v1/submission/get-all/${id}` , {
           method : "GET" , 
@@ -39,6 +41,7 @@ export default function SubmissionsCard({ id, name, close }) {
         const data = await response.json();
         if(response.status != 200 || !data?.success) {
           setError(data.message);
+          setLoading(false);
           return;
         }
   
@@ -46,6 +49,8 @@ export default function SubmissionsCard({ id, name, close }) {
       } catch (error) {
         console.log(error)
         setError("Some Error Occured!");
+      } finally {
+        setLoading(false);
       }
     }
 
@@ -154,9 +159,15 @@ export default function SubmissionsCard({ id, name, close }) {
             ))}
 
             {
-              uniqueHostels.length === 0 &&
+              uniqueHostels.length === 0 && !loading  &&
               <div className="text-gray-500 text-lg">
                 No Hostels have Submitted yet!
+              </div>
+            }
+            {
+              loading && 
+              <div className="text-gray-500 text-lg">
+                Loading Submissions...
               </div>
             }
           </div>
