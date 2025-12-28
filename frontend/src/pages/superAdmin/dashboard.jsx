@@ -6,6 +6,7 @@ import { useContext } from "react"
 import { userContext } from "../../context/userContext.jsx"
 import { BACKEND_URL } from "../../constants.js"
 import ScoreTable from "./components/scoreTable.jsx"
+import ScehduleTable from "./components/scheduleTable.jsx"
 
 export default function SuperAdminDashboard() {
   const [activePage, setActivePage] = useState("Problem Statements")
@@ -138,6 +139,11 @@ export default function SuperAdminDashboard() {
       {
         activePage === "Score Table" && 
         <ScoreTable problemStatements={problemStatements} hostelIds={hostelIds} error = {error} setError={setError}/>
+      }
+
+      {
+        activePage === "Schedule" && 
+        <ScehduleTable problemStatements={problemStatements} setError={setError}/>
       }
     </div>
   </div>
