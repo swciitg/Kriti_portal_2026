@@ -1,5 +1,6 @@
 import ps from "../../model/ps.js";
 import team from "../../model/team.js";
+import TechSecy from "../../model/techSecy.js";
 import mongoose from "mongoose";
 
 export async function GetTeamsForProblemStatement(req, res) {
@@ -22,6 +23,15 @@ export async function GetTeamsForProblemStatement(req, res) {
       });
     }
 
+    // Find tech secretary for current user
+    const techSecy = await TechSecy.findOne({ user: req.user._id });
+    if (!techSecy) {
+      return res.status(404).json({
+        success: false,
+        message: "Tech secretary not found"
+      });
+    }
+
     // Check if problem statement exists
     const psExistenceCheck = await ps.findById(psId);
     if (!psExistenceCheck) {
@@ -31,34 +41,37 @@ export async function GetTeamsForProblemStatement(req, res) {
       });
     }
 
-    // Find all teams for this PS
-    const allTeams = await team.find({ ps: psId })
+    // Find team for this PS AND this hostel
+    const hostelTeam = await team.findOne({ 
+      ps: psId,
+      hostelId: techSecy.hostelId  // Filter by hostelId
+    })
       .select("hostelId teamMembers submitted")
       .populate("techSecy", "hostelId")
       .lean();
 
-    if (!allTeams || allTeams.length === 0) {
+    if (!hostelTeam) {
       return res.status(200).json({
         success: true,
-        message: "No teams registered for this problem statement yet",
-        teams: []
+        message: "No team registered for this problem statement yet",
+        teams: []  // Return empty array for frontend compatibility
       });
     }
 
     return res.status(200).json({
       success: true,
-      message: `Found ${allTeams.length} team(s)`,
-      teams: allTeams
+      message: "Team found",
+      teams: [hostelTeam]  // Return as array for frontend compatibility
     });
 
   } catch (error) {
     console.error("Error in GetTeamsForProblemStatement:", error);
-
+    
     // Handle specific MongoDB errors
     if (error.name === "CastError") {
-      return res.status(400).json({ 
-        success: false, 
-        message: "Invalid ID format provided" 
+      return res.status(400).json({
+        success: false,
+        message: "Invalid ID format provided"
       });
     }
 

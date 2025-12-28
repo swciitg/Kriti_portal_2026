@@ -7,6 +7,7 @@ export default function RegisterTeam() {
   const { psId } = useParams();
   const navigate = useNavigate();
   const { user } = useContext(userContext);
+
   const [psDetails, setPsDetails] = useState(null);
   const [existingTeam, setExistingTeam] = useState(null);
   const [teamMembers, setTeamMembers] = useState([
@@ -21,6 +22,7 @@ export default function RegisterTeam() {
   const canEdit = requestStatus === "approved";
   const isEditing = Boolean(existingTeam);
 
+  // Auth check
   useEffect(() => {
     const stored = JSON.parse(localStorage.getItem("user"));
     if (
@@ -31,28 +33,32 @@ export default function RegisterTeam() {
     }
   }, [user, navigate]);
 
+  // Fetch request status
   const fetchRequestStatus = useCallback(async () => {
     try {
       const res = await fetch(
         `${BACKEND_URL}/v1/techsecy/get-requests/${psId}`,
         { credentials: "include" }
       );
-
       if (res.ok) {
         const data = await res.json();
         setRequestStatus(data.data.status);
       } else if (res.status === 404) {
         setRequestStatus("none");
       }
-    } catch {
-      console.error("Failed to fetch request status");
+    } catch (err) {
+      console.error("Failed to fetch request status:", err);
     }
   }, [psId]);
 
+  // Fetch all data on mount
   useEffect(() => {
     async function fetchAll() {
       try {
         setLoading(true);
+        setError("");
+
+        // Fetch PS details
         const psRes = await fetch(`${BACKEND_URL}/v1/ps/${psId}`, {
           credentials: "include",
         });
@@ -61,17 +67,29 @@ export default function RegisterTeam() {
           setPsDetails(psData.ps);
         }
 
+        // Fetch team data
         const teamRes = await fetch(
           `${BACKEND_URL}/v1/techsecy/get-team/${psId}`,
           { credentials: "include" }
         );
+
         if (teamRes.ok) {
           const teamData = await teamRes.json();
-          setExistingTeam(teamData.teams?.[0] || null);
+          const team = teamData.teams?.[0] || null;
+          setExistingTeam(team);
+
+          // If team exists, populate the form with existing members
+          if (team && team.teamMembers && team.teamMembers.length > 0) {
+            setTeamMembers(team.teamMembers);
+          }
+        } else if (teamRes.status === 404) {
+          // No team found, start fresh
+          setExistingTeam(null);
         }
 
         await fetchRequestStatus();
-      } catch {
+      } catch (err) {
+        console.error("Fetch error:", err);
         setError("Failed to fetch details");
       } finally {
         setLoading(false);
@@ -80,35 +98,48 @@ export default function RegisterTeam() {
     fetchAll();
   }, [psId, fetchRequestStatus]);
 
+  // Poll request status every 5 seconds
   useEffect(() => {
     const interval = setInterval(fetchRequestStatus, 5000);
     return () => clearInterval(interval);
   }, [fetchRequestStatus]);
 
+  // Load team members when edit is approved
   useEffect(() => {
-    if (existingTeam && canEdit) {
+    if (existingTeam && canEdit && existingTeam.teamMembers) {
       setTeamMembers(existingTeam.teamMembers);
     }
   }, [existingTeam, canEdit]);
 
+  // Save to localStorage if not editing
   useEffect(() => {
     if (!existingTeam) {
       localStorage.setItem(`teamMembers-${psId}`, JSON.stringify(teamMembers));
     }
   }, [teamMembers, psId, existingTeam]);
 
+  // Load from localStorage on mount
   useEffect(() => {
     const saved = localStorage.getItem(`teamMembers-${psId}`);
     if (saved && !existingTeam) {
-      setTeamMembers(JSON.parse(saved));
+      try {
+        const parsedData = JSON.parse(saved);
+        if (Array.isArray(parsedData) && parsedData.length > 0) {
+          setTeamMembers(parsedData);
+        }
+      } catch (err) {
+        console.error("Failed to parse saved team members:", err);
+      }
     }
-  }, [psId]);
+  }, [psId, existingTeam]);
 
+  // Request edit access
   async function requestEditAccess() {
     try {
       setError("");
       setMessage("");
       setRequestingEdit(true);
+
       const res = await fetch(
         `${BACKEND_URL}/v1/techsecy/edit-registered-team/${psId}`,
         {
@@ -116,7 +147,9 @@ export default function RegisterTeam() {
           credentials: "include",
         }
       );
+
       const data = await res.json();
+
       if (!res.ok) {
         setError(data.message || "Failed to request edit access");
         return;
@@ -124,13 +157,15 @@ export default function RegisterTeam() {
 
       setMessage("Edit request sent for approval");
       setRequestStatus("pending");
-    } catch {
+    } catch (err) {
+      console.error("Request edit error:", err);
       setError("Server error");
     } finally {
       setRequestingEdit(false);
     }
   }
 
+  // Add a new team member
   function addMember() {
     if (teamMembers.length >= psDetails.teamStrength) {
       setError(`Maximum ${psDetails.teamStrength} members allowed`);
@@ -142,16 +177,19 @@ export default function RegisterTeam() {
     ]);
   }
 
+  // Update a team member field
   function updateMember(index, key, value) {
     const updated = [...teamMembers];
     updated[index][key] = value;
     setTeamMembers(updated);
   }
 
+  // Remove a team member
   function removeMember(index) {
     setTeamMembers(teamMembers.filter((_, i) => i !== index));
   }
 
+  // Submit team registration or update
   async function submitTeam() {
     try {
       setError("");
@@ -160,8 +198,13 @@ export default function RegisterTeam() {
       // Validate all fields
       for (let i = 0; i < teamMembers.length; i++) {
         const member = teamMembers[i];
-        if (!member.name || !member.email || !member.yearOfStudy || 
-            !member.phoneNumber || !member.department) {
+        if (
+          !member.name ||
+          !member.email ||
+          !member.yearOfStudy ||
+          !member.phoneNumber ||
+          !member.department
+        ) {
           setError(`Please fill all fields for member ${i + 1}`);
           return;
         }
@@ -189,252 +232,312 @@ export default function RegisterTeam() {
       localStorage.removeItem(`requestStatus-${psId}`);
 
       setMessage(
-        isEditing
-          ? "Team updated successfully!"
-          : "Team registered successfully!"
+        isEditing ? "Team updated successfully!" : "Team registered successfully!"
       );
 
       setTimeout(() => navigate(0), 1000);
-    } catch {
+    } catch (err) {
+      console.error("Submit team error:", err);
       setError("Server error");
     }
   }
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center">
-        <div className="bg-white p-8 rounded-2xl shadow-xl">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
-          <p className="mt-4 text-gray-600 font-medium">Loading...</p>
-        </div>
+      <div className="flex items-center justify-center min-h-screen bg-gray-50">
+        <div className="text-xl font-semibold text-gray-700">Loading...</div>
       </div>
     );
   }
 
-  if (existingTeam && !canEdit) {
+  if (!psDetails) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 py-8 px-4">
-        <div className="max-w-4xl mx-auto">
-          <div className="bg-white rounded-2xl shadow-xl p-8">
-            <div className="flex items-center justify-between mb-6">
-              <h1 className="text-3xl font-bold text-gray-800">Your Registered Team</h1>
-              <span className="px-4 py-2 bg-green-100 text-green-700 rounded-full text-sm font-semibold">
-                Registered
-              </span>
-            </div>
-
-            {psDetails && (
-              <div className="mb-6 p-4 bg-blue-50 rounded-lg border border-blue-200">
-                <h2 className="text-xl font-semibold text-gray-800 mb-2">{psDetails.name}</h2>
-                <p className="text-sm text-gray-600">Team Size: {existingTeam.teamMembers.length}/{psDetails.teamStrength}</p>
-              </div>
-            )}
-
-            <div className="space-y-4 mb-8">
-              {existingTeam.teamMembers.map((m, i) => (
-                <div key={i} className="bg-gradient-to-r from-gray-50 to-gray-100 p-6 rounded-xl border border-gray-200 hover:shadow-md transition-shadow">
-                  <div className="flex items-center mb-3">
-                    <div className="w-10 h-10 bg-blue-600 rounded-full flex items-center justify-center text-white font-bold">
-                      {i + 1}
-                    </div>
-                    <h3 className="ml-3 text-lg font-semibold text-gray-800">{m.name}</h3>
-                  </div>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-3 text-sm">
-                    <div className="flex items-center">
-                      <span className="text-gray-500 font-medium w-28">Email:</span>
-                      <span className="text-gray-700">{m.email}</span>
-                    </div>
-                    <div className="flex items-center">
-                      <span className="text-gray-500 font-medium w-28">Year:</span>
-                      <span className="text-gray-700">{m.yearOfStudy}</span>
-                    </div>
-                    <div className="flex items-center">
-                      <span className="text-gray-500 font-medium w-28">Phone:</span>
-                      <span className="text-gray-700">{m.phoneNumber}</span>
-                    </div>
-                    <div className="flex items-center">
-                      <span className="text-gray-500 font-medium w-28">Department:</span>
-                      <span className="text-gray-700">{m.department}</span>
-                    </div>
-                  </div>
-                </div>
-              ))}
-            </div>
-
-            <div className="border-t pt-6">
-              {requestStatus === "pending" && (
-                <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4 mb-4">
-                  <p className="text-yellow-800 font-medium">⏳ Edit request is pending approval</p>
-                </div>
-              )}
-
-              {requestStatus === "rejected" && (
-                <div className="bg-red-50 border border-red-200 rounded-lg p-4 mb-4">
-                  <p className="text-red-800 font-medium">❌ Edit request was rejected. You can request again.</p>
-                </div>
-              )}
-
-              {error && (
-                <div className="bg-red-50 border border-red-200 rounded-lg p-4 mb-4">
-                  <p className="text-red-800">{error}</p>
-                </div>
-              )}
-
-              {message && (
-                <div className="bg-green-50 border border-green-200 rounded-lg p-4 mb-4">
-                  <p className="text-green-800">{message}</p>
-                </div>
-              )}
-
-              {(requestStatus === "none" || requestStatus === "rejected") && (
-                <button
-                  onClick={requestEditAccess}
-                  disabled={requestingEdit}
-                  className="w-full md:w-auto bg-gradient-to-r from-yellow-500 to-orange-500 text-white px-8 py-3 rounded-lg font-semibold hover:from-yellow-600 hover:to-orange-600 transition-all shadow-lg disabled:opacity-50"
-                >
-                  {requestingEdit ? "Requesting..." : "Request Edit Access"}
-                </button>
-              )}
-            </div>
-          </div>
+      <div className="flex items-center justify-center min-h-screen bg-gray-50">
+        <div className="text-xl font-semibold text-red-600">
+          Problem statement not found
         </div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 py-8 px-4">
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50 py-8 px-4">
       <div className="max-w-4xl mx-auto">
-        <div className="bg-white rounded-2xl shadow-xl p-8">
-          <h1 className="text-3xl font-bold text-gray-800 mb-2">
-            {isEditing ? "Edit Your Team" : "Register Your Team"}
+        {/* Header */}
+        <div className="bg-white rounded-2xl shadow-lg p-8 mb-6">
+          <h1 className="text-3xl font-bold text-gray-900 mb-2">
+            {psDetails.name}
           </h1>
-
-          {psDetails && (
-            <div className="mb-6 p-4 bg-blue-50 rounded-lg border border-blue-200">
-              <h2 className="text-xl font-semibold text-gray-800 mb-1">{psDetails.name}</h2>
-              <p className="text-sm text-gray-600">Max Team Size: {psDetails.teamStrength} members</p>
+          <div className="flex items-center gap-6 text-sm text-gray-600">
+            <div className="flex items-center gap-2">
+              <span className="font-semibold">Team Strength:</span>
+              <span className="bg-blue-100 text-blue-700 px-3 py-1 rounded-full">
+                {psDetails.teamStrength}
+              </span>
             </div>
-          )}
-
-          {error && (
-            <div className="mb-4 bg-red-50 border border-red-200 rounded-lg p-4">
-              <p className="text-red-800">{error}</p>
+            <div className="flex items-center gap-2">
+              <span className="font-semibold">Points:</span>
+              <span className="bg-green-100 text-green-700 px-3 py-1 rounded-full">
+                {psDetails.points}
+              </span>
             </div>
-          )}
-
-          {message && (
-            <div className="mb-4 bg-green-50 border border-green-200 rounded-lg p-4">
-              <p className="text-green-800">{message}</p>
-            </div>
-          )}
-
-          <div className="space-y-6">
-            {teamMembers.map((m, i) => (
-              <div key={i} className="bg-gradient-to-r from-gray-50 to-gray-100 p-6 rounded-xl border-2 border-gray-200 hover:border-blue-300 transition-colors">
-                <div className="flex items-center justify-between mb-4">
-                  <div className="flex items-center">
-                    <div className="w-10 h-10 bg-blue-600 rounded-full flex items-center justify-center text-white font-bold">
-                      {i + 1}
-                    </div>
-                    <h3 className="ml-3 text-lg font-semibold text-gray-700">Member {i + 1}</h3>
-                  </div>
-                  {i > 0 && (
-                    <button
-                      onClick={() => removeMember(i)}
-                      className="text-red-500 hover:text-red-700 font-medium px-4 py-2 rounded-lg hover:bg-red-50 transition-colors"
-                    >
-                      Remove
-                    </button>
-                  )}
-                </div>
-
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
-                      Full Name *
-                    </label>
-                    <input
-                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
-                      placeholder="John Doe"
-                      value={m.name}
-                      onChange={(e) => updateMember(i, "name", e.target.value)}
-                    />
-                  </div>
-
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
-                      Institute Email *
-                    </label>
-                    <input
-                      type="email"
-                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
-                      placeholder="john@institute.edu"
-                      value={m.email}
-                      onChange={(e) => updateMember(i, "email", e.target.value)}
-                    />
-                  </div>
-
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
-                      Year of Study *
-                    </label>
-                    <input
-                      type="number"
-                      min="1"
-                      max="5"
-                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
-                      placeholder="3"
-                      value={m.yearOfStudy}
-                      onChange={(e) => updateMember(i, "yearOfStudy", e.target.value)}
-                    />
-                  </div>
-
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
-                      Phone Number *
-                    </label>
-                    <input
-                      type="tel"
-                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
-                      placeholder="9876543210"
-                      value={m.phoneNumber}
-                      onChange={(e) => updateMember(i, "phoneNumber", e.target.value)}
-                    />
-                  </div>
-
-                  <div className="md:col-span-2">
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
-                      Department *
-                    </label>
-                    <input
-                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
-                      placeholder="Computer Science"
-                      value={m.department}
-                      onChange={(e) => updateMember(i, "department", e.target.value)}
-                    />
-                  </div>
-                </div>
-              </div>
-            ))}
-          </div>
-
-          <div className="flex flex-col sm:flex-row gap-4 mt-8">
-            <button
-              onClick={addMember}
-              disabled={psDetails && teamMembers.length >= psDetails.teamStrength}
-              className="flex-1 bg-gradient-to-r from-blue-500 to-blue-600 text-white px-6 py-3 rounded-lg font-semibold hover:from-blue-600 hover:to-blue-700 transition-all shadow-lg disabled:opacity-50 disabled:cursor-not-allowed"
-            >
-              + Add Member
-            </button>
-            <button
-              onClick={submitTeam}
-              className="flex-1 bg-gradient-to-r from-green-500 to-green-600 text-white px-6 py-3 rounded-lg font-semibold hover:from-green-600 hover:to-green-700 transition-all shadow-lg"
-            >
-              {isEditing ? "Update Team" : "Register Team"}
-            </button>
           </div>
         </div>
+
+        {/* Existing team info */}
+        {existingTeam && !canEdit && (
+          <div className="bg-gradient-to-r from-blue-500 to-purple-600 text-white rounded-2xl shadow-lg p-6 mb-6">
+            <div className="flex items-center justify-between">
+              <div>
+                <h2 className="text-xl font-bold mb-2">Team Registered</h2>
+                <p className="text-blue-100">
+                  Team Size: {existingTeam.teamMembers.length}/
+                  {psDetails.teamStrength}
+                </p>
+              </div>
+              <button
+                onClick={requestEditAccess}
+                disabled={requestingEdit || requestStatus === "pending"}
+                className="bg-white text-blue-600 px-6 py-2 rounded-lg font-semibold hover:bg-blue-50 transition disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                {requestingEdit
+                  ? "Requesting..."
+                  : requestStatus === "pending"
+                  ? "Request Pending"
+                  : "Request Edit"}
+              </button>
+            </div>
+          </div>
+        )}
+
+        {/* Request status messages */}
+        {requestStatus === "pending" && (
+          <div className="bg-yellow-50 border-l-4 border-yellow-400 p-4 mb-6 rounded-lg">
+            <p className="text-yellow-800 font-medium">
+              ⏳ Edit request is pending approval
+            </p>
+          </div>
+        )}
+
+        {requestStatus === "rejected" && (
+          <div className="bg-red-50 border-l-4 border-red-400 p-4 mb-6 rounded-lg">
+            <p className="text-red-800 font-medium">
+              ❌ Edit request was rejected. You can request again.
+            </p>
+          </div>
+        )}
+
+        {/* Error and success messages */}
+        {error && (
+          <div className="bg-red-50 border-l-4 border-red-500 p-4 mb-6 rounded-lg">
+            <p className="text-red-700 font-medium">{error}</p>
+          </div>
+        )}
+
+        {message && (
+          <div className="bg-green-50 border-l-4 border-green-500 p-4 mb-6 rounded-lg">
+            <p className="text-green-700 font-medium">{message}</p>
+          </div>
+        )}
+
+        {/* Team form - only show if no existing team or edit is approved */}
+        {(!existingTeam || canEdit) && (
+          <div className="bg-white rounded-2xl shadow-lg p-8">
+            <div className="flex items-center justify-between mb-6">
+              <h2 className="text-2xl font-bold text-gray-900">
+                {isEditing ? "Edit Team Members" : "Register Team"}
+              </h2>
+              <span className="text-sm text-gray-500">
+                Max Team Size: {psDetails.teamStrength} members
+              </span>
+            </div>
+
+            {/* Team members */}
+            <div className="space-y-6">
+              {teamMembers.map((member, index) => (
+                <div
+                  key={index}
+                  className="border border-gray-200 rounded-xl p-6 bg-gray-50"
+                >
+                  <div className="flex items-center justify-between mb-4">
+                    <h3 className="text-lg font-semibold text-gray-800">
+                      Member {index + 1}
+                    </h3>
+                    {teamMembers.length > 1 && (
+                      <button
+                        onClick={() => removeMember(index)}
+                        className="text-red-600 hover:text-red-800 font-medium text-sm"
+                      >
+                        Remove
+                      </button>
+                    )}
+                  </div>
+
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">
+                        Name *
+                      </label>
+                      <input
+                        type="text"
+                        value={member.name}
+                        onChange={(e) =>
+                          updateMember(index, "name", e.target.value)
+                        }
+                        className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                        placeholder="Enter full name"
+                      />
+                    </div>
+
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">
+                        Email *
+                      </label>
+                      <input
+                        type="email"
+                        value={member.email}
+                        onChange={(e) =>
+                          updateMember(index, "email", e.target.value)
+                        }
+                        className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                        placeholder="example@email.com"
+                      />
+                    </div>
+
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">
+                        Year of Study *
+                      </label>
+                      <input
+                        type="number"
+                        value={member.yearOfStudy}
+                        onChange={(e) =>
+                          updateMember(index, "yearOfStudy", e.target.value)
+                        }
+                        className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                        placeholder="e.g., 2"
+                        min="1"
+                        max="5"
+                      />
+                    </div>
+
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">
+                        Phone Number *
+                      </label>
+                      <input
+                        type="tel"
+                        value={member.phoneNumber}
+                        onChange={(e) =>
+                          updateMember(index, "phoneNumber", e.target.value)
+                        }
+                        className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                        placeholder="+91 XXXXXXXXXX"
+                      />
+                    </div>
+
+                    <div className="md:col-span-2">
+                      <label className="block text-sm font-medium text-gray-700 mb-2">
+                        Department *
+                      </label>
+                      <input
+                        type="text"
+                        value={member.department}
+                        onChange={(e) =>
+                          updateMember(index, "department", e.target.value)
+                        }
+                        className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                        placeholder="e.g., Computer Science"
+                      />
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            {/* Action buttons */}
+            <div className="flex items-center gap-4 mt-8">
+              <button
+                onClick={addMember}
+                disabled={teamMembers.length >= psDetails.teamStrength}
+                className="flex-1 bg-blue-600 text-white py-3 rounded-lg font-semibold hover:bg-blue-700 transition disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                + Add Member
+              </button>
+
+              <button
+                onClick={submitTeam}
+                className="flex-1 bg-gradient-to-r from-green-500 to-emerald-600 text-white py-3 rounded-lg font-semibold hover:from-green-600 hover:to-emerald-700 transition"
+              >
+                {isEditing ? "Update Team" : "Register Team"}
+              </button>
+            </div>
+
+            <button
+              onClick={() => navigate("/techsecy/ps")}
+              className="w-full mt-4 bg-gray-200 text-gray-700 py-3 rounded-lg font-semibold hover:bg-gray-300 transition"
+            >
+              Back to Problem Statements
+            </button>
+          </div>
+        )}
+
+        {/* View only mode - when team exists but no edit permission */}
+        {existingTeam && !canEdit && (
+          <div className="bg-white rounded-2xl shadow-lg p-8">
+            <h2 className="text-2xl font-bold text-gray-900 mb-6">
+              Registered Team Members
+            </h2>
+            <div className="space-y-4">
+              {existingTeam.teamMembers.map((member, index) => (
+                <div
+                  key={index}
+                  className="border border-gray-200 rounded-xl p-6 bg-gray-50"
+                >
+                  <h3 className="text-lg font-semibold text-gray-800 mb-3">
+                    Member {index + 1}
+                  </h3>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-3 text-sm">
+                    <div>
+                      <span className="font-medium text-gray-600">Name:</span>
+                      <span className="ml-2 text-gray-800">{member.name}</span>
+                    </div>
+                    <div>
+                      <span className="font-medium text-gray-600">Email:</span>
+                      <span className="ml-2 text-gray-800">{member.email}</span>
+                    </div>
+                    <div>
+                      <span className="font-medium text-gray-600">Year:</span>
+                      <span className="ml-2 text-gray-800">
+                        {member.yearOfStudy}
+                      </span>
+                    </div>
+                    <div>
+                      <span className="font-medium text-gray-600">Phone:</span>
+                      <span className="ml-2 text-gray-800">
+                        {member.phoneNumber}
+                      </span>
+                    </div>
+                    <div className="md:col-span-2">
+                      <span className="font-medium text-gray-600">
+                        Department:
+                      </span>
+                      <span className="ml-2 text-gray-800">
+                        {member.department}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+            <button
+              onClick={() => navigate("/techsecy/register-team")}
+              className="w-full mt-6 bg-gray-200 text-gray-700 py-3 rounded-lg font-semibold hover:bg-gray-300 transition"
+            >
+              Back to Problem Statements
+            </button>
+          </div>
+        )}
       </div>
     </div>
   );

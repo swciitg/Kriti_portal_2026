@@ -20,6 +20,8 @@ import { GetAllRequests } from "../controllers/convener/requests/getAllRequests.
 import { GetRequestById } from "../controllers/convener/requests/getRequestById.js";
 import { statusUpdate } from "../controllers/convener/requests/statusUpdate.js";
 import { getAllUsers } from "../controllers/convener/getAllUsers.js";
+import { getAllTeams } from "../controllers/convener/getAllTeams.js";
+import { exportTeamsToExcel } from "../controllers/convener/exportTeamsToExcel.js";
 
 const router = Router();
 
@@ -39,5 +41,7 @@ router.route("/grant-company-access/:companyId").post(verifyJWT, handleRouteAcce
 router.route("/get-requests").get(verifyJWT, handleRouteAccess, GetAllRequests);
 router.route("/get-requests/:id").get(verifyJWT, handleRouteAccess, GetRequestById);
 router.route("/update-status/:id").put(verifyJWT, handleRouteAccess, statusUpdate);
+router.route("/get-all-teams").get(verifyJWT, handleRouteAccess, getAllTeams);
+router.route("/export-teams").get(verifyJWT, handleRouteAccess, exportTeamsToExcel);
 
 export default router;
