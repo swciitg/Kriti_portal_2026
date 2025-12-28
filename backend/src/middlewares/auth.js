@@ -46,7 +46,7 @@ export async function verifyJWT(req, res, next) {
           message: "User not found",
         });
       }
-      req.user = superadmin;
+      req.user = decodedToken;
       return next();
     } else {
       // token was created with { id: this.id, ... }

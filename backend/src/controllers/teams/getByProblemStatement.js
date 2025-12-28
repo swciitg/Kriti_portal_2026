@@ -23,21 +23,38 @@ export async function GetTeamsForProblemStatement(req, res) {
       });
     }
 
-    // Find tech secretary for current user
-    const techSecy = await TechSecy.findOne({ user: req.user._id });
-    if (!techSecy) {
-      return res.status(404).json({
-        success: false,
-        message: "Tech secretary not found"
-      });
-    }
-
     // Check if problem statement exists
     const psExistenceCheck = await ps.findById(psId);
     if (!psExistenceCheck) {
       return res.status(404).json({
         success: false,
         message: "Problem statement not found"
+      });
+    }
+
+    if(req.user.role === "SuperAdmin") {
+      const allTeams = await team.find({ ps: psId });
+      if (!allTeams || allTeams.length === 0) {
+        return res.status(200).json({
+          success: true,
+          message: "No teams registered for this problem statement yet",
+          teams: []
+        });
+      }
+
+      return res.status(200).json({
+        success: true,
+        teams: allTeams
+      });
+    }
+
+
+    // Find tech secretary for current user
+    const techSecy = await TechSecy.findOne({ user: req.user._id });
+    if (!techSecy) {
+      return res.status(404).json({
+        success: false,
+        message: "Tech secretary not found"
       });
     }
 
