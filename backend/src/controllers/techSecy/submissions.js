@@ -1,9 +1,16 @@
-// controllers/submissionController.js
+// src/controllers/techSecy/submissions.js
 import PS from "../../model/ps.js";
 import Submission from "../../model/submission.js";
 import TechSecy from "../../model/techSecy.js";
 import Team from "../../model/team.js";
+import TempFileUpload from "../../model/tempFileUpload.js";
 import mongoose from "mongoose";
+import fs from 'fs';
+import path from 'path';
+import { fileURLToPath } from 'url';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 /**
  * 0. Get user's hostel and team info
@@ -11,15 +18,13 @@ import mongoose from "mongoose";
 export const getUserSubmissionInfo = async (req, res) => {
   try {
     const userId = req.user._id;
-
     const techSecy = await TechSecy.findOne({ user: userId }).select("hostelId");
-    
     if (!techSecy) {
       return res.status(404).json({ success: false, message: "TechSecy record not found for this user" });
     }
 
-    const team = await Team.findOne({ 
-      techSecy: techSecy._id 
+    const team = await Team.findOne({
+      techSecy: techSecy._id
     }).select("_id hostelId ps");
 
     if (!team) {
@@ -44,7 +49,6 @@ export const listOpenPSForSubmission = async (req, res) => {
   try {
     const now = new Date();
     const userId = req.user._id;
-
     const techSecy = await TechSecy.findOne({ user: userId });
     if (!techSecy) {
       return res.status(404).json({ success: false, message: "TechSecy not found" });
@@ -134,11 +138,9 @@ export const getPSForSubmission = async (req, res) => {
     }
 
     const isMid = type === "mid";
-
     const deliverables = isMid
       ? ps.midEvalSubmissionDeliverables
       : ps.submissionDeliverables;
-
     const deadline = isMid
       ? ps.midEvalSubmissionDeadline
       : ps.submissionDeadline;
@@ -152,7 +154,7 @@ export const getPSForSubmission = async (req, res) => {
         type: isMid ? "mid" : "final",
         deadline,
         deliverables,
-      }
+      },
     });
   } catch (err) {
     res.status(500).json({ success: false, message: err.message });
@@ -160,7 +162,73 @@ export const getPSForSubmission = async (req, res) => {
 };
 
 /**
- * 3. Create a submission (mid or final)
+ * 2.5. Upload individual file to temp storage (NEW)
+ */
+export const uploadTempFile = async (req, res) => {
+  try {
+    if (!req.file) {
+      return res.status(400).json({ success: false, message: 'No file uploaded' });
+    }
+
+    const { psId, deliverableName, midEval } = req.body;
+    const userId = req.user._id;
+
+    if (!psId || !deliverableName || midEval === undefined) {
+      return res.status(400).json({ 
+        success: false, 
+        message: 'psId, deliverableName, and midEval are required' 
+      });
+    }
+
+    const isMid = midEval === true || midEval === 'true';
+
+    // Delete old temp file for this specific deliverable (auto-replace)
+    const oldFile = await TempFileUpload.findOne({
+      userId,
+      psId,
+      midEval: isMid,
+      deliverableName,
+      isUsed: false,
+    });
+
+    if (oldFile) {
+      // Delete old physical file
+      if (fs.existsSync(oldFile.filePath)) {
+        fs.unlinkSync(oldFile.filePath);
+      }
+      // Delete old DB record
+      await TempFileUpload.deleteOne({ _id: oldFile._id });
+    }
+
+    // Save new temp file metadata
+    const tempFileRecord = await TempFileUpload.create({
+      psId,
+      userId,
+      midEval: isMid,
+      deliverableName,
+      filename: req.file.filename,
+      originalName: req.file.originalname,
+      filePath: req.file.path,
+      uploadedAt: new Date(),
+      isUsed: false,
+    });
+
+    const fileUrl = `/uploads/temp/${req.file.filename}`;
+
+    return res.status(200).json({
+      success: true,
+      fileUrl,
+      filename: req.file.filename,
+      originalName: req.file.originalname,
+    });
+  } catch (error) {
+    console.error('Upload error:', error);
+    return res.status(500).json({ success: false, message: 'Upload failed' });
+  }
+};
+
+/**
+ * 3. Create a submission (mid or final) - UPDATED
  */
 export const createSubmission = async (req, res) => {
   try {
@@ -168,12 +236,10 @@ export const createSubmission = async (req, res) => {
       psId,
       midEval = false,
       submissionTime,
-      deliverablesMeta,
       urlDeliverables,
     } = req.body;
 
     const userId = req.user._id;
-
     const techSecy = await TechSecy.findOne({ user: userId }).select("hostelId");
     if (!techSecy) {
       return res.status(404).json({ success: false, message: "TechSecy not found" });
@@ -198,9 +264,9 @@ export const createSubmission = async (req, res) => {
     });
 
     if (existingSubmission) {
-      return res.status(400).json({ 
-        success: false, 
-        message: `${isMid ? 'Mid evaluation' : 'Final'} submission already exists for this PS` 
+      return res.status(400).json({
+        success: false,
+        message: `${isMid ? 'Mid evaluation' : 'Final'} submission already exists for this PS`
       });
     }
 
@@ -215,6 +281,7 @@ export const createSubmission = async (req, res) => {
     const ps = await PS.findById(psId).select(
       "submissionDeadline midEvalExist midEvalSubmissionDeadline submissionDeliverables midEvalSubmissionDeliverables"
     );
+
     if (!ps) {
       return res.status(404).json({ success: false, message: "PS not found" });
     }
@@ -233,17 +300,12 @@ export const createSubmission = async (req, res) => {
 
     const isLate = parsedSubmissionTime > deadline;
 
-    const files = req.files || [];
+    // Get expected deliverables from PS
+    const expectedDeliverables = isMid 
+      ? ps.midEvalSubmissionDeliverables 
+      : ps.submissionDeliverables;
 
-    let mapping = {};
-    if (deliverablesMeta) {
-      try {
-        mapping = JSON.parse(deliverablesMeta);
-      } catch {
-        return res.status(400).json({ success: false, message: "Invalid deliverablesMeta JSON" });
-      }
-    }
-
+    // Parse URL deliverables
     let urlDeliverablesObj = {};
     if (urlDeliverables) {
       try {
@@ -253,26 +315,71 @@ export const createSubmission = async (req, res) => {
       }
     }
 
-    // Build deliverables array combining files and URLs
+    // Create permanent directory
+    const permanentDir = path.join(process.cwd(), 'uploads', 'submissions', psId.toString());
+    if (!fs.existsSync(permanentDir)) {
+      fs.mkdirSync(permanentDir, { recursive: true });
+    }
+
+    // Build deliverables array
     const deliverablesDocs = [];
 
-    // Add file deliverables
-    files.forEach((file) => {
-      const nameFromClient = mapping[file.originalname] || file.originalname;
-      const url = `${process.env.BACKEND_URL}/uploads/submissions/${file.filename}`;
-      deliverablesDocs.push({
-        name: nameFromClient,
-        url,
-      });
-    });
+    for (const deliverable of expectedDeliverables) {
+      if (deliverable.type === 'url') {
+        // URL deliverable - get from urlDeliverables
+        const url = urlDeliverablesObj[deliverable.name];
+        if (!url) {
+          return res.status(400).json({ 
+            success: false, 
+            message: `Missing URL for deliverable: ${deliverable.name}` 
+          });
+        }
+        deliverablesDocs.push({
+          name: deliverable.name,
+          url,
+        });
+      } else {
+        // File deliverable - find in temp uploads
+        const tempFile = await TempFileUpload.findOne({
+          userId,
+          psId,
+          midEval: isMid,
+          deliverableName: deliverable.name,
+          isUsed: false,
+        });
 
-    // Add URL deliverables
-    Object.entries(urlDeliverablesObj).forEach(([name, url]) => {
-      deliverablesDocs.push({
-        name,
-        url,
-      });
-    });
+        if (!tempFile) {
+          return res.status(400).json({ 
+            success: false, 
+            message: `Missing file for deliverable: ${deliverable.name}` 
+          });
+        }
+
+        // Move file from temp to permanent
+        const tempPath = tempFile.filePath;
+        const permanentPath = path.join(permanentDir, tempFile.filename);
+
+        if (fs.existsSync(tempPath)) {
+          fs.renameSync(tempPath, permanentPath);
+        } else {
+          return res.status(400).json({ 
+            success: false, 
+            message: `Temp file not found for: ${deliverable.name}` 
+          });
+        }
+
+        // Mark as used
+        await TempFileUpload.updateOne(
+          { _id: tempFile._id },
+          { isUsed: true }
+        );
+
+        deliverablesDocs.push({
+          name: deliverable.name,
+          url: `/uploads/submissions/${psId}/${tempFile.filename}`,
+        });
+      }
+    }
 
     const penalty = [];
     if (isLate) {
@@ -338,4 +445,3 @@ export const getSubmission = async (req, res) => {
     res.status(500).json({ success: false, message: err.message });
   }
 };
-

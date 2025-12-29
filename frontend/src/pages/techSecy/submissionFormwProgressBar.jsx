@@ -20,11 +20,9 @@ export default function SubmissionForm() {
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
   const [uploading, setUploading] = useState({});
+  const [uploadProgress, setUploadProgress] = useState({}); // NEW: Track upload progress
   const [showConfirmation, setShowConfirmation] = useState(false);
   const [capturedSubmissionTime, setCapturedSubmissionTime] = useState(null);
-
-  // Storage key for this specific submission
-  const storageKey = `submission-draft-${psId}-${type}`;
 
   useEffect(() => {
     const stored = JSON.parse(localStorage.getItem("user"));
@@ -35,63 +33,6 @@ export default function SubmissionForm() {
       navigate("/sign-in");
     }
   }, [user, navigate]);
-
-  // Restore saved draft from localStorage on mount
-  useEffect(() => {
-    const savedDraft = localStorage.getItem(storageKey);
-    if (savedDraft) {
-      try {
-        const { uploadedFiles: savedFiles, urls: savedUrls, timestamp } = JSON.parse(savedDraft);
-        
-        // Only restore if saved within last 24 hours (prevent stale data)
-        const oneDayAgo = new Date(Date.now() - 24 * 60 * 60 * 1000);
-        if (new Date(timestamp) > oneDayAgo) {
-          setUploadedFiles(savedFiles || {});
-          setUrls(savedUrls || {});
-          console.log("Restored draft from localStorage");
-        } else {
-          // Remove stale draft
-          localStorage.removeItem(storageKey);
-        }
-      } catch (err) {
-        console.error("Failed to restore draft:", err);
-        localStorage.removeItem(storageKey);
-      }
-    }
-  }, [storageKey]);
-
-  // Save draft to localStorage whenever uploads or URLs change
-  useEffect(() => {
-    const hasData = Object.keys(uploadedFiles).length > 0 || Object.keys(urls).length > 0;
-    
-    if (hasData) {
-      const draft = {
-        uploadedFiles,
-        urls,
-        timestamp: new Date().toISOString()
-      };
-      localStorage.setItem(storageKey, JSON.stringify(draft));
-    }
-  }, [uploadedFiles, urls, storageKey]);
-
-  // Warn user before leaving page if they have unsaved uploads
-  useEffect(() => {
-    const hasUnsavedUploads = Object.keys(uploadedFiles).length > 0 || Object.keys(urls).length > 0;
-    
-    const handleBeforeUnload = (e) => {
-      if (hasUnsavedUploads) {
-        e.preventDefault();
-        e.returnValue = ''; // Chrome requires this
-        return 'You have uploaded files that are not submitted yet. Are you sure you want to leave?';
-      }
-    };
-
-    window.addEventListener('beforeunload', handleBeforeUnload);
-    
-    return () => {
-      window.removeEventListener('beforeunload', handleBeforeUnload);
-    };
-  }, [uploadedFiles, urls]);
 
   useEffect(() => {
     async function fetchData() {
@@ -153,6 +94,7 @@ export default function SubmissionForm() {
     if (!file) return;
 
     setUploading((prev) => ({ ...prev, [deliverableName]: true }));
+    setUploadProgress((prev) => ({ ...prev, [deliverableName]: 0 })); // Initialize progress
     setError("");
 
     try {
@@ -163,36 +105,59 @@ export default function SubmissionForm() {
       formData.append("midEval", type === "mid" ? "true" : "false");
 
       const token = localStorage.getItem("accessToken");
-      const response = await fetch(`${BACKEND_URL}/v1/pssubmission/upload-temp`, {
-        method: "POST",
-        headers: {
-          Authorization: token ? `Bearer ${token}` : "",
-        },
-        body: formData,
+      
+      // Use XMLHttpRequest for progress tracking
+      const xhr = new XMLHttpRequest();
+
+      // Track upload progress
+      xhr.upload.addEventListener("progress", (e) => {
+        if (e.lengthComputable) {
+          const percentComplete = Math.round((e.loaded / e.total) * 100);
+          setUploadProgress((prev) => ({ ...prev, [deliverableName]: percentComplete }));
+        }
       });
 
-      const data = await response.json();
-
-      if (!response.ok || !data.success) {
-        setError(data.message || `Upload failed for ${deliverableName}`);
+      // Handle completion
+      xhr.addEventListener("load", () => {
+        if (xhr.status === 200) {
+          const data = JSON.parse(xhr.responseText);
+          
+          if (data.success) {
+            setUploadedFiles((prev) => ({
+              ...prev,
+              [deliverableName]: {
+                filename: data.filename,
+                url: data.fileUrl,
+                originalName: data.originalName,
+              },
+            }));
+            setUploadProgress((prev) => ({ ...prev, [deliverableName]: 100 }));
+          } else {
+            setError(data.message || `Upload failed for ${deliverableName}`);
+          }
+        } else {
+          setError(`Upload failed for ${deliverableName}`);
+        }
+        
         setUploading((prev) => ({ ...prev, [deliverableName]: false }));
-        return;
-      }
+      });
 
-      setUploadedFiles((prev) => ({
-        ...prev,
-        [deliverableName]: {
-          filename: data.filename,
-          url: data.fileUrl,
-          originalName: data.originalName,
-        },
-      }));
+      // Handle errors
+      xhr.addEventListener("error", () => {
+        setError(`Upload failed for ${deliverableName}`);
+        setUploading((prev) => ({ ...prev, [deliverableName]: false }));
+        setUploadProgress((prev) => ({ ...prev, [deliverableName]: 0 }));
+      });
 
-      setUploading((prev) => ({ ...prev, [deliverableName]: false }));
+      xhr.open("POST", `${BACKEND_URL}/v1/pssubmission/upload-temp`);
+      xhr.setRequestHeader("Authorization", token ? `Bearer ${token}` : "");
+      xhr.send(formData);
+
     } catch (err) {
       console.error("Upload error:", err);
       setError("Upload failed: " + err.message);
       setUploading((prev) => ({ ...prev, [deliverableName]: false }));
+      setUploadProgress((prev) => ({ ...prev, [deliverableName]: 0 }));
     }
   };
 
@@ -270,9 +235,6 @@ export default function SubmissionForm() {
         return;
       }
 
-      // Clear draft from localStorage on successful submission
-      localStorage.removeItem(storageKey);
-
       alert("Submission successful!");
       navigate("/techsecy/submissions");
     } catch (err) {
@@ -294,6 +256,11 @@ export default function SubmissionForm() {
       return newState;
     });
     setFiles((prev) => {
+      const newState = { ...prev };
+      delete newState[deliverableName];
+      return newState;
+    });
+    setUploadProgress((prev) => {
       const newState = { ...prev };
       delete newState[deliverableName];
       return newState;
@@ -382,18 +349,6 @@ export default function SubmissionForm() {
                   {type === "mid" ? "Mid Evaluation" : "Final"} Submission
                 </p>
               </div>
-
-              {/* Auto-save indicator */}
-              {(Object.keys(uploadedFiles).length > 0 || Object.keys(urls).length > 0) && (
-                <div className="mb-4 p-2 bg-green-50 border border-green-200 rounded flex items-center gap-2">
-                  <svg className="w-4 h-4 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                  </svg>
-                  <p className="text-xs text-green-700">
-                    Draft auto-saved. You can safely reload this page.
-                  </p>
-                </div>
-              )}
 
               {/* Deadline Info */}
               <div className="bg-blue-50 border border-blue-200 rounded p-4 mb-6">
@@ -499,7 +454,7 @@ export default function SubmissionForm() {
                                     <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
                                     <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                                   </svg>
-                                  Uploading...
+                                  Uploading
                                 </>
                               ) : uploadedFiles[deliverable.name] ? (
                                 <>
@@ -519,15 +474,30 @@ export default function SubmissionForm() {
                             </button>
                           </div>
                           
+                          {/* Progress Bar */}
                           {uploading[deliverable.name] && (
-                            <div className="mt-2 p-2 bg-blue-50 border border-blue-200 rounded flex items-center gap-2">
-                              <svg className="animate-spin h-4 w-4 text-blue-600" fill="none" viewBox="0 0 24 24">
-                                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                              </svg>
-                              <p className="text-sm text-blue-600">
-                                Uploading file to server...
-                              </p>
+                            <div className="mt-2 p-3 bg-blue-50 border border-blue-200 rounded">
+                              <div className="flex items-center justify-between mb-2">
+                                <div className="flex items-center gap-2">
+                                  <svg className="animate-spin h-4 w-4 text-blue-600" fill="none" viewBox="0 0 24 24">
+                                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                                  </svg>
+                                  <p className="text-sm text-blue-600">
+                                    Uploading file to server...
+                                  </p>
+                                </div>
+                                <span className="text-sm font-semibold text-blue-700">
+                                  {uploadProgress[deliverable.name] || 0}%
+                                </span>
+                              </div>
+                              {/* Progress Bar */}
+                              <div className="w-full bg-blue-200 rounded-full h-2.5">
+                                <div 
+                                  className="bg-blue-600 h-2.5 rounded-full transition-all duration-300"
+                                  style={{ width: `${uploadProgress[deliverable.name] || 0}%` }}
+                                ></div>
+                              </div>
                             </div>
                           )}
 

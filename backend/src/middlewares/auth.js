@@ -199,11 +199,12 @@ export function handleRouteAccess(req, res, next) {
       "/v1/techsecy/update-registered-team/",
       "/v1/techsecy/delete/",
       "/v1/techsecy/get-requests/",
-      "/v1/pssubmission/user-info/",
+      "/v1/pssubmission/user-info",
       "/v1/pssubmission/ps/open",
       "/v1/pssubmission/ps/",
       "/v1/pssubmission/submit",
       "/v1/pssubmission/view/",
+      "/v1/pssubmission/upload-temp",
     ];
     if (
       !allowed.includes(route) &&

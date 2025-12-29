@@ -1,3 +1,4 @@
+// index.js
 import express from "express";
 import cors from "cors";
 import dotenv from "dotenv";
@@ -7,22 +8,34 @@ import { mailInit } from "./src/utils/mail.js";
 import fs from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
+import cron from 'node-cron'; // ADD THIS
+import { cleanupOrphanedFiles } from './src/utils/cleanupOrphanedFiles.js'; // ADD THIS
 
 dotenv.config();
 
 const app = express();
 const PORT = process.env.PORT || 5000;
+
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-const uploadsDir = path.join(__dirname, 'uploads', 'submissions');
-if (!fs.existsSync(uploadsDir)) {
-  fs.mkdirSync(uploadsDir, { recursive: true });
+// Create required directories
+const uploadsSubmissionsDir = path.join(__dirname, 'uploads', 'submissions');
+const uploadsTempDir = path.join(__dirname, 'uploads', 'temp');
+
+if (!fs.existsSync(uploadsSubmissionsDir)) {
+  fs.mkdirSync(uploadsSubmissionsDir, { recursive: true });
   console.log('Created uploads/submissions directory');
+}
+
+if (!fs.existsSync(uploadsTempDir)) {
+  fs.mkdirSync(uploadsTempDir, { recursive: true });
+  console.log('Created uploads/temp directory');
 }
 
 app.set("view engine", "ejs");
 app.set("views", "./src/views");
+
 app.use(cookieParser());
 app.use(
   cors({
@@ -31,13 +44,9 @@ app.use(
     credentials: true,
   })
 );
+
 app.use(express.json());
-
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
-
-// app.get("/", (req, res) => {
-//   res.send("Hi");
-// });
 
 app.use((req, res, next) => {
   res.header("Access-Control-Allow-Credentials", "true");
@@ -47,7 +56,7 @@ app.use((req, res, next) => {
 import ConvenerRouter from "./src/routes/convenerRoute.js"
 app.use('/v1/convener' , ConvenerRouter);
 
-import AuthRouter from  "./src/routes/authRoutes.js"
+import AuthRouter from "./src/routes/authRoutes.js"
 app.use('/v1/auth' , AuthRouter);
 
 import SuperAdminRouter from "./src/routes/superAdminRoutes.js"
@@ -77,15 +86,24 @@ app.use('/v1/pssubmission' , PSsubmissionRouter);
 mailInit();
 
 connectDB()
-.then(()=>{
-    app.on("error"  , (error)=>{
-        console.log("ERROR ALERT!!! \n\n ", error);
-        throw error
+  .then(()=>{
+    app.on("error" , (error)=>{
+      console.log("ERROR ALERT!!! \n\n ", error);
+      throw error
     })
+    
     app.listen(PORT ,()=>{
-        console.log(`The server is running on ${process.env.PORT || 5000}`);
+      console.log(`The server is running on ${process.env.PORT || 5000}`);
+      
+      // Schedule cleanup job - runs every day at 3 AM
+      cron.schedule('0 3 * * *', () => {
+        console.log('Running orphaned file cleanup job...');
+        cleanupOrphanedFiles();
+      });
+      
+      console.log('Cleanup cron job scheduled for 3 AM daily');
     })
-})
-.catch((error)=>{
+  })
+  .catch((error)=>{
     console.error("MongoDB connection failed in index.js\n" , error);
-})
+  })

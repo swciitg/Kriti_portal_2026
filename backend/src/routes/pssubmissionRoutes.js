@@ -1,35 +1,51 @@
-// routes/submissionSubmission.js
+// src/routes/pssubmissionRoutes.js
 import { Router } from "express";
 import multer from "multer";
+import path from 'path';
+import fs from 'fs';
 import { handleRouteAccess, verifyJWT } from "../middlewares/auth.js";
 import {
   getUserSubmissionInfo,
   listOpenPSForSubmission,
   getPSForSubmission,
   createSubmission,
+  uploadTempFile,
 } from "../controllers/techSecy/submissions.js";
 import { getSubmission } from "../controllers/techSecy/submissions.js";
 
 const router = Router();
 
+// Create temp upload directory
+const tempDir = path.join(process.cwd(), 'uploads', 'temp');
+if (!fs.existsSync(tempDir)) {
+  fs.mkdirSync(tempDir, { recursive: true });
+}
+
+// Multer config for temp uploads
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
-    cb(null, "uploads/submissions");
+    cb(null, tempDir);
   },
   filename: (req, file, cb) => {
-    const unique = Date.now() + "-" + Math.round(Math.random() * 1e9);
-    cb(null, unique + "-" + file.originalname);
+    const userId = req.user?._id || 'unknown';
+    const timestamp = Date.now();
+    const random = Math.round(Math.random() * 1e9);
+    const ext = path.extname(file.originalname);
+    cb(null, `${userId}_${timestamp}_${random}${ext}`);
   },
 });
+
 const upload = multer({ storage });
 
 router.route("/user-info").get(verifyJWT, handleRouteAccess, getUserSubmissionInfo);
-
 router.route("/ps/open").get(verifyJWT, handleRouteAccess, listOpenPSForSubmission);
-
 router.route("/ps/:psId").get(verifyJWT, handleRouteAccess, getPSForSubmission);
 
-router.route("/submit").post(verifyJWT, handleRouteAccess, upload.array("files"), createSubmission);
+// NEW: Upload individual file to temp
+router.route("/upload-temp").post(verifyJWT, handleRouteAccess, upload.single("file"), uploadTempFile);
+
+// UPDATED: Submit form (moves temp files to permanent)
+router.route("/submit").post(verifyJWT, handleRouteAccess, createSubmission);
 
 router.route("/view/:submissionId").get(verifyJWT, handleRouteAccess, getSubmission);
 
