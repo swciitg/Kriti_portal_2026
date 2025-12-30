@@ -66,7 +66,7 @@ export const createPptSchedule = async (req, res) => {
     }));
 
     const pptSchedule = await PptSchedule.create({
-      psId: ps._id,
+      ps: ps._id,
       schedule: formattedSchedule,
     });
 
