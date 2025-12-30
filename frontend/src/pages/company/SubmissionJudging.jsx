@@ -4,6 +4,20 @@ import { userContext } from "../../context/userContext";
 import { BACKEND_URL } from "../../constants"
 
 function SubmissionJudging() {
+  // Helper function to format URLs
+  const formatUrl = (url) => {
+    if (!url) return '';
+    // If URL starts with http:// or https://, return as is
+    if (url.startsWith('http://') || url.startsWith('https://')) {
+      return url;
+    }
+    // If URL starts with /, prepend BACKEND_URL
+    if (url.startsWith('/')) {
+      return `${BACKEND_URL}${url}`;
+    }
+    // For any other case, prepend BACKEND_URL with /
+    return `${BACKEND_URL}/${url}`;
+  };
   const navigate = useNavigate();
   const { hostelId } = useParams();
   const location = useLocation();
@@ -52,7 +66,7 @@ function SubmissionJudging() {
         }
 
         const data = await response.json();
-        console.log(data)
+        // console.log(data)
 
         if (data.success && data.ps) {
           setPsInfo(data.ps);
@@ -344,11 +358,11 @@ function SubmissionJudging() {
                         {deliverable.name}
                       </h3>
                       <p className="text-sm text-gray-600 break-all">
-                        {deliverable.url}
+                        {formatUrl(deliverable.url)}
                       </p>
                     </div>
                     <a
-                      href={deliverable.url}
+                      href={formatUrl(deliverable.url)}
                       target="_blank"
                       rel="noopener noreferrer"
                       className="ml-4 bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg transition-colors flex items-center gap-2 font-medium"
@@ -402,7 +416,7 @@ function SubmissionJudging() {
                           Score (out of 100)
                         </label>
                         <input
-                          type="number"
+                          type="text"
                           min="0"
                           max="100"
                           step="0.01"
