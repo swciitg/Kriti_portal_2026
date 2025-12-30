@@ -122,7 +122,7 @@ export default function TeamRequestAll() {
     try {
       setExportLoading(true);
       setError("");
-      
+
       const res = await fetch(`${BACKEND_URL}/v1/convener/export-teams`, {
         credentials: "include",
       });
@@ -173,6 +173,25 @@ export default function TeamRequestAll() {
   return (
     <div className="min-h-screen w-full bg-gray-100 flex justify-center px-4 py-10">
       <div className="w-full max-w-7xl bg-white shadow rounded-xl p-8">
+        <button
+          onClick={() => navigate("/convener")}
+          className="flex items-center text-blue-600 hover:text-blue-700 mb-4 transition-colors"
+        >
+          <svg
+            className="w-5 h-5 mr-2"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth={2}
+              d="M15 19l-7-7 7-7"
+            />
+          </svg>
+          Back to Dashboard
+        </button>
         {/* Tabs */}
         <div className="flex gap-4 mb-6 border-b">
           <button

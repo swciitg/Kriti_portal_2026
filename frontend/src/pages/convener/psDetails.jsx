@@ -337,6 +337,25 @@ export default function PSDetails() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-gray-50 to-slate-100">
       <div className="container mx-auto px-4 py-8 max-w-5xl">
+        <button
+          onClick={() => navigate("/convener/ps")}
+          className="flex items-center text-blue-600 hover:text-blue-700 mb-4 transition-colors"
+        >
+          <svg
+            className="w-5 h-5 mr-2"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth={2}
+              d="M15 19l-7-7 7-7"
+            />
+          </svg>
+          Back to PS
+        </button>
         <div className="bg-white shadow-xl rounded-2xl overflow-hidden">
           {/* Header */}
           <div className="bg-gradient-to-r from-slate-700 to-slate-800 p-6 text-white">
