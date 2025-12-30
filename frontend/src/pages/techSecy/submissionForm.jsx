@@ -42,7 +42,7 @@ export default function SubmissionForm() {
     if (savedDraft) {
       try {
         const { uploadedFiles: savedFiles, urls: savedUrls, timestamp } = JSON.parse(savedDraft);
-        
+
         // Only restore if saved within last 24 hours (prevent stale data)
         const oneDayAgo = new Date(Date.now() - 24 * 60 * 60 * 1000);
         if (new Date(timestamp) > oneDayAgo) {
@@ -63,7 +63,7 @@ export default function SubmissionForm() {
   // Save draft to localStorage whenever uploads or URLs change
   useEffect(() => {
     const hasData = Object.keys(uploadedFiles).length > 0 || Object.keys(urls).length > 0;
-    
+
     if (hasData) {
       const draft = {
         uploadedFiles,
@@ -77,7 +77,7 @@ export default function SubmissionForm() {
   // Warn user before leaving page if they have unsaved uploads
   useEffect(() => {
     const hasUnsavedUploads = Object.keys(uploadedFiles).length > 0 || Object.keys(urls).length > 0;
-    
+
     const handleBeforeUnload = (e) => {
       if (hasUnsavedUploads) {
         e.preventDefault();
@@ -87,7 +87,7 @@ export default function SubmissionForm() {
     };
 
     window.addEventListener('beforeunload', handleBeforeUnload);
-    
+
     return () => {
       window.removeEventListener('beforeunload', handleBeforeUnload);
     };
@@ -97,7 +97,7 @@ export default function SubmissionForm() {
     async function fetchData() {
       try {
         const token = localStorage.getItem("accessToken");
-        
+
         // Fetch user hostel info
         const userInfoResponse = await fetch(
           `${BACKEND_URL}/v1/pssubmission/user-info`,
@@ -238,7 +238,7 @@ export default function SubmissionForm() {
 
     try {
       const token = localStorage.getItem("accessToken");
-      
+
       const urlDeliverables = {};
       ps.deliverables.forEach((deliverable) => {
         if (deliverable.type === "url") {
@@ -366,6 +366,25 @@ export default function SubmissionForm() {
               {/* Header with Hostel Info */}
               <div className="mb-6">
                 <div className="flex items-center justify-between mb-2">
+                  <button
+                    onClick={() => navigate("/techsecy/submissions")}
+                    className="flex items-center text-blue-600 hover:text-blue-700 mb-4 transition-colors"
+                  >
+                    <svg
+                      className="w-5 h-5 mr-2"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M15 19l-7-7 7-7"
+                      />
+                    </svg>
+                    Back to Dashboard
+                  </button>
                   <h1 className="text-3xl font-bold text-gray-900">
                     {ps?.name || "Submission Form"}
                   </h1>
@@ -481,7 +500,7 @@ export default function SubmissionForm() {
                               className="flex-1 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white"
                               id={`file-${idx}`}
                             />
-                            
+
                             <button
                               type="button"
                               onClick={() => {
@@ -518,7 +537,7 @@ export default function SubmissionForm() {
                               )}
                             </button>
                           </div>
-                          
+
                           {uploading[deliverable.name] && (
                             <div className="mt-2 p-2 bg-blue-50 border border-blue-200 rounded flex items-center gap-2">
                               <svg className="animate-spin h-4 w-4 text-blue-600" fill="none" viewBox="0 0 24 24">
@@ -542,7 +561,7 @@ export default function SubmissionForm() {
                                 </p>
                               </div>
                               {getFilePreview(deliverable)}
-                              
+
                               <button
                                 type="button"
                                 onClick={() => handleReplaceFile(deliverable.name, idx)}
@@ -603,7 +622,7 @@ export default function SubmissionForm() {
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
           <div className="bg-white rounded-lg p-6 max-w-md w-full mx-4">
             <h2 className="text-xl font-bold mb-4">Confirm Submission</h2>
-            
+
             <div className="mb-4 p-3 bg-gray-50 rounded">
               <p className="text-sm">
                 <strong>Submission Time:</strong>{" "}

@@ -265,6 +265,25 @@ export default function RegisterTeam() {
       <div className="max-w-4xl mx-auto">
         {/* Header */}
         <div className="bg-white rounded-2xl shadow-lg p-8 mb-6">
+          <button
+            onClick={() => navigate("/techsecy/register-team")}
+            className="flex items-center text-blue-600 hover:text-blue-700 mb-4 transition-colors"
+          >
+            <svg
+              className="w-5 h-5 mr-2"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M15 19l-7-7 7-7"
+              />
+            </svg>
+            Back to PS
+          </button>
           <h1 className="text-3xl font-bold text-gray-900 mb-2">
             {psDetails.name}
           </h1>
