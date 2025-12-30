@@ -13,7 +13,7 @@ export function mailInit() {
 }
 
 
-export const mailUtil = async (email , text)=>{
+export const mailUtil = async (email , text, html)=>{
     if(transporter === undefined || !transporter) {
         return false;
     }
@@ -22,7 +22,8 @@ export const mailUtil = async (email , text)=>{
         from:process.env.MAIL_USER, 
         to:email,
         subject:"noreply from Kriti 2026",
-        text:text
+        text:text,
+        html: html
     };
     
     try {
