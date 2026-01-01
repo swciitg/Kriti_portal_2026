@@ -63,10 +63,21 @@ export const listOpenPSForSubmission = async (req, res) => {
     // Get all PS IDs
     const psIds = teams.map(team => team.ps);
 
-    // Find all PSs
-    const psList = await PS.find({ _id: { $in: psIds } }).select(
-      "name prep submissionDeadline midEvalExist midEvalSubmissionDeadline"
+    // Find all PSs where startDate is before or equal to current date
+    const psList = await PS.find({ 
+      _id: { $in: psIds },
+      startDate: { $lte: now }  // Only PS that have started
+    }).select(
+      "name prep startDate submissionDeadline midEvalExist midEvalSubmissionDeadline"
     );
+
+    // If no PS have started yet
+    if (!psList || psList.length === 0) {
+      return res.status(404).json({ 
+        success: false, 
+        message: "No problem statements have started yet. Please check back after the start date." 
+      });
+    }
 
     // For each PS, check submission status
     const results = await Promise.all(psList.map(async (ps) => {
@@ -93,6 +104,7 @@ export const listOpenPSForSubmission = async (req, res) => {
         _id: ps._id,
         name: ps.name,
         prep: ps.prep,
+        startDate: ps.startDate, // Include startDate in response
         submissionDeadline: ps.submissionDeadline,
         midEvalExist: ps.midEvalExist,
         midEvalSubmissionDeadline: ps.midEvalSubmissionDeadline,
@@ -116,6 +128,7 @@ export const listOpenPSForSubmission = async (req, res) => {
     res.status(500).json({ success: false, message: err.message });
   }
 };
+
 
 /**
  * 2. Get PS details including deliverables (mid or final)

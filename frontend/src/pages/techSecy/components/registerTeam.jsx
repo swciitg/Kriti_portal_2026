@@ -2,6 +2,7 @@ import { useParams, useNavigate } from "react-router-dom";
 import { useEffect, useState, useContext, useCallback } from "react";
 import { BACKEND_URL } from "../../../constants";
 import { userContext } from "../../../context/userContext";
+import TeamRegistrationGuidelines from "../../../components/TeamRegistrationGuidelines";
 
 export default function RegisterTeam() {
   const { psId } = useParams();
@@ -18,6 +19,7 @@ export default function RegisterTeam() {
   const [requestingEdit, setRequestingEdit] = useState(false);
   const [error, setError] = useState("");
   const [message, setMessage] = useState("");
+  const [showEditButton, setShowEditButton] = useState(false); // Secret edit button toggle
 
   const canEdit = requestStatus === "approved";
   const isEditing = Boolean(existingTeam);
@@ -32,6 +34,20 @@ export default function RegisterTeam() {
       navigate("/sign-in");
     }
   }, [user, navigate]);
+
+  // Secret key combination to show edit button (Ctrl + Shift + E)
+  useEffect(() => {
+    const handleKeyPress = (e) => {
+      if (e.ctrlKey && e.shiftKey && e.key === 'E') {
+        e.preventDefault();
+        setShowEditButton(prev => !prev);
+        console.log('Edit button visibility toggled');
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyPress);
+    return () => window.removeEventListener('keydown', handleKeyPress);
+  }, []);
 
   // Fetch request status
   const fetchRequestStatus = useCallback(async () => {
@@ -245,7 +261,10 @@ export default function RegisterTeam() {
   if (loading) {
     return (
       <div className="flex items-center justify-center min-h-screen bg-gray-50">
-        <div className="text-xl font-semibold text-gray-700">Loading...</div>
+        <div className="flex flex-col items-center gap-4">
+          <div className="animate-spin rounded-full h-16 w-16 border-b-4 border-blue-600"></div>
+          <div className="text-xl font-semibold text-gray-700">Loading team registration...</div>
+        </div>
       </div>
     );
   }
@@ -262,301 +281,361 @@ export default function RegisterTeam() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50 py-8 px-4">
-      <div className="max-w-4xl mx-auto">
-        {/* Header */}
-        <div className="bg-white rounded-2xl shadow-lg p-8 mb-6">
-          <button
-            onClick={() => navigate("/techsecy/register-team")}
-            className="flex items-center text-blue-600 hover:text-blue-700 mb-4 transition-colors"
-          >
-            <svg
-              className="w-5 h-5 mr-2"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M15 19l-7-7 7-7"
-              />
-            </svg>
-            Back to PS
-          </button>
-          <h1 className="text-3xl font-bold text-gray-900 mb-2">
-            {psDetails.name}
-          </h1>
-          <div className="flex items-center gap-6 text-sm text-gray-600">
-            <div className="flex items-center gap-2">
-              <span className="font-semibold">Team Strength:</span>
-              <span className="bg-blue-100 text-blue-700 px-3 py-1 rounded-full">
-                {psDetails.teamStrength}
-              </span>
+      <div className="max-w-7xl mx-auto">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          {/* Main Content - Left Side (2/3) */}
+          <div className="lg:col-span-2">
+            {/* Header */}
+            <div className="bg-white rounded-2xl shadow-lg p-8 mb-6">
+              <button
+                onClick={() => navigate("/techsecy/register-team")}
+                className="flex items-center text-blue-600 hover:text-blue-700 mb-4 transition-colors group"
+              >
+                <svg
+                  className="w-5 h-5 mr-2 group-hover:-translate-x-1 transition-transform"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M15 19l-7-7 7-7"
+                  />
+                </svg>
+                Back to PS List
+              </button>
+              <h1 className="text-3xl font-bold text-gray-900 mb-2">
+                {psDetails.name}
+              </h1>
+              <div className="flex items-center gap-6 text-sm text-gray-600">
+                <div className="flex items-center gap-2">
+                  <svg className="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
+                  </svg>
+                  <span className="font-semibold">Team Strength:</span>
+                  <span className="bg-blue-100 text-blue-700 px-3 py-1 rounded-full font-semibold">
+                    {psDetails.teamStrength}
+                  </span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <svg className="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                  </svg>
+                  <span className="font-semibold">Points:</span>
+                  <span className="bg-green-100 text-green-700 px-3 py-1 rounded-full font-semibold">
+                    {psDetails.points}
+                  </span>
+                </div>
+              </div>
             </div>
-            <div className="flex items-center gap-2">
-              <span className="font-semibold">Points:</span>
-              <span className="bg-green-100 text-green-700 px-3 py-1 rounded-full">
-                {psDetails.points}
-              </span>
-            </div>
-          </div>
-        </div>
 
-        {/* Existing team info */}
-        {existingTeam && !canEdit && (
-          <div className="bg-gradient-to-r from-blue-500 to-purple-600 text-white rounded-2xl shadow-lg p-6 mb-6">
-            <div className="flex items-center justify-between">
-              <div>
-                <h2 className="text-xl font-bold mb-2">Team Registered</h2>
-                <p className="text-blue-100">
-                  Team Size: {existingTeam.teamMembers.length}/
-                  {psDetails.teamStrength}
+            {/* Existing team info with SECRET edit button */}
+            {existingTeam && !canEdit && (
+              <div className="bg-gradient-to-r from-blue-500 to-purple-600 text-white rounded-2xl shadow-lg p-6 mb-6">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <h2 className="text-xl font-bold mb-2 flex items-center gap-2">
+                      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                      </svg>
+                      Team Registered
+                    </h2>
+                    <p className="text-blue-100">
+                      Team Size: {existingTeam.teamMembers.length}/{psDetails.teamStrength}
+                    </p>
+                  </div>
+                  {/* SECRET: Only shows when Ctrl+Shift+E is pressed */}
+                  {showEditButton && (
+                    <button
+                      onClick={requestEditAccess}
+                      disabled={requestingEdit || requestStatus === "pending"}
+                      className="bg-white text-blue-600 px-6 py-2 rounded-lg font-semibold hover:bg-blue-50 transition disabled:opacity-50 disabled:cursor-not-allowed shadow-md"
+                    >
+                      {requestingEdit
+                        ? "Requesting..."
+                        : requestStatus === "pending"
+                        ? "Request Pending"
+                        : "Request Edit"}
+                    </button>
+                  )}
+                </div>
+              </div>
+            )}
+
+            {/* Request status messages */}
+            {requestStatus === "pending" && (
+              <div className="bg-yellow-50 border-l-4 border-yellow-400 p-4 mb-6 rounded-lg flex items-start gap-3">
+                <svg className="w-5 h-5 text-yellow-600 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+                <p className="text-yellow-800 font-medium">
+                  Edit request is pending approval from convener
                 </p>
               </div>
-              <button
-                onClick={requestEditAccess}
-                disabled={requestingEdit || requestStatus === "pending"}
-                className="bg-white text-blue-600 px-6 py-2 rounded-lg font-semibold hover:bg-blue-50 transition disabled:opacity-50 disabled:cursor-not-allowed"
-              >
-                {requestingEdit
-                  ? "Requesting..."
-                  : requestStatus === "pending"
-                  ? "Request Pending"
-                  : "Request Edit"}
-              </button>
-            </div>
-          </div>
-        )}
+            )}
 
-        {/* Request status messages */}
-        {requestStatus === "pending" && (
-          <div className="bg-yellow-50 border-l-4 border-yellow-400 p-4 mb-6 rounded-lg">
-            <p className="text-yellow-800 font-medium">
-              ⏳ Edit request is pending approval
-            </p>
-          </div>
-        )}
+            {requestStatus === "rejected" && (
+              <div className="bg-red-50 border-l-4 border-red-400 p-4 mb-6 rounded-lg flex items-start gap-3">
+                <svg className="w-5 h-5 text-red-600 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                </svg>
+                <p className="text-red-800 font-medium">
+                  Edit request was rejected. You can request again if needed.
+                </p>
+              </div>
+            )}
 
-        {requestStatus === "rejected" && (
-          <div className="bg-red-50 border-l-4 border-red-400 p-4 mb-6 rounded-lg">
-            <p className="text-red-800 font-medium">
-              ❌ Edit request was rejected. You can request again.
-            </p>
-          </div>
-        )}
+            {/* Error and success messages */}
+            {error && (
+              <div className="bg-red-50 border-l-4 border-red-500 p-4 mb-6 rounded-lg flex items-start gap-3">
+                <svg className="w-5 h-5 text-red-600 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+                <p className="text-red-700 font-medium">{error}</p>
+              </div>
+            )}
 
-        {/* Error and success messages */}
-        {error && (
-          <div className="bg-red-50 border-l-4 border-red-500 p-4 mb-6 rounded-lg">
-            <p className="text-red-700 font-medium">{error}</p>
-          </div>
-        )}
+            {message && (
+              <div className="bg-green-50 border-l-4 border-green-500 p-4 mb-6 rounded-lg flex items-start gap-3">
+                <svg className="w-5 h-5 text-green-600 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+                <p className="text-green-700 font-medium">{message}</p>
+              </div>
+            )}
 
-        {message && (
-          <div className="bg-green-50 border-l-4 border-green-500 p-4 mb-6 rounded-lg">
-            <p className="text-green-700 font-medium">{message}</p>
-          </div>
-        )}
-
-        {/* Team form - only show if no existing team or edit is approved */}
-        {(!existingTeam || canEdit) && (
-          <div className="bg-white rounded-2xl shadow-lg p-8">
-            <div className="flex items-center justify-between mb-6">
-              <h2 className="text-2xl font-bold text-gray-900">
-                {isEditing ? "Edit Team Members" : "Register Team"}
-              </h2>
-              <span className="text-sm text-gray-500">
-                Max Team Size: {psDetails.teamStrength} members
-              </span>
-            </div>
-
-            {/* Team members */}
-            <div className="space-y-6">
-              {teamMembers.map((member, index) => (
-                <div
-                  key={index}
-                  className="border border-gray-200 rounded-xl p-6 bg-gray-50"
-                >
-                  <div className="flex items-center justify-between mb-4">
-                    <h3 className="text-lg font-semibold text-gray-800">
-                      Member {index + 1}
-                    </h3>
-                    {teamMembers.length > 1 && (
-                      <button
-                        onClick={() => removeMember(index)}
-                        className="text-red-600 hover:text-red-800 font-medium text-sm"
-                      >
-                        Remove
-                      </button>
-                    )}
-                  </div>
-
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-2">
-                        Name *
-                      </label>
-                      <input
-                        type="text"
-                        value={member.name}
-                        onChange={(e) =>
-                          updateMember(index, "name", e.target.value)
-                        }
-                        className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                        placeholder="Enter full name"
-                      />
-                    </div>
-
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-2">
-                        Email *
-                      </label>
-                      <input
-                        type="email"
-                        value={member.email}
-                        onChange={(e) =>
-                          updateMember(index, "email", e.target.value)
-                        }
-                        className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                        placeholder="example@email.com"
-                      />
-                    </div>
-
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-2">
-                        Year of Study *
-                      </label>
-                      <input
-                        type="number"
-                        value={member.yearOfStudy}
-                        onChange={(e) =>
-                          updateMember(index, "yearOfStudy", e.target.value)
-                        }
-                        className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                        placeholder="e.g., 2"
-                        min="1"
-                        max="5"
-                      />
-                    </div>
-
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-2">
-                        Phone Number *
-                      </label>
-                      <input
-                        type="tel"
-                        value={member.phoneNumber}
-                        onChange={(e) =>
-                          updateMember(index, "phoneNumber", e.target.value)
-                        }
-                        className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                        placeholder="+91 XXXXXXXXXX"
-                      />
-                    </div>
-
-                    <div className="md:col-span-2">
-                      <label className="block text-sm font-medium text-gray-700 mb-2">
-                        Department *
-                      </label>
-                      <input
-                        type="text"
-                        value={member.department}
-                        onChange={(e) =>
-                          updateMember(index, "department", e.target.value)
-                        }
-                        className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                        placeholder="e.g., Computer Science"
-                      />
-                    </div>
-                  </div>
+            {/* Team form - only show if no existing team or edit is approved */}
+            {(!existingTeam || canEdit) && (
+              <div className="bg-white rounded-2xl shadow-lg p-8">
+                <div className="flex items-center justify-between mb-6">
+                  <h2 className="text-2xl font-bold text-gray-900">
+                    {isEditing ? "Edit Team Members" : "Register Team"}
+                  </h2>
+                  <span className="text-sm text-gray-500 bg-gray-100 px-3 py-1 rounded-full">
+                    Max: {psDetails.teamStrength} members
+                  </span>
                 </div>
-              ))}
-            </div>
 
-            {/* Action buttons */}
-            <div className="flex items-center gap-4 mt-8">
-              <button
-                onClick={addMember}
-                disabled={teamMembers.length >= psDetails.teamStrength}
-                className="flex-1 bg-blue-600 text-white py-3 rounded-lg font-semibold hover:bg-blue-700 transition disabled:opacity-50 disabled:cursor-not-allowed"
-              >
-                + Add Member
-              </button>
+                {/* Team members */}
+                <div className="space-y-6">
+                  {teamMembers.map((member, index) => (
+                    <div
+                      key={index}
+                      className="border-2 border-gray-200 rounded-xl p-6 bg-gradient-to-br from-gray-50 to-white hover:border-blue-300 transition-all"
+                    >
+                      <div className="flex items-center justify-between mb-4">
+                        <h3 className="text-lg font-semibold text-gray-800 flex items-center gap-2">
+                          <span className="w-8 h-8 bg-blue-100 text-blue-600 rounded-full flex items-center justify-center font-bold text-sm">
+                            {index + 1}
+                          </span>
+                          Member {index + 1}
+                        </h3>
+                        {teamMembers.length > 1 && (
+                          <button
+                            onClick={() => removeMember(index)}
+                            className="text-red-600 hover:text-red-800 font-medium text-sm flex items-center gap-1 hover:bg-red-50 px-3 py-1 rounded transition"
+                          >
+                            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                            </svg>
+                            Remove
+                          </button>
+                        )}
+                      </div>
 
-              <button
-                onClick={submitTeam}
-                className="flex-1 bg-gradient-to-r from-green-500 to-emerald-600 text-white py-3 rounded-lg font-semibold hover:from-green-600 hover:to-emerald-700 transition"
-              >
-                {isEditing ? "Update Team" : "Register Team"}
-              </button>
-            </div>
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                          <label className="block text-sm font-medium text-gray-700 mb-2">
+                            Full Name <span className="text-red-500">*</span>
+                          </label>
+                          <input
+                            type="text"
+                            value={member.name}
+                            onChange={(e) =>
+                              updateMember(index, "name", e.target.value)
+                            }
+                            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"
+                            placeholder="Enter full name"
+                          />
+                        </div>
 
-            <button
-              onClick={() => navigate("/techsecy/ps")}
-              className="w-full mt-4 bg-gray-200 text-gray-700 py-3 rounded-lg font-semibold hover:bg-gray-300 transition"
-            >
-              Back to Problem Statements
-            </button>
-          </div>
-        )}
+                        <div>
+                          <label className="block text-sm font-medium text-gray-700 mb-2">
+                            Email Address <span className="text-red-500">*</span>
+                          </label>
+                          <input
+                            type="email"
+                            value={member.email}
+                            onChange={(e) =>
+                              updateMember(index, "email", e.target.value)
+                            }
+                            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"
+                            placeholder="example@email.com"
+                          />
+                        </div>
 
-        {/* View only mode - when team exists but no edit permission */}
-        {existingTeam && !canEdit && (
-          <div className="bg-white rounded-2xl shadow-lg p-8">
-            <h2 className="text-2xl font-bold text-gray-900 mb-6">
-              Registered Team Members
-            </h2>
-            <div className="space-y-4">
-              {existingTeam.teamMembers.map((member, index) => (
-                <div
-                  key={index}
-                  className="border border-gray-200 rounded-xl p-6 bg-gray-50"
-                >
-                  <h3 className="text-lg font-semibold text-gray-800 mb-3">
-                    Member {index + 1}
-                  </h3>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-3 text-sm">
-                    <div>
-                      <span className="font-medium text-gray-600">Name:</span>
-                      <span className="ml-2 text-gray-800">{member.name}</span>
+                        <div>
+                          <label className="block text-sm font-medium text-gray-700 mb-2">
+                            Year of Study <span className="text-red-500">*</span>
+                          </label>
+                          <input
+                            type="number"
+                            value={member.yearOfStudy}
+                            onChange={(e) =>
+                              updateMember(index, "yearOfStudy", e.target.value)
+                            }
+                            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"
+                            placeholder="e.g., 2"
+                            min="1"
+                            max="5"
+                          />
+                        </div>
+
+                        <div>
+                          <label className="block text-sm font-medium text-gray-700 mb-2">
+                            Phone Number <span className="text-red-500">*</span>
+                          </label>
+                          <input
+                            type="tel"
+                            value={member.phoneNumber}
+                            onChange={(e) =>
+                              updateMember(index, "phoneNumber", e.target.value)
+                            }
+                            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"
+                            placeholder="+91 XXXXXXXXXX"
+                          />
+                        </div>
+
+                        <div className="md:col-span-2">
+                          <label className="block text-sm font-medium text-gray-700 mb-2">
+                            Department <span className="text-red-500">*</span>
+                          </label>
+                          <input
+                            type="text"
+                            value={member.department}
+                            onChange={(e) =>
+                              updateMember(index, "department", e.target.value)
+                            }
+                            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"
+                            placeholder="e.g., Computer Science"
+                          />
+                        </div>
+                      </div>
                     </div>
-                    <div>
-                      <span className="font-medium text-gray-600">Email:</span>
-                      <span className="ml-2 text-gray-800">{member.email}</span>
-                    </div>
-                    <div>
-                      <span className="font-medium text-gray-600">Year:</span>
-                      <span className="ml-2 text-gray-800">
-                        {member.yearOfStudy}
-                      </span>
-                    </div>
-                    <div>
-                      <span className="font-medium text-gray-600">Phone:</span>
-                      <span className="ml-2 text-gray-800">
-                        {member.phoneNumber}
-                      </span>
-                    </div>
-                    <div className="md:col-span-2">
-                      <span className="font-medium text-gray-600">
-                        Department:
-                      </span>
-                      <span className="ml-2 text-gray-800">
-                        {member.department}
-                      </span>
-                    </div>
-                  </div>
+                  ))}
                 </div>
-              ))}
-            </div>
-            <button
-              onClick={() => navigate("/techsecy/register-team")}
-              className="w-full mt-6 bg-gray-200 text-gray-700 py-3 rounded-lg font-semibold hover:bg-gray-300 transition"
-            >
-              Back to Problem Statements
-            </button>
+
+                {/* Action buttons */}
+                <div className="flex flex-col sm:flex-row items-center gap-4 mt-8">
+                  <button
+                    onClick={addMember}
+                    disabled={teamMembers.length >= psDetails.teamStrength}
+                    className="w-full sm:flex-1 bg-blue-600 text-white py-3 rounded-lg font-semibold hover:bg-blue-700 transition disabled:opacity-50 disabled:cursor-not-allowed shadow-md hover:shadow-lg flex items-center justify-center gap-2"
+                  >
+                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+                    </svg>
+                    Add Member ({teamMembers.length}/{psDetails.teamStrength})
+                  </button>
+
+                  <button
+                    onClick={submitTeam}
+                    className="w-full sm:flex-1 bg-gradient-to-r from-green-500 to-emerald-600 text-white py-3 rounded-lg font-semibold hover:from-green-600 hover:to-emerald-700 transition shadow-md hover:shadow-lg flex items-center justify-center gap-2"
+                  >
+                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                    {isEditing ? "Update Team" : "Register Team"}
+                  </button>
+                </div>
+
+                <button
+                  onClick={() => navigate("/techsecy/register-team")}
+                  className="w-full mt-4 bg-gray-200 text-gray-700 py-3 rounded-lg font-semibold hover:bg-gray-300 transition"
+                >
+                  Cancel & Go Back
+                </button>
+              </div>
+            )}
+
+            {/* View only mode - when team exists but no edit permission */}
+            {existingTeam && !canEdit && (
+              <div className="bg-white rounded-2xl shadow-lg p-8">
+                <h2 className="text-2xl font-bold text-gray-900 mb-6 flex items-center gap-2">
+                  <svg className="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
+                  </svg>
+                  Registered Team Members
+                </h2>
+                <div className="space-y-4">
+                  {existingTeam.teamMembers.map((member, index) => (
+                    <div
+                      key={index}
+                      className="border-2 border-gray-200 rounded-xl p-6 bg-gradient-to-br from-gray-50 to-white"
+                    >
+                      <h3 className="text-lg font-semibold text-gray-800 mb-3 flex items-center gap-2">
+                        <span className="w-8 h-8 bg-green-100 text-green-600 rounded-full flex items-center justify-center font-bold text-sm">
+                          {index + 1}
+                        </span>
+                        Member {index + 1}
+                      </h3>
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-3 text-sm">
+                        <div className="flex items-center gap-2">
+                          <svg className="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                          </svg>
+                          <span className="font-medium text-gray-600">Name:</span>
+                          <span className="text-gray-800 font-semibold">{member.name}</span>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <svg className="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                          </svg>
+                          <span className="font-medium text-gray-600">Email:</span>
+                          <span className="text-gray-800">{member.email}</span>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <svg className="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
+                          </svg>
+                          <span className="font-medium text-gray-600">Year:</span>
+                          <span className="text-gray-800">{member.yearOfStudy}</span>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <svg className="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
+                          </svg>
+                          <span className="font-medium text-gray-600">Phone:</span>
+                          <span className="text-gray-800">{member.phoneNumber}</span>
+                        </div>
+                        <div className="md:col-span-2 flex items-center gap-2">
+                          <svg className="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
+                          </svg>
+                          <span className="font-medium text-gray-600">Department:</span>
+                          <span className="text-gray-800">{member.department}</span>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+                <button
+                  onClick={() => navigate("/techsecy/register-team")}
+                  className="w-full mt-6 bg-gray-200 text-gray-700 py-3 rounded-lg font-semibold hover:bg-gray-300 transition"
+                >
+                  Back to Problem Statements
+                </button>
+              </div>
+            )}
           </div>
-        )}
+
+          {/* Guidelines Sidebar - Right Side (1/3) */}
+          <div className="lg:col-span-1">
+            <TeamRegistrationGuidelines />
+          </div>
+        </div>
       </div>
     </div>
   );

@@ -4,7 +4,6 @@ import { BACKEND_URL } from "../constants";
 import { useNavigate } from "react-router-dom";
 
 export default function AuthButton() {
-
     const {user , updateUser} = useContext(userContext);
     const navigate = useNavigate();
 
@@ -45,29 +44,31 @@ export default function AuthButton() {
         }
     }
 
-    return  (
-        <div className="absolute top-0 right-4 z-40 flex gap-1.5 justify-end items-center">
-        <button
-            onClick={() => handleClick()}
-            className=" bg-blue-600 text-white py-2 px-4 font-semibold rounded-lg hover:bg-blue-700 transition disabled:bg-blue-400 cursor-pointer"
-        >
-          {
-            isSignedIn()?
-            "Log Out" : "Sign In"
-          }
-        </button>
+    // Don't show auth buttons on submission form pages (they have their own header)
+    const currentPath = window.location.pathname;
+    const isSubmissionPage = currentPath.includes('/submissions');
+    
+    if (isSubmissionPage) {
+        return null; // Hide on submission pages
+    }
 
+    return  (
+        <div className="fixed top-4 right-4 z-50 flex gap-2 justify-end items-center">
             <button
-            onClick={() => {
-                navigate('/change-password')
-            }}
-                className="m-2 bg-blue-600 text-white py-2 px-4 font-semibold rounded-lg hover:bg-blue-700 transition disabled:bg-blue-400 cursor-pointer"
+                onClick={() => handleClick()}
+                className="bg-blue-600 text-white py-2 px-4 font-semibold rounded-lg hover:bg-blue-700 transition disabled:bg-blue-400 cursor-pointer shadow-md"
             >
-                Change Password
+                {isSignedIn() ? "Log Out" : "Sign In"}
             </button>
 
-
+            {isSignedIn() && (
+                <button
+                    onClick={() => navigate('/change-password')}
+                    className="bg-blue-600 text-white py-2 px-4 font-semibold rounded-lg hover:bg-blue-700 transition disabled:bg-blue-400 cursor-pointer shadow-md"
+                >
+                    Change Password
+                </button>
+            )}
         </div>
     )
-
 }
