@@ -79,8 +79,7 @@ export default function SignIn() {
     <div className="min-h-screen flex items-center justify-center bg-gray-50 p-8">
       <div className="w-full max-w-md">
         <form onSubmit={handleSubmit} className="bg-white rounded-xl shadow-lg p-6 space-y-6">
-          <div className="flex items-center justify-center gap-4 mb-2">
-            <img src={swcLogo} alt="SWC Logo" className="h-12 w-12" />
+          <div className="flex items-center justify-center gap-1 mb-2">
             <img src={techLogo} alt="Tech Logo" className="h-12 w-12 rounded-lg" />
             <h1 className="text-3xl font-bold text-gray-800">Sign In</h1>
           </div>
