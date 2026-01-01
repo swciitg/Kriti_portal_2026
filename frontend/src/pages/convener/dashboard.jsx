@@ -163,7 +163,6 @@ function ConvenerDashboard() {
           <div className="flex items-center justify-start gap-3">
             <div className="flex items-center gap-4">
               <div className="flex items-center gap-3">
-                <img src={swcLogo} alt="SWC Logo" className="h-12 w-12" />
                 <img src={techLogo} alt="SWC Logo" className="h-12 w-12" />
               </div>
               <div>

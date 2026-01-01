@@ -54,7 +54,7 @@ export function passwordResetEmail({ resetLink }) {
             <body>
 
             <div class="content">
-                <h2>Password reset request</h2>
+                <h2>Kriti 2026: Password reset request</h2>
 
                 <p>
                     We received a request to reset the password for your
@@ -75,7 +75,7 @@ export function passwordResetEmail({ resetLink }) {
                 </p>
 
                 <div class="footer">
-                    This is an automated message from Kriti Portal. Please do not reply.
+                    This is an automated message from Kriti Portal 2026. Please do not reply.
                 </div>
             </div>
 
