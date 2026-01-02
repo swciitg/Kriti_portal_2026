@@ -1,4 +1,4 @@
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { BACKEND_URL } from "../constants.js"
 import { useContext } from "react"
 import { userContext } from "../context/userContext.jsx"
@@ -13,12 +13,28 @@ export default function SignIn() {
     password: "",
     role: "Convener"
   })
-  const { updateUser } = useContext(userContext)
+  const { user, updateUser } = useContext(userContext)
   const navigate = useNavigate()
 
   const [error, setError] = useState("")
 
   const [showPassword , setShowPassword] = useState(false);
+
+  useEffect(() => {
+    const stored = JSON.parse(localStorage.getItem("user"));
+    if (user || stored) {
+      const currentUser = user || stored;
+      if (currentUser.role === "Convener") {
+        navigate("/convener");
+      } else if (currentUser.role === "Judge") {
+        navigate("/judge/dashboard");
+      } else if (currentUser.role === "Company") {
+        navigate("/company/dashboard");
+      } else if (currentUser.role === "TechSecy") {
+        navigate("/techsecy");
+      }
+    }
+  }, [user, navigate]);
 
   const handleSubmit = async (e) => {
     e.preventDefault()
