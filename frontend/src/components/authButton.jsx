@@ -53,7 +53,7 @@ export default function AuthButton() {
     }
 
     return  (
-        <div className="fixed top-4 right-4 z-50 flex gap-2 justify-end items-center">
+        <div className="absolute top-4 right-4 z-50 flex gap-2 justify-end items-center">
             <button
                 onClick={() => handleClick()}
                 className="bg-blue-600 text-white py-2 px-4 font-semibold rounded-lg hover:bg-blue-700 transition disabled:bg-blue-400 cursor-pointer shadow-md"

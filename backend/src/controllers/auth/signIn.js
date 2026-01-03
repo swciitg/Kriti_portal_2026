@@ -56,7 +56,15 @@ export async function SignIn(req, res) {
     await existingUser.save();
 
     // Add previous last login to response
-    responseUser.previousLastLogin = previousLastLogin;
+
+    /** below code till Mark_1 is added in commit from the srinjoy on 03-01-2026 to prevent the sending of the 
+     * lastlogin details to the frontend for any user other than convener*/
+    if (role === "Convener") {
+      responseUser.previousLastLogin = previousLastLogin;
+    } else {
+      delete responseUser["lastLogin"]
+    }
+    /** Mark_1 */
 
     if (existingUser.role === "TechSecy") {
       const techSecyProfile = await TechSecy.findOne({
