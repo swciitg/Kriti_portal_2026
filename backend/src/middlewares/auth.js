@@ -205,6 +205,7 @@ export function handleRouteAccess(req, res, next) {
       "/v1/pssubmission/submit",
       "/v1/pssubmission/view/",
       "/v1/pssubmission/upload-temp",
+      "/v1/ps/protected"
     ];
     if (
       !allowed.includes(route) &&

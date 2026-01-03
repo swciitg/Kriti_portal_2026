@@ -26,6 +26,8 @@ import TeamRequestAll from "./pages/convener/teamRequestAll.jsx";
 import SubmissionsPage from "./pages/techSecy/submissions.jsx";
 import SubmissionForm from "./pages/techSecy/submissionForm.jsx";
 import ViewSubmission from "./pages/techSecy/viewSubmission.jsx";
+import Guidelines from "./pages/techSecy/guidelines.jsx"
+import ProblemStatementsForTechSecy from "./pages/techSecy/problemStatements.jsx"
 
 
 function App() {
@@ -61,6 +63,8 @@ function App() {
           <Route path="/techsecy/submissions" element={<SubmissionsPage />} />
           <Route path="/techsecy/submissions/submit/:psId" element={<SubmissionForm />} />
           <Route path="/techsecy/submissions/view/:submissionId" element={<ViewSubmission />} />
+          <Route path="/techsecy/guidelines" element={<Guidelines />} />
+          <Route path="/techsecy/problem-statements" element={<ProblemStatementsForTechSecy />} />
 
           <Route path="/judge/dashboard" element={<JudgeDashboard />} />
           <Route path="/judge/hostel/:hostelId" element={<HostelJudging />} />
