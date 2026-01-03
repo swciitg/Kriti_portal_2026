@@ -56,7 +56,16 @@ export async function SignIn(req, res) {
     await existingUser.save();
 
     // Add previous last login to response
-    responseUser.previousLastLogin = previousLastLogin;
+
+    /** below code till Mark_1 is added in commit from tb_needs by srinjoy on 03-01-2026 to prevent the sending of the 
+     * lastlogin details to the frontend for any user other than convener
+     **/
+    if (role === "Convener") {
+      responseUser.previousLastLogin = previousLastLogin;
+    } else {
+      delete responseUser["lastLogin"]
+    }
+    /** Mark_1 */
 
     if (existingUser.role === "TechSecy") {
       const techSecyProfile = await TechSecy.findOne({
@@ -67,6 +76,15 @@ export async function SignIn(req, res) {
       } else {
         responseUser.techSecyId = null;
       }
+      
+      /** below code till Mark_2 has been added from tb_needs by srinjoy on 03-01-2026 to avail the HostelId 
+       * for techsecy in frontend */
+      if (techSecyProfile) {
+        responseUser.hostelId = techSecyProfile.hostelId;
+      } else {
+        responseUser.techSecyId = null;
+      }
+      /** Mark_2 */
     }
 
     return res.status(200).json({
