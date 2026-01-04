@@ -303,7 +303,8 @@ export default function PSDetails() {
 
       setSuccess("Problem statement updated successfully!");
       setIsEditing(false); // Exit edit mode on success
-      setTimeout(() => navigate("/convener/ps"), 1500);
+      window.scrollTo({ top: 0, behavior: "smooth" });
+      setTimeout(() => navigate("/convener/ps"), 2000);
     } catch (e) {
       setError(e.message);
       window.scrollTo({ top: 0, behavior: "smooth" });

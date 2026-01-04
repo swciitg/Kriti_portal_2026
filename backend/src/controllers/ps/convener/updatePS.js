@@ -38,7 +38,7 @@ export const updatePS = async (req, res) => {
     if (!updatePS) {
       return res.status(404).json({ message: "PS not found" });
     }
-    res.status(200).json({ message: "PS updated successfully", ps: updatePS });
+    res.status(200).json({success: true , message: "PS updated successfully", ps: updatePS });
   } catch (error) {
     if (error.code === 11000) {
       return res
