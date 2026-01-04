@@ -36,7 +36,7 @@ export default function PSScreen() {
           headers["Authorization"] = `Bearer ${token}`;
         }
 
-        const res = await fetch(`${BACKEND_URL}/v1/ps`, {
+        const res = await fetch(`${BACKEND_URL}/v1/techsecy/getps`, {
           method: "GET",
           headers: headers,
           credentials: "include",
