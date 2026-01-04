@@ -433,6 +433,10 @@ export default function TeamRequestAll() {
                           <p className="text-gray-600 text-xs">
                             {member.department} • {member.phoneNumber}
                           </p>
+                          <p className="text-gray-600 text-xs mt-1">
+                            <p className="text-gray-800 text-sm">Discord : </p>
+                            ID - {member.discordId || "NA"} • Username - {member.discordUsername || "NA"}
+                          </p>
                         </div>
                       ))}
                     </div>
