@@ -26,7 +26,21 @@ export default function PSScreen() {
     const fetchPS = async () => {
       try {
         setLoading(true);
-        const res = await fetch(`${BACKEND_URL}/v1/ps`);
+        const token = localStorage.getItem("token");
+        const headers = {
+          "Content-Type": "application/json"
+        };
+        
+        // Add authorization header if token exists
+        if (token) {
+          headers["Authorization"] = `Bearer ${token}`;
+        }
+
+        const res = await fetch(`${BACKEND_URL}/v1/ps`, {
+          method: "GET",
+          headers: headers,
+          credentials: "include",
+        });
         const data = await res.json();
 
         if (!res.ok) throw new Error(data.message || "Failed to fetch PS");
@@ -38,6 +52,7 @@ export default function PSScreen() {
           teamStrength: item.teamStrength,
           points: item.points,
           registrationDeadline: item.registrationDeadline,
+          teamRegistered: item.teamRegistered || false
         }));
 
         setProblemStatements(filtered);
@@ -50,7 +65,8 @@ export default function PSScreen() {
     fetchPS();
   }, []);
 
-  const handleView = (id) => navigate(`/techsecy/register-team/${id}`);
+  const handleRegister = (id) => navigate(`/techsecy/register-team/${id}`);
+  const handleViewTeam = (id) => navigate(`/techsecy/register-team/${id}`);
 
   const filteredPS = problemStatements.filter((ps) =>
     ps.name.toLowerCase().includes(searchTerm.toLowerCase())
@@ -67,7 +83,33 @@ export default function PSScreen() {
   };
 
   const isDeadlinePassed = (deadline) => {
-    return new Date(deadline) < new Date();
+    // Compare using user's local timezone
+    const deadlineDate = new Date(deadline);
+    const now = new Date();
+    return deadlineDate < now;
+  };
+
+  const formatDeadline = (deadline) => {
+    // Format deadline with date and time in local timezone
+    const deadlineDate = new Date(deadline);
+    
+    const dateOptions = { 
+      weekday: 'short',
+      year: 'numeric', 
+      month: 'short', 
+      day: 'numeric'
+    };
+    
+    const timeOptions = { 
+      hour: '2-digit', 
+      minute: '2-digit',
+      hour12: true
+    };
+    
+    const formattedDate = deadlineDate.toLocaleDateString('en-IN', dateOptions);
+    const formattedTime = deadlineDate.toLocaleTimeString('en-IN', timeOptions);
+    
+    return `${formattedDate} ${formattedTime}`;
   };
 
   return (
@@ -98,7 +140,7 @@ export default function PSScreen() {
                 Problem Statements
               </h1>
               <p className="text-gray-600">
-                Choose a problem statement to register your team
+                Choose a problem statement to register your team or view your existing team
               </p>
             </div>
           </nav>
@@ -106,34 +148,6 @@ export default function PSScreen() {
       <div className = "max-w-7xl mx-auto px-6 py-4">
         <div className="">
           <div className="container mx-auto px-4 py-8">
-            {/* Header */}
-            {/* <div className="mb-8">
-              <button
-                onClick={() => navigate("/techsecy")}
-                className="flex items-center text-blue-600 hover:text-blue-700 mb-4 transition-colors"
-              >
-                <svg
-                  className="w-5 h-5 mr-2"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M15 19l-7-7 7-7"
-                  />
-                </svg>
-                Back to Dashboard
-              </button>
-              <h1 className="text-4xl font-bold text-gray-800 mb-2">
-                Problem Statements
-              </h1>
-              <p className="text-gray-600">
-                Choose a problem statement to register your team
-              </p>
-            </div> */}
 
             {/* Search Bar */}
             <div className="mb-6">
@@ -218,33 +232,49 @@ export default function PSScreen() {
                           <div className="flex items-center justify-between text-sm">
                             <span className="text-gray-600 font-medium">Deadline:</span>
                             <span className={`font-semibold ${deadlinePassed ? 'text-red-600' : 'text-gray-800'}`}>
-                              {new Date(ps.registrationDeadline).toLocaleDateString()}
+                              {formatDeadline(ps.registrationDeadline)}
                             </span>
                           </div>
 
-                          {deadlinePassed && (
-                            <div className="bg-red-50 border border-red-200 rounded-lg p-2 mt-2">
-                              <p className="text-red-700 text-xs font-medium text-center">
-                                Registration Closed
-                              </p>
-                            </div>
-                          )}
+                          {/* Team Status Badge */}
+                          <div className="mt-4 pt-3 border-t border-gray-200">
+                            {ps.teamRegistered ? (
+                              <div className="bg-green-50 border border-green-200 rounded-lg p-2">
+                                <p className="text-green-700 text-xs font-medium text-center flex items-center justify-center gap-1">
+                                  <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                                    <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                                  </svg>
+                                  Team Registered
+                                </p>
+                              </div>
+                            ) : (
+                              <div className={`border rounded-lg p-2 ${deadlinePassed ? 'bg-red-50 border-red-200' : 'bg-blue-50 border-blue-200'}`}>
+                                <p className={`text-xs font-medium text-center ${deadlinePassed ? 'text-red-700' : 'text-blue-700'}`}>
+                                  {deadlinePassed ? "Registration Closed" : "Registration Open"}
+                                </p>
+                              </div>
+                            )}
+                          </div>
                         </div>
                       </div>
 
                       {/* Card Footer */}
                       <div className="p-6 pt-0">
-                        <button
-                          onClick={() => handleView(ps.id)}
-                          disabled={deadlinePassed}
-                          className={`w-full py-3 rounded-xl font-semibold transition-all duration-300 ${
-                            deadlinePassed
-                              ? "bg-gray-200 text-gray-500 cursor-not-allowed"
-                              : "bg-gradient-to-r from-blue-600 to-indigo-600 text-white hover:from-blue-700 hover:to-indigo-700 shadow-md hover:shadow-lg"
-                          }`}
-                        >
-                          {deadlinePassed ? "Registration Closed" : "Register Team"}
-                        </button>
+                        {ps.teamRegistered ? (
+                          <button
+                            onClick={() => handleViewTeam(ps.id)}
+                            className="w-full py-3 rounded-xl font-semibold transition-all duration-300 bg-gradient-to-r from-green-600 to-green-700 text-white hover:from-green-700 hover:to-green-800 shadow-md hover:shadow-lg"
+                          >
+                            View Team
+                          </button>
+                        ) : (
+                          <button
+                            onClick={() => handleRegister(ps.id)}
+                            className="w-full py-3 rounded-xl font-semibold transition-all duration-300 bg-gradient-to-r from-blue-600 to-indigo-600 text-white hover:from-blue-700 hover:to-indigo-700 shadow-md hover:shadow-lg"
+                          >
+                            Register Team
+                          </button>
+                        )}
                       </div>
                     </div>
                   );

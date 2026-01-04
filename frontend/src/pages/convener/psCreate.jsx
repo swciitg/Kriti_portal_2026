@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { useContext, useEffect, useState } from "react";
 import { BACKEND_URL } from "../../constants";
 import { userContext } from "../../context/userContext";
+import { convertPayloadDatesToUTC, getLocalTimezone } from "../../utils/timezoneUtils";
 
 const emptyDeliverable = { name: "", type: "url" };
 const emptyPointsItem = { field: "", weightage: 0 };
@@ -196,7 +197,15 @@ export default function PSCreate() {
       return;
     }
 
-    const payload = {
+    // Convert datetime fields from local timezone to UTC
+    const datetimeFields = [
+      'startDate',
+      'submissionDeadline',
+      'registrationDeadline',
+      'midEvalSubmissionDeadline'
+    ];
+    
+    const basePayload = {
       ...ps,
       points: Number(ps.points),
       teamStrength: Number(ps.teamStrength),
@@ -206,9 +215,13 @@ export default function PSCreate() {
       pptSchedule: ps.pptSchedule.trim() || undefined,
     };
 
+    // Convert datetime fields to UTC
+    const payload = convertPayloadDatesToUTC(basePayload, datetimeFields);
+
     try {
       setSaving(true);
       const token = localStorage.getItem("accessToken");
+      
       const res = await fetch(`${BACKEND_URL}/v1/convener/create-ps`, {
         method: "POST",
         headers: {

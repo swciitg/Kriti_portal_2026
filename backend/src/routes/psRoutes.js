@@ -8,6 +8,6 @@ const router = Router();
 
 router.route("/protected").get(verifyJWT , handleRouteAccess , getPSProtected);
 router.route("/:id").get(getPSById);
-router.route("/").get(getPS);
+router.route("/").get(verifyJWT, getPS);
 
 export default router;

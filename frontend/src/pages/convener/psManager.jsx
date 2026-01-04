@@ -26,7 +26,9 @@ export default function PSManager() {
     const fetchPS = async () => {
       try {
         setLoading(true);
-        const res = await fetch(`${BACKEND_URL}/v1/ps`);
+        const res = await fetch(`${BACKEND_URL}/v1/ps`,{
+          credentials: "include",
+        });
         const data = await res.json();
 
         if (!res.ok) throw new Error(data.message || "Failed to fetch PS");

@@ -44,6 +44,7 @@ export async function registerTeam(req, res) {
 
     // Check registration deadline
     const now = new Date();
+    console.log(now, existingPS.registrationDeadline);
     if (now > existingPS.registrationDeadline) {
       return res.status(400).json({ 
         success: false, 
