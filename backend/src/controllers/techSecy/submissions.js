@@ -104,12 +104,12 @@ export const listOpenPSForSubmission = async (req, res) => {
         _id: ps._id,
         name: ps.name,
         prep: ps.prep,
-        startDate: ps.startDate, // Include startDate in response
+        // startDate: ps.startDate, // Include startDate in response
         submissionDeadline: ps.submissionDeadline,
         midEvalExist: ps.midEvalExist,
         midEvalSubmissionDeadline: ps.midEvalSubmissionDeadline,
-        finalSubmissionOpen: isFinalOpen,
-        midEvalSubmissionOpen: isMidOpen,
+        finalSubmissionOpen: isFinalOpen, //  use of this in frontend is risky as the deadline might be crossed while the tech secy waits and then in the page
+        midEvalSubmissionOpen: isMidOpen, // same as above 
         // Submission status
         finalSubmitted: !!finalSubmission,
         midSubmitted: !!midSubmission,

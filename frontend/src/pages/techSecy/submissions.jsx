@@ -51,12 +51,22 @@ export default function SubmissionsPage() {
           return;
         }
 
+        
+
+        /**
+         * by srinjoy on 04-01-2026 from tb_needs
+         * This below check is reduntant and might be risky as this now will in local time ps.startDate 
+         * is in UTC
+         */
+
         // Filter out PS where startDate is in the future
-        const now = new Date();
-        const availablePsList = data.psList.filter((ps) => {
-          if (!ps.startDate) return true; // If no startDate, show it
-          return new Date(ps.startDate) <= now;
-        });
+        // const now = new Date();
+        // const availablePsList = data.psList.filter((ps) => {
+        //   if (!ps.startDate) return true; // If no startDate, show it
+        //   return new Date(ps.startDate) <= now;
+        // });
+
+        const availablePsList = data.psList
 
         setPsList(availablePsList);
         
@@ -81,9 +91,9 @@ export default function SubmissionsPage() {
     
     return psList.filter((ps) => {
       // Additional check: ensure startDate has passed
-      if (ps.startDate && new Date(ps.startDate) > now) {
-        return false;
-      }
+      // if (ps.startDate && new Date(ps.startDate) > now) {
+      //   return false;
+      // }
 
       // Search filter
       const matchesSearch = ps.name.toLowerCase().includes(searchQuery.toLowerCase());
@@ -322,14 +332,14 @@ export default function SubmissionsPage() {
                         </svg>
                         {ps.prep.toUpperCase()}
                       </span>
-                      {ps.startDate && (
+                      {/* {ps.startDate && (
                         <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-green-100 text-green-700">
                           <svg className="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
                           </svg>
                           Started: {new Date(ps.startDate).toLocaleDateString("en-IN", { dateStyle: "medium" })}
                         </span>
-                      )}
+                      )} */}
                     </div>
                   </div>
                 </div>
@@ -414,9 +424,15 @@ export default function SubmissionsPage() {
                         Submit Now
                       </button>
                     ) : (
-                      <div className="w-full px-4 py-2.5 bg-gray-200 text-gray-600 rounded-lg text-center font-medium">
-                        Submission Closed
-                      </div>
+                      // <div className="w-full px-4 py-2.5 bg-gray-200 text-gray-600 rounded-lg text-center font-medium">
+                      //   Submission Closed
+                      // </div>
+                      <button
+                        onClick={() => navigate(`/techsecy/submissions/submit/${ps._id}?type=final`)}
+                        className="w-full px-4 py-2.5 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition font-medium shadow-md hover:shadow-lg"
+                      >
+                        Submit Now
+                      </button>
                     )}
                   </div>
 
@@ -500,9 +516,15 @@ export default function SubmissionsPage() {
                           Submit Now
                         </button>
                       ) : (
-                        <div className="w-full px-4 py-2.5 bg-gray-200 text-gray-600 rounded-lg text-center font-medium">
-                          Submission Closed
-                        </div>
+                        // <div className="w-full px-4 py-2.5 bg-gray-200 text-gray-600 rounded-lg text-center font-medium">
+                        //   Submission Closed
+                        // </div>
+                        <button
+                          onClick={() => navigate(`/techsecy/submissions/submit/${ps._id}?type=mid`)}
+                          className="w-full px-4 py-2.5 bg-green-600 text-white rounded-lg hover:bg-green-700 transition font-medium shadow-md hover:shadow-lg"
+                        >
+                          Submit Now
+                        </button>
                       )}
                     </div>
                   )}
