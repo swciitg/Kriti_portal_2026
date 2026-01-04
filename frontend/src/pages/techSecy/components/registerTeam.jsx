@@ -184,7 +184,7 @@ export default function RegisterTeam() {
         return;
       }
 
-      setMessage("Edit request sent for approval");
+      setMessage("Edit request sent for approval. If not rejected, you will be able to make changes");
       setRequestStatus("pending");
     } catch (err) {
       console.error("Request edit error:", err);
@@ -400,7 +400,7 @@ export default function RegisterTeam() {
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
                 </svg>
                 <p className="text-yellow-800 font-medium">
-                  Edit request is pending approval from convener
+                  Edit request is pending approval from convener. If this message dissappears without Edit Access, then your request was rejected
                 </p>
               </div>
             )}
@@ -601,11 +601,23 @@ export default function RegisterTeam() {
                             </label>
                           ) : (
                             <div className="flex flex-col items-center gap-4 p-4 border border-gray-300 rounded-lg">
-                              <img
+                              {typeof member.profilePicture === "string" ? (
+                                <img
+                                  src={
+                                    member.profilePicture.startsWith("/uploads")
+                                      ? BACKEND_URL + member.profilePicture
+                                      : member.profilePicture
+                                  }
+                                  alt="Profile"
+                                  className="w-[370px] h-[250px] object-cover border"
+                                />
+                              ) : member.profilePicture instanceof File ? (
+                                <img
                                   src={URL.createObjectURL(member.profilePicture)}
                                   alt="Profile Preview"
-                                  className="w-150 h-50 object-cover border"
-                              />
+                                  className="w-[370px] h-[250px] object-cover border"
+                                />
+                              ) : null}
                               <div className="flex gap-2">
                                 <button
                                   type="button"
