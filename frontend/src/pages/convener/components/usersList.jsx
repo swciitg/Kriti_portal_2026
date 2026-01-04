@@ -3,6 +3,7 @@ import { userContext } from "../../../context/userContext.jsx";
 import { BACKEND_URL } from "../../../constants.js";
 import { useNavigate } from "react-router-dom";
 import Loader from "../../../components/loader.jsx";
+import prependZeroes from  "../../../utils/prependZeroes.js"
 
 export default function UsersPage() {
     const { user } = useContext(userContext);
@@ -111,7 +112,7 @@ const Section = ({ title, users }) => {
 
                 {typeof item.hostelId !== "undefined" && (
                     <p className="text-sm font-medium text-slate-500 mt-1 text-wraps">
-                    Hostel ID: {item.hostelId}
+                    Hostel ID: {prependZeroes(item.hostelId , 4)}
                     </p>
                 )}
 

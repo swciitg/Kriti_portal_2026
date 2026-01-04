@@ -26,6 +26,7 @@ export default function ProblemStatementsForTechSecy() {
 
   useEffect(() => {
     const fetchPS = async () => {
+      const local_time_zone = Intl.DateTimeFormat().resolvedOptions().timeZone;
       try {
         setLoading(true);
         const token = localStorage.getItem("accessToken");
@@ -38,7 +39,7 @@ export default function ProblemStatementsForTechSecy() {
             },
         }
         );
-        console.log(res)
+        // console.log(res)
         const data = await res.json();
 
         if (!res.ok) throw new Error(data.message || "Failed to fetch PS");
@@ -49,7 +50,15 @@ export default function ProblemStatementsForTechSecy() {
           prep: item.prep,
           teamStrength: item.teamStrength,
           points: item.points,
-          startDate : item.startDate,
+          startDate : new Date(item.startDate).toLocaleString("en-US", {
+            timeZone: local_time_zone,
+            year: "numeric",
+            month: "2-digit",
+            day: "2-digit",
+            hour: "2-digit",
+            minute: "2-digit",
+            second: "2-digit",
+          }),
           pdf : item.pdf
         }));
 
@@ -86,7 +95,7 @@ export default function ProblemStatementsForTechSecy() {
         pdfUrl && 
         <PdfViewer pdfUrl={pdfUrl} setPdfUrl={setPdfUrl}/>
     }
-    <nav className="w-full bg-white shadow-lg border-b border-gray-200 sticky top-0 z-100">
+    <nav className="w-full bg-white shadow-lg border-b border-gray-200 sticky top-0 z-50">
             <div className="max-w-7xl mx-auto px-6 py-4">
               <button
                 onClick={() => navigate("/techsecy")}
@@ -219,12 +228,12 @@ export default function ProblemStatementsForTechSecy() {
                         {ps.points} pts
                       </span>
                     </div>
-                    <div className="flex items-center justify-between">
+                    {/* <div className="flex items-center justify-between">
                       <span className="text-sm text-gray-600 font-medium">Start Date</span>
                       <span className="text-sm text-gray-800 font-semibold">
-                        {ps.startDate.substr(0 , 10)} {" at "} {ps.startDate.substr(11 , 8)}
+                        {ps.startDate.substr(0 , 10)} {" at "} {ps.startDate.substr(11)}
                       </span>
-                    </div>
+                    </div> */}
                   </div>
                 </div>
 

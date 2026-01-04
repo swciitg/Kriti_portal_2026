@@ -27,6 +27,19 @@ const TeamMemberSchema = new mongoose.Schema(
       type: String, 
       required: true,
       trim: true
+    },
+    discordId : {
+      type : String , 
+      required : true
+    },
+    discordUsername : {
+      type : String, 
+      required : true
+    },
+    profilePicture : {
+      type : String,
+      required : true,
+      default : ""
     }
   },
   { _id: false }

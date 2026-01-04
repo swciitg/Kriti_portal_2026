@@ -4,6 +4,19 @@ import { BACKEND_URL } from "../../../constants";
 import { userContext } from "../../../context/userContext";
 import TeamRegistrationGuidelines from "../../../components/TeamRegistrationGuidelines";
 
+/**
+ * 
+ * Documentation of How profile pictures are handled
+ * 
+ * by srinjoy 04-01-2026 from branch tb_needs
+ * 
+ * The profile picture is mandatory input field
+ * The data of teamMembers are put inside the formData
+ * The format is teamMembers[index][field] for the formData which is sent as body to the api /v1/techsecy/
+ * In the backend multer is used to receive the files
+ * The req.files are gets all the files and file is stored in (root)/uploads/team_ids/{psId}/{filename}
+ */
+
 export default function RegisterTeam() {
   const { psId } = useParams();
   const navigate = useNavigate();
@@ -12,7 +25,7 @@ export default function RegisterTeam() {
   const [psDetails, setPsDetails] = useState(null);
   const [existingTeam, setExistingTeam] = useState(null);
   const [teamMembers, setTeamMembers] = useState([
-    { name: "", email: "", yearOfStudy: "", phoneNumber: "", department: "" },
+    { name: "", email: "", yearOfStudy: "", phoneNumber: "", department: "" , discordId : "" , discordUsername : "" , profilePicture : null},
   ]);
   const [requestStatus, setRequestStatus] = useState("none");
   const [loading, setLoading] = useState(true);
@@ -171,7 +184,7 @@ export default function RegisterTeam() {
         return;
       }
 
-      setMessage("Edit request sent for approval");
+      setMessage("Edit request sent for approval. If not rejected, you will be able to make changes");
       setRequestStatus("pending");
     } catch (err) {
       console.error("Request edit error:", err);
@@ -189,7 +202,7 @@ export default function RegisterTeam() {
     }
     setTeamMembers([
       ...teamMembers,
-      { name: "", email: "", yearOfStudy: "", phoneNumber: "", department: "" },
+      { name: "", email: "", yearOfStudy: "", phoneNumber: "", department: "" , discordId: "" , discordUsername : "", profilePicture : null },
     ]);
   }
 
@@ -219,7 +232,10 @@ export default function RegisterTeam() {
           !member.email ||
           !member.yearOfStudy ||
           !member.phoneNumber ||
-          !member.department
+          !member.department ||
+          !member.discordId ||
+          !member.discordUsername ||
+          !member.profilePicture
         ) {
           setError(`Please fill all fields for member ${i + 1}`);
           return;
@@ -230,11 +246,23 @@ export default function RegisterTeam() {
         ? `${BACKEND_URL}/v1/techsecy/update-registered-team/${psId}`
         : `${BACKEND_URL}/v1/techsecy/register-team/${psId}`;
 
+      const formData = new FormData();
+
+      teamMembers.forEach((member, index) => {
+        formData.append(`teamMembers[${index}][name]`, member.name);
+        formData.append(`teamMembers[${index}][email]`, member.email);
+        formData.append(`teamMembers[${index}][yearOfStudy]`, member.yearOfStudy);
+        formData.append(`teamMembers[${index}][phoneNumber]`, member.phoneNumber);
+        formData.append(`teamMembers[${index}][department]`, member.department);
+        formData.append(`teamMembers[${index}][discordId]`, member.discordId);
+        formData.append(`teamMembers[${index}][discordUsername]`, member.discordUsername);
+        formData.append(`teamMembers[${index}][profilePicture]`, member.profilePicture);
+      });
+
       const res = await fetch(url, {
         method: isEditing ? "PUT" : "POST",
         credentials: "include",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ teamMembers }),
+        body: formData,
       });
 
       const data = await res.json();
@@ -257,6 +285,7 @@ export default function RegisterTeam() {
       setError("Server error");
     }
   }
+
 
   if (loading) {
     return (
@@ -371,7 +400,7 @@ export default function RegisterTeam() {
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
                 </svg>
                 <p className="text-yellow-800 font-medium">
-                  Edit request is pending approval from convener
+                  Edit request is pending approval from convener. If this message dissappears without Edit Access, then your request was rejected
                 </p>
               </div>
             )}
@@ -508,6 +537,36 @@ export default function RegisterTeam() {
                           />
                         </div>
 
+                        <div>
+                          <label className="block text-sm font-medium text-gray-700 mb-2">
+                            Discord Username <span className="text-red-500">*</span>
+                          </label>
+                          <input
+                            type="type"
+                            value={member.discordUsername}
+                            onChange={(e) =>
+                              updateMember(index, "discordUsername", e.target.value)
+                            }
+                            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"
+                            placeholder="example_username"
+                          />
+                        </div>
+
+                        <div>
+                          <label className="block text-sm font-medium text-gray-700 mb-2">
+                            Discord ID <span className="text-red-500">*</span>
+                          </label>
+                          <input
+                            type="text"
+                            value={member.discordId}
+                            onChange={(e) =>
+                              updateMember(index, "discordId", e.target.value)
+                            }
+                            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"
+                            placeholder="123456789012345678 (18 digit)"
+                          />
+                        </div>
+
                         <div className="md:col-span-2">
                           <label className="block text-sm font-medium text-gray-700 mb-2">
                             Department <span className="text-red-500">*</span>
@@ -522,6 +581,63 @@ export default function RegisterTeam() {
                             placeholder="e.g., Computer Science"
                           />
                         </div>
+
+                        <div className="md:col-span-2">
+                          <label className="block text-sm font-medium text-gray-700 mb-2">
+                            Profile Picture <span className="text-red-500">*</span>
+                          </label>
+
+                          {!member.profilePicture ? (
+                            <label className="w-full flex items-center justify-center px-4 py-6 border-2 border-dashed border-gray-300 rounded-lg cursor-pointer hover:border-blue-500 transition">
+                              <input
+                                type="file"
+                                accept="image/png,image/jpeg,image/jpg"
+                                className="hidden"
+                                onChange={(e) =>
+                                  updateMember(index, "profilePicture", e.target.files?.[0] || null)
+                                }
+                              />
+                              <span className="text-sm text-gray-500">Click to upload profile picture which <span className="font-semibold text-red-500">MUST BE THE ENTIRE COLLEGE ID CARD.</span> Make sure all the details in the front side of the College ID Card are clearly visible.</span>
+                            </label>
+                          ) : (
+                            <div className="flex flex-col items-center gap-4 p-4 border border-gray-300 rounded-lg">
+                              {typeof member.profilePicture === "string" ? (
+                                <img
+                                  src={
+                                    member.profilePicture.startsWith("/uploads")
+                                      ? BACKEND_URL + member.profilePicture
+                                      : member.profilePicture
+                                  }
+                                  alt="Profile"
+                                  className="w-[370px] h-[250px] object-cover border"
+                                />
+                              ) : member.profilePicture instanceof File ? (
+                                <img
+                                  src={URL.createObjectURL(member.profilePicture)}
+                                  alt="Profile Preview"
+                                  className="w-[370px] h-[250px] object-cover border"
+                                />
+                              ) : null}
+                              <div className="flex gap-2">
+                                <button
+                                  type="button"
+                                  onClick={() => {
+                                    updateMember(index, "profilePicture", null)
+                                  }}
+                                  className="cursor-pointer px-3 py-1.5 text-sm rounded-lg border border-red-300 text-red-600 hover:bg-red-50 transition"
+                                >
+                                  Remove
+                                </button>
+                              </div>
+                              
+                            </div>
+                          )}
+
+                          <p className="mt-2 text-xs text-gray-500">
+                            Max Size : 5MB &nbsp;|&nbsp; Type supported : PNG, JPG, JPEG
+                          </p>
+                        </div>
+
                       </div>
                     </div>
                   ))}
@@ -610,12 +726,39 @@ export default function RegisterTeam() {
                           <span className="font-medium text-gray-600">Phone:</span>
                           <span className="text-gray-800">{member.phoneNumber}</span>
                         </div>
+                        <div className="flex items-center gap-2">
+                          <svg  className="size-4 text-gray-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor">
+                            <path strokeLinecap="round" strokeLinejoin="round" d="M15 9h3.75M15 12h3.75M15 15h3.75M4.5 19.5h15a2.25 2.25 0 0 0 2.25-2.25V6.75A2.25 2.25 0 0 0 19.5 4.5h-15a2.25 2.25 0 0 0-2.25 2.25v10.5A2.25 2.25 0 0 0 4.5 19.5Zm6-10.125a1.875 1.875 0 1 1-3.75 0 1.875 1.875 0 0 1 3.75 0Zm1.294 6.336a6.721 6.721 0 0 1-3.17.789 6.721 6.721 0 0 1-3.168-.789 3.376 3.376 0 0 1 6.338 0Z" />
+                          </svg>
+                          <span className="font-medium text-gray-600">Discord ID:</span>
+                          <span className="text-gray-800">{member.discordId || "--"}</span>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <svg className="size-4 text-gray-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" >
+                            <path strokeLinecap="round" strokeLinejoin="round" d="M17.982 18.725A7.488 7.488 0 0 0 12 15.75a7.488 7.488 0 0 0-5.982 2.975m11.963 0a9 9 0 1 0-11.963 0m11.963 0A8.966 8.966 0 0 1 12 21a8.966 8.966 0 0 1-5.982-2.275M15 9.75a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z" />
+                          </svg>
+
+                          <span className="font-medium text-gray-600">Discord Username:</span>
+                          <span className="text-gray-800">{member.discordUsername || "--"}</span>
+                        </div>
                         <div className="md:col-span-2 flex items-center gap-2">
                           <svg className="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
                           </svg>
                           <span className="font-medium text-gray-600">Department:</span>
                           <span className="text-gray-800">{member.department}</span>
+                        </div>
+                        <div className="md:col-span-2 flex flex-col gap-2">
+                          {member.profilePicture !== undefined && member.profilePicture ? 
+                          (<img
+                            src={BACKEND_URL + member.profilePicture}
+                            alt="College ID Card"
+                            className="w-150 h-50 object-cover border"
+                          /> ): 
+                          (<div className="w-[300px] h-[100px] flex items-center justify-center border border-dashed border-gray-300 rounded-md bg-gray-50 text-sm text-gray-500">
+                            No ID Card uploaded
+                          </div>)
+                          }
                         </div>
                       </div>
                     </div>
