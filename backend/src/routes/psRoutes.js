@@ -9,6 +9,6 @@ const router = Router();
 router.route("/protected").get(verifyJWT , handleRouteAccess , getPSProtected);
 router.route("/a").get(getPSforConvener);
 router.route("/:id").get(getPSById);
-router.route("/").get(verifyJWT, handleRouteAccess, getPS);
+router.route("/").get(verifyJWT, getPS);
 
 export default router;

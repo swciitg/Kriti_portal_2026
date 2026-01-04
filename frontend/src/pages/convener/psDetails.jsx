@@ -40,6 +40,7 @@ export default function PSDetails() {
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
   const [loading, setLoading] = useState(true);
+  const [isEditing, setIsEditing] = useState(false); // NEW: Edit mode state
 
   const [isOverallPointsValid, setIsOverallPointsValid] = useState(false);
   const [pointsValidation, setPointsValidation] = useState({
@@ -73,7 +74,6 @@ export default function PSDetails() {
 
         const formatDate = (dateStr) => {
           if (!dateStr) return "";
-          // Convert UTC date from backend to local datetime-local format
           return convertUTCToLocalDatetimeInput(dateStr);
         };
 
@@ -122,7 +122,6 @@ export default function PSDetails() {
         const total = sub + ppt + mid;
         const targetPoints = data.ps.points === "" ? 0 : Number(data.ps.points);
         setIsOverallPointsValid(total === targetPoints && targetPoints > 0);
-
       } catch (e) {
         setError(e.message);
       } finally {
@@ -131,6 +130,12 @@ export default function PSDetails() {
     }
     fetchPS();
   }, [id]);
+
+  // NEW: Toggle edit mode function
+  const toggleEditMode = () => {
+    setIsEditing(!isEditing);
+    setError(""); // Clear any errors when toggling
+  };
 
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
@@ -260,7 +265,6 @@ export default function PSDetails() {
       return;
     }
 
-    // Convert datetime fields from local timezone to UTC
     const datetimeFields = [
       'startDate',
       'submissionDeadline',
@@ -278,7 +282,6 @@ export default function PSDetails() {
       pptSchedule: ps.pptSchedule?.trim() || undefined,
     };
 
-    // Convert datetime fields to UTC
     const payload = convertPayloadDatesToUTC(basePayload, datetimeFields);
 
     try {
@@ -299,12 +302,14 @@ export default function PSDetails() {
         throw new Error(data.message || "Failed to update PS.");
 
       setSuccess("Problem statement updated successfully!");
+      setIsEditing(false); // Exit edit mode on success
       setTimeout(() => navigate("/convener/ps"), 1500);
     } catch (e) {
       setError(e.message);
       window.scrollTo({ top: 0, behavior: "smooth" });
     } finally {
       setSaving(false);
+      setIsEditing(false);
     }
   };
 
@@ -371,10 +376,38 @@ export default function PSDetails() {
           Back to PS
         </button>
         <div className="bg-white shadow-xl rounded-2xl overflow-hidden">
-          {/* Header */}
+          {/* Header with Edit Button */}
           <div className="bg-gradient-to-r from-slate-700 to-slate-800 p-6 text-white">
-            <h1 className="text-3xl font-bold">Update Problem Statement</h1>
-            <p className="text-slate-200 mt-1">Modify problem statement details and settings</p>
+            <div className="flex items-center justify-between">
+              <div>
+                <h1 className="text-3xl font-bold">Update Problem Statement</h1>
+                <p className="text-slate-200 mt-1">Modify problem statement details and settings</p>
+              </div>
+              <button
+                onClick={toggleEditMode}
+                className={`px-6 py-2.5 rounded-lg font-semibold transition-all shadow-lg flex items-center gap-2 ${
+                  isEditing
+                    ? "bg-red-600 hover:bg-red-700 text-white"
+                    : "bg-white hover:bg-gray-100 text-slate-800"
+                }`}
+              >
+                {isEditing ? (
+                  <>
+                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                    Cancel Editing
+                  </>
+                ) : (
+                  <>
+                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                    </svg>
+                    Edit
+                  </>
+                )}
+              </button>
+            </div>
           </div>
 
           {/* Messages */}
@@ -400,7 +433,7 @@ export default function PSDetails() {
             </div>
           )}
 
-          {/* Form Content - Same structure as PSCreate */}
+          {/* Form Content */}
           <div className="p-6 space-y-8">
             {/* Basic Information */}
             <section className="space-y-4">
@@ -419,11 +452,12 @@ export default function PSDetails() {
                     Problem Statement Name <span className="text-red-500">*</span>
                   </label>
                   <input
-                    className="w-full border border-gray-300 rounded-lg px-4 py-2.5 text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"
+                    className="w-full border border-gray-300 rounded-lg px-4 py-2.5 text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent transition disabled:bg-gray-100 disabled:cursor-not-allowed"
                     name="name"
                     value={ps.name}
                     onChange={handleChange}
                     placeholder="e.g. Product Development Challenge"
+                    disabled={!isEditing}
                   />
                 </div>
 
@@ -432,10 +466,11 @@ export default function PSDetails() {
                     Preparation Level <span className="text-red-500">*</span>
                   </label>
                   <select
-                    className="w-full border border-gray-300 rounded-lg px-4 py-2.5 text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"
+                    className="w-full border border-gray-300 rounded-lg px-4 py-2.5 text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent transition disabled:bg-gray-100 disabled:cursor-not-allowed"
                     name="prep"
                     value={ps.prep}
                     onChange={handleChange}
+                    disabled={!isEditing}
                   >
                     {["high", "mid", "low", "no"].map((p) => (
                       <option key={p} value={p}>
@@ -452,25 +487,27 @@ export default function PSDetails() {
                   <input
                     type="number"
                     min="1"
-                    className="w-full border border-gray-300 rounded-lg px-4 py-2.5 text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"
+                    className="w-full border border-gray-300 rounded-lg px-4 py-2.5 text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent transition disabled:bg-gray-100 disabled:cursor-not-allowed"
                     name="teamStrength"
                     value={ps.teamStrength}
                     onChange={handleChange}
                     onWheel={(e) => e.target.blur()}
                     placeholder="e.g. 4"
+                    disabled={!isEditing}
                   />
                 </div>
 
                 <div>
                   <label className="block text-sm font-semibold text-gray-700 mb-1">
-                    Start Date &amp; Time <span className="text-red-500">*</span>
+                    Start Date & Time <span className="text-red-500">*</span>
                   </label>
                   <input
                     type="datetime-local"
-                    className="w-full border border-gray-300 rounded-lg px-4 py-2.5 text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"
+                    className="w-full border border-gray-300 rounded-lg px-4 py-2.5 text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent transition disabled:bg-gray-100 disabled:cursor-not-allowed"
                     name="startDate"
                     value={ps.startDate}
                     onChange={handleChange}
+                    disabled={!isEditing}
                   />
                 </div>
               </div>
@@ -480,11 +517,12 @@ export default function PSDetails() {
                   Problem Statement PDF Link <span className="text-red-500">*</span>
                 </label>
                 <input
-                  className="w-full border border-gray-300 rounded-lg px-4 py-2.5 text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"
+                  className="w-full border border-gray-300 rounded-lg px-4 py-2.5 text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent transition disabled:bg-gray-100 disabled:cursor-not-allowed"
                   name="pdf"
                   value={ps.pdf}
                   onChange={handleChange}
                   placeholder="https://example.com/ps-document.pdf"
+                  disabled={!isEditing}
                 />
               </div>
 
@@ -494,7 +532,8 @@ export default function PSDetails() {
                   name="midEvalExist"
                   checked={ps.midEvalExist}
                   onChange={handleChange}
-                  className="w-5 h-5 text-blue-600 rounded focus:ring-2 focus:ring-blue-500"
+                  className="w-5 h-5 text-blue-600 rounded focus:ring-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed"
+                  disabled={!isEditing}
                 />
                 <span className="text-sm font-semibold text-gray-700">Enable Mid-Term Evaluation</span>
               </label>
@@ -518,10 +557,11 @@ export default function PSDetails() {
                   </label>
                   <input
                     type="datetime-local"
-                    className="w-full border border-gray-300 rounded-lg px-4 py-2.5 text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"
+                    className="w-full border border-gray-300 rounded-lg px-4 py-2.5 text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent transition disabled:bg-gray-100 disabled:cursor-not-allowed"
                     name="registrationDeadline"
                     value={ps.registrationDeadline}
                     onChange={handleChange}
+                    disabled={!isEditing}
                   />
                 </div>
 
@@ -531,10 +571,11 @@ export default function PSDetails() {
                   </label>
                   <input
                     type="datetime-local"
-                    className="w-full border border-gray-300 rounded-lg px-4 py-2.5 text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"
+                    className="w-full border border-gray-300 rounded-lg px-4 py-2.5 text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent transition disabled:bg-gray-100 disabled:cursor-not-allowed"
                     name="submissionDeadline"
                     value={ps.submissionDeadline}
                     onChange={handleChange}
+                    disabled={!isEditing}
                   />
                 </div>
 
@@ -545,10 +586,11 @@ export default function PSDetails() {
                     </label>
                     <input
                       type="datetime-local"
-                      className="w-full border border-gray-300 rounded-lg px-4 py-2.5 text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"
+                      className="w-full border border-gray-300 rounded-lg px-4 py-2.5 text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent transition disabled:bg-gray-100 disabled:cursor-not-allowed"
                       name="midEvalSubmissionDeadline"
                       value={ps.midEvalSubmissionDeadline}
                       onChange={handleChange}
+                      disabled={!isEditing}
                     />
                   </div>
                 )}
@@ -573,12 +615,13 @@ export default function PSDetails() {
                 <input
                   type="number"
                   min="0"
-                  className="w-full border border-gray-300 rounded-lg px-4 py-2.5 text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"
+                  className="w-full border border-gray-300 rounded-lg px-4 py-2.5 text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent transition disabled:bg-gray-100 disabled:cursor-not-allowed"
                   name="points"
                   value={ps.points}
                   onChange={handleChange}
                   onWheel={(e) => e.target.blur()}
                   placeholder="e.g. 300"
+                  disabled={!isEditing}
                 />
               </div>
 
@@ -609,11 +652,12 @@ export default function PSDetails() {
                     <input
                       type="number"
                       min="0"
-                      className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"
+                      className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent transition disabled:bg-gray-100 disabled:cursor-not-allowed"
                       value={ps.overallPointsDistribution[0]}
                       onChange={(e) => handleOverallPointsChange(0, e.target.value)}
                       onWheel={(e) => e.target.blur()}
                       placeholder="0"
+                      disabled={!isEditing}
                     />
                   </div>
                   <div>
@@ -623,11 +667,12 @@ export default function PSDetails() {
                     <input
                       type="number"
                       min="0"
-                      className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"
+                      className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent transition disabled:bg-gray-100 disabled:cursor-not-allowed"
                       value={ps.overallPointsDistribution[1]}
                       onChange={(e) => handleOverallPointsChange(1, e.target.value)}
                       onWheel={(e) => e.target.blur()}
                       placeholder="0"
+                      disabled={!isEditing}
                     />
                   </div>
                   {ps.midEvalExist && (
@@ -638,11 +683,12 @@ export default function PSDetails() {
                       <input
                         type="number"
                         min="0"
-                        className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"
+                        className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent transition disabled:bg-gray-100 disabled:cursor-not-allowed"
                         value={ps.overallPointsDistribution[2]}
                         onChange={(e) => handleOverallPointsChange(2, e.target.value)}
                         onWheel={(e) => e.target.blur()}
                         placeholder="0"
+                        disabled={!isEditing}
                       />
                     </div>
                   )}
@@ -676,7 +722,8 @@ export default function PSDetails() {
                   <button
                     type="button"
                     onClick={() => addArrayItem("submissionPointsDistribution", emptyPointsItem)}
-                    className="bg-blue-600 text-white px-4 py-2 rounded-lg text-xs font-semibold hover:bg-blue-700 transition shadow-sm"
+                    disabled={!isEditing}
+                    className="bg-blue-600 text-white px-4 py-2 rounded-lg text-xs font-semibold hover:bg-blue-700 transition shadow-sm disabled:bg-gray-400 disabled:cursor-not-allowed"
                   >
                     + Add Criterion
                   </button>
@@ -684,29 +731,32 @@ export default function PSDetails() {
                 {ps.submissionPointsDistribution.map((item, idx) => (
                   <div key={idx} className="flex gap-2 mb-2">
                     <input
-                      className="border border-gray-300 rounded-lg px-3 py-2 text-sm flex-1 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                      className="border border-gray-300 rounded-lg px-3 py-2 text-sm flex-1 focus:ring-2 focus:ring-blue-500 focus:border-transparent disabled:bg-gray-100 disabled:cursor-not-allowed"
                       placeholder="Criterion name"
                       value={item.field}
                       onChange={(e) =>
                         handleArrayChange("submissionPointsDistribution", idx, "field", e.target.value)
                       }
+                      disabled={!isEditing}
                     />
                     <input
                       type="number"
                       min="0"
                       max="100"
-                      className="border border-gray-300 rounded-lg px-3 py-2 text-sm w-24 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                      className="border border-gray-300 rounded-lg px-3 py-2 text-sm w-24 focus:ring-2 focus:ring-blue-500 focus:border-transparent disabled:bg-gray-100 disabled:cursor-not-allowed"
                       placeholder="%"
                       value={item.weightage}
                       onChange={(e) =>
                         handleArrayChange("submissionPointsDistribution", idx, "weightage", e.target.value)
                       }
                       onWheel={(e) => e.target.blur()}
+                      disabled={!isEditing}
                     />
                     <button
                       type="button"
                       onClick={() => removeArrayItem("submissionPointsDistribution", idx)}
-                      className="bg-red-500 text-white px-3 py-2 rounded-lg text-xs hover:bg-red-600 transition"
+                      disabled={!isEditing}
+                      className="bg-red-500 text-white px-3 py-2 rounded-lg text-xs hover:bg-red-600 transition disabled:bg-gray-400 disabled:cursor-not-allowed"
                     >
                       Remove
                     </button>
@@ -729,7 +779,8 @@ export default function PSDetails() {
                   <button
                     type="button"
                     onClick={() => addArrayItem("pptPointsDistribution", emptyPointsItem)}
-                    className="bg-blue-600 text-white px-4 py-2 rounded-lg text-xs font-semibold hover:bg-blue-700 transition shadow-sm"
+                    disabled={!isEditing}
+                    className="bg-blue-600 text-white px-4 py-2 rounded-lg text-xs font-semibold hover:bg-blue-700 transition shadow-sm disabled:bg-gray-400 disabled:cursor-not-allowed"
                   >
                     + Add Criterion
                   </button>
@@ -737,29 +788,32 @@ export default function PSDetails() {
                 {ps.pptPointsDistribution.map((item, idx) => (
                   <div key={idx} className="flex gap-2 mb-2">
                     <input
-                      className="border border-gray-300 rounded-lg px-3 py-2 text-sm flex-1 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                      className="border border-gray-300 rounded-lg px-3 py-2 text-sm flex-1 focus:ring-2 focus:ring-blue-500 focus:border-transparent disabled:bg-gray-100 disabled:cursor-not-allowed"
                       placeholder="Criterion name"
                       value={item.field}
                       onChange={(e) =>
                         handleArrayChange("pptPointsDistribution", idx, "field", e.target.value)
                       }
+                      disabled={!isEditing}
                     />
                     <input
                       type="number"
                       min="0"
                       max="100"
-                      className="border border-gray-300 rounded-lg px-3 py-2 text-sm w-24 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                      className="border border-gray-300 rounded-lg px-3 py-2 text-sm w-24 focus:ring-2 focus:ring-blue-500 focus:border-transparent disabled:bg-gray-100 disabled:cursor-not-allowed"
                       placeholder="%"
                       value={item.weightage}
                       onChange={(e) =>
                         handleArrayChange("pptPointsDistribution", idx, "weightage", e.target.value)
                       }
                       onWheel={(e) => e.target.blur()}
+                      disabled={!isEditing}
                     />
                     <button
                       type="button"
                       onClick={() => removeArrayItem("pptPointsDistribution", idx)}
-                      className="bg-red-500 text-white px-3 py-2 rounded-lg text-xs hover:bg-red-600 transition"
+                      disabled={!isEditing}
+                      className="bg-red-500 text-white px-3 py-2 rounded-lg text-xs hover:bg-red-600 transition disabled:bg-gray-400 disabled:cursor-not-allowed"
                     >
                       Remove
                     </button>
@@ -783,7 +837,8 @@ export default function PSDetails() {
                     <button
                       type="button"
                       onClick={() => addArrayItem("midEvalPointsDistribution", emptyPointsItem)}
-                      className="bg-blue-600 text-white px-4 py-2 rounded-lg text-xs font-semibold hover:bg-blue-700 transition shadow-sm"
+                      disabled={!isEditing}
+                      className="bg-blue-600 text-white px-4 py-2 rounded-lg text-xs font-semibold hover:bg-blue-700 transition shadow-sm disabled:bg-gray-400 disabled:cursor-not-allowed"
                     >
                       + Add Criterion
                     </button>
@@ -791,29 +846,32 @@ export default function PSDetails() {
                   {ps.midEvalPointsDistribution.map((item, idx) => (
                     <div key={idx} className="flex gap-2 mb-2">
                       <input
-                        className="border border-gray-300 rounded-lg px-3 py-2 text-sm flex-1 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                        className="border border-gray-300 rounded-lg px-3 py-2 text-sm flex-1 focus:ring-2 focus:ring-blue-500 focus:border-transparent disabled:bg-gray-100 disabled:cursor-not-allowed"
                         placeholder="Criterion name"
                         value={item.field}
                         onChange={(e) =>
                           handleArrayChange("midEvalPointsDistribution", idx, "field", e.target.value)
                         }
+                        disabled={!isEditing}
                       />
                       <input
                         type="number"
                         min="0"
                         max="100"
-                        className="border border-gray-300 rounded-lg px-3 py-2 text-sm w-24 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                        className="border border-gray-300 rounded-lg px-3 py-2 text-sm w-24 focus:ring-2 focus:ring-blue-500 focus:border-transparent disabled:bg-gray-100 disabled:cursor-not-allowed"
                         placeholder="%"
                         value={item.weightage}
                         onChange={(e) =>
                           handleArrayChange("midEvalPointsDistribution", idx, "weightage", e.target.value)
                         }
                         onWheel={(e) => e.target.blur()}
+                        disabled={!isEditing}
                       />
                       <button
                         type="button"
                         onClick={() => removeArrayItem("midEvalPointsDistribution", idx)}
-                        className="bg-red-500 text-white px-3 py-2 rounded-lg text-xs hover:bg-red-600 transition"
+                        disabled={!isEditing}
+                        className="bg-red-500 text-white px-3 py-2 rounded-lg text-xs hover:bg-red-600 transition disabled:bg-gray-400 disabled:cursor-not-allowed"
                       >
                         Remove
                       </button>
@@ -840,7 +898,8 @@ export default function PSDetails() {
                   <button
                     type="button"
                     onClick={() => addArrayItem("submissionDeliverables", emptyDeliverable)}
-                    className="bg-blue-600 text-white px-4 py-2 rounded-lg text-xs font-semibold hover:bg-blue-700 transition shadow-sm"
+                    disabled={!isEditing}
+                    className="bg-blue-600 text-white px-4 py-2 rounded-lg text-xs font-semibold hover:bg-blue-700 transition shadow-sm disabled:bg-gray-400 disabled:cursor-not-allowed"
                   >
                     + Add Deliverable
                   </button>
@@ -849,19 +908,21 @@ export default function PSDetails() {
                 {ps.submissionDeliverables.map((item, idx) => (
                   <div key={idx} className="flex gap-2 mb-2">
                     <input
-                      className="border border-gray-300 rounded-lg px-3 py-2 text-sm flex-1 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                      className="border border-gray-300 rounded-lg px-3 py-2 text-sm flex-1 focus:ring-2 focus:ring-blue-500 focus:border-transparent disabled:bg-gray-100 disabled:cursor-not-allowed"
                       placeholder="Deliverable name"
                       value={item.name}
                       onChange={(e) =>
                         handleArrayChange("submissionDeliverables", idx, "name", e.target.value)
                       }
+                      disabled={!isEditing}
                     />
                     <select
-                      className="border border-gray-300 rounded-lg px-3 py-2 text-sm w-32 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                      className="border border-gray-300 rounded-lg px-3 py-2 text-sm w-32 focus:ring-2 focus:ring-blue-500 focus:border-transparent disabled:bg-gray-100 disabled:cursor-not-allowed"
                       value={item.type}
                       onChange={(e) =>
                         handleArrayChange("submissionDeliverables", idx, "type", e.target.value)
                       }
+                      disabled={!isEditing}
                     >
                       {["url", "pdf", "zip", "ipynb", "doc", "pptx", "png", "jpg"].map((t) => (
                         <option key={t} value={t}>
@@ -872,7 +933,8 @@ export default function PSDetails() {
                     <button
                       type="button"
                       onClick={() => removeArrayItem("submissionDeliverables", idx)}
-                      className="bg-red-500 text-white px-3 py-2 rounded-lg text-xs hover:bg-red-600 transition"
+                      disabled={!isEditing}
+                      className="bg-red-500 text-white px-3 py-2 rounded-lg text-xs hover:bg-red-600 transition disabled:bg-gray-400 disabled:cursor-not-allowed"
                     >
                       Remove
                     </button>
@@ -883,11 +945,12 @@ export default function PSDetails() {
               {ps.midEvalExist && (
                 <div className="bg-gray-50 border border-gray-200 rounded-lg p-4">
                   <div className="flex items-center justify-between mb-3">
-                    <h3 className="text-sm font-bold text-gray-800">Mid-Term Evaluation Files</h3>
+                    <h3 className="text-sm font-bold text-gray-800">Mid-Term Submission Files</h3>
                     <button
                       type="button"
                       onClick={() => addArrayItem("midEvalSubmissionDeliverables", emptyDeliverable)}
-                      className="bg-blue-600 text-white px-4 py-2 rounded-lg text-xs font-semibold hover:bg-blue-700 transition shadow-sm"
+                      disabled={!isEditing}
+                      className="bg-blue-600 text-white px-4 py-2 rounded-lg text-xs font-semibold hover:bg-blue-700 transition shadow-sm disabled:bg-gray-400 disabled:cursor-not-allowed"
                     >
                       + Add Deliverable
                     </button>
@@ -896,19 +959,21 @@ export default function PSDetails() {
                   {ps.midEvalSubmissionDeliverables.map((item, idx) => (
                     <div key={idx} className="flex gap-2 mb-2">
                       <input
-                        className="border border-gray-300 rounded-lg px-3 py-2 text-sm flex-1 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                        className="border border-gray-300 rounded-lg px-3 py-2 text-sm flex-1 focus:ring-2 focus:ring-blue-500 focus:border-transparent disabled:bg-gray-100 disabled:cursor-not-allowed"
                         placeholder="Deliverable name"
                         value={item.name}
                         onChange={(e) =>
                           handleArrayChange("midEvalSubmissionDeliverables", idx, "name", e.target.value)
                         }
+                        disabled={!isEditing}
                       />
                       <select
-                        className="border border-gray-300 rounded-lg px-3 py-2 text-sm w-32 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                        className="border border-gray-300 rounded-lg px-3 py-2 text-sm w-32 focus:ring-2 focus:ring-blue-500 focus:border-transparent disabled:bg-gray-100 disabled:cursor-not-allowed"
                         value={item.type}
                         onChange={(e) =>
                           handleArrayChange("midEvalSubmissionDeliverables", idx, "type", e.target.value)
                         }
+                        disabled={!isEditing}
                       >
                         {["url", "pdf", "zip", "ipynb", "doc", "pptx", "png", "jpg"].map((t) => (
                           <option key={t} value={t}>
@@ -919,7 +984,8 @@ export default function PSDetails() {
                       <button
                         type="button"
                         onClick={() => removeArrayItem("midEvalSubmissionDeliverables", idx)}
-                        className="bg-red-500 text-white px-3 py-2 rounded-lg text-xs hover:bg-red-600 transition"
+                        disabled={!isEditing}
+                        className="bg-red-500 text-white px-3 py-2 rounded-lg text-xs hover:bg-red-600 transition disabled:bg-gray-400 disabled:cursor-not-allowed"
                       >
                         Remove
                       </button>
@@ -929,7 +995,7 @@ export default function PSDetails() {
               )}
             </section>
 
-            {/* Roles & Links */}
+            {/* Evaluators */}
             <section className="space-y-4">
               <div className="flex items-center gap-3 pb-2 border-b-2 border-slate-200">
                 <div className="w-8 h-8 bg-indigo-100 rounded-lg flex items-center justify-center">
@@ -937,48 +1003,51 @@ export default function PSDetails() {
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
                   </svg>
                 </div>
-                <h2 className="text-xl font-bold text-gray-800">Roles &amp; Additional Links</h2>
+                <h2 className="text-xl font-bold text-gray-800">Evaluators</h2>
               </div>
 
               <div className="grid gap-4 md:grid-cols-2">
                 <div>
                   <label className="block text-sm font-semibold text-gray-700 mb-1">
-                    Judge User ID <span className="text-gray-500 text-xs">(optional)</span>
+                    Judge Username
                   </label>
                   <input
-                    className="w-full border border-gray-300 rounded-lg px-4 py-2.5 text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"
+                    className="w-full border border-gray-300 rounded-lg px-4 py-2.5 text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent transition disabled:bg-gray-100 disabled:cursor-not-allowed"
                     name="judge"
                     value={ps.judge}
                     onChange={handleChange}
-                    placeholder="MongoDB ObjectId"
+                    placeholder="judge_username"
+                    disabled={!isEditing}
                   />
                 </div>
 
                 <div>
                   <label className="block text-sm font-semibold text-gray-700 mb-1">
-                    Company POC User ID <span className="text-gray-500 text-xs">(optional)</span>
+                    Company POC Username
                   </label>
                   <input
-                    className="w-full border border-gray-300 rounded-lg px-4 py-2.5 text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"
+                    className="w-full border border-gray-300 rounded-lg px-4 py-2.5 text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent transition disabled:bg-gray-100 disabled:cursor-not-allowed"
                     name="companyPOC"
                     value={ps.companyPOC}
                     onChange={handleChange}
-                    placeholder="MongoDB ObjectId"
+                    placeholder="company_poc_username"
+                    disabled={!isEditing}
                   />
                 </div>
+              </div>
 
-                <div className="md:col-span-2">
-                  <label className="block text-sm font-semibold text-gray-700 mb-1">
-                    PPT Schedule URL <span className="text-gray-500 text-xs">(optional)</span>
-                  </label>
-                  <input
-                    className="w-full border border-gray-300 rounded-lg px-4 py-2.5 text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"
-                    name="pptSchedule"
-                    value={ps.pptSchedule}
-                    onChange={handleChange}
-                    placeholder="https://example.com/schedule"
-                  />
-                </div>
+              <div>
+                <label className="block text-sm font-semibold text-gray-700 mb-1">
+                  PPT Schedule Link
+                </label>
+                <input
+                  className="w-full border border-gray-300 rounded-lg px-4 py-2.5 text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent transition disabled:bg-gray-100 disabled:cursor-not-allowed"
+                  name="pptSchedule"
+                  value={ps.pptSchedule}
+                  onChange={handleChange}
+                  placeholder="https://example.com/schedule"
+                  disabled={!isEditing}
+                />
               </div>
             </section>
           </div>
@@ -987,14 +1056,14 @@ export default function PSDetails() {
           <div className="px-6 pb-6 space-y-3">
             <button
               onClick={handleUpdate}
-              disabled={saving}
+              disabled={saving || !isEditing}
               className="w-full bg-gradient-to-r from-blue-600 to-blue-700 text-white py-3.5 rounded-xl hover:from-blue-700 hover:to-blue-800 disabled:from-gray-400 disabled:to-gray-500 disabled:cursor-not-allowed text-sm font-bold transition-all shadow-lg hover:shadow-xl"
             >
               {saving ? "Updating Problem Statement..." : "Save Changes"}
             </button>
             <button
               onClick={handleDelete}
-              disabled={deleting}
+              disabled={deleting || !isEditing}
               className="w-full bg-gradient-to-r from-red-600 to-red-700 text-white py-3.5 rounded-xl hover:from-red-700 hover:to-red-800 disabled:from-gray-400 disabled:to-gray-500 disabled:cursor-not-allowed text-sm font-bold transition-all shadow-lg hover:shadow-xl"
             >
               {deleting ? "Deleting..." : "Delete Problem Statement"}

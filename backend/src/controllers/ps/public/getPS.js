@@ -23,7 +23,6 @@ export const getPS = async (req, res) => {
     psList = await Promise.all(startedPS.map(async (ps) => {
       let teamRegistered = false;
 
-      // If we have hostel info, check if team exists
       if (hostelId) {
         const teamExists = await Team.findOne({
           ps: ps._id,
