@@ -191,7 +191,9 @@ export function handleRouteAccess(req, res, next) {
   }
 
   if (role === "TechSecy") {
-    const allowed = [];
+    const allowed = [
+      "/v1/ps"
+    ];
     const startsWithAllowed = [
       "/v1/techsecy/register-team/",
       "/v1/techsecy/get-team/",
@@ -205,8 +207,7 @@ export function handleRouteAccess(req, res, next) {
       "/v1/pssubmission/submit",
       "/v1/pssubmission/view/",
       "/v1/pssubmission/upload-temp",
-      "/v1/ps/protected",
-      "/v1/ps/"
+      "/v1/ps/protected"
     ];
     if (
       !allowed.includes(route) &&
