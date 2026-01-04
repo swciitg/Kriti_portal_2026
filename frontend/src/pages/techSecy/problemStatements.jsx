@@ -73,6 +73,25 @@ export default function ProblemStatementsForTechSecy() {
   }, []);
 
 
+  async function DownloadPDF(url , filename) {
+      try {
+        // const res = await fetch(url)
+        // const blob = await res.blob();
+        // const url = window.URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        a.href = url;
+        a.target = "_blank";
+        a.rel = "noopener noreferrer";
+        a.download = filename;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+      } catch (error) {
+        setError("Some error occured in Downloading Problem Statment")
+      }
+  }
+
+
 
   const filteredPS = problemStatements.filter((ps) =>
     ps.name.toLowerCase().includes(searchTerm.toLowerCase())
@@ -241,8 +260,8 @@ export default function ProblemStatementsForTechSecy() {
                 <div className="p-6 pt-0">
                   <button
                     onClick={() => {
-                        console.log(ps.pdf)
-                        setPdfUrl(ps.pdf)
+                        // setPdfUrl(ps.pdf)
+                        DownloadPDF(ps.pdf , ps.name + ".pdf")
                     }}
                     className="w-full bg-gradient-to-r from-blue-600 to-blue-700 text-white py-3 rounded-xl font-semibold hover:from-blue-700 hover:to-blue-800 transition-all shadow-md hover:shadow-lg cursor-pointer"
                   >
