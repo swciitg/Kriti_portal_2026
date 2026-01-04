@@ -26,19 +26,8 @@ export default function PSScreen() {
     const fetchPS = async () => {
       try {
         setLoading(true);
-        const token = localStorage.getItem("accessToken");
-        const headers = {
-          "Content-Type": "application/json"
-        };
-        
-        // Add authorization header if token exists
-        if (token) {
-          headers["Authorization"] = `Bearer ${token}`;
-        }
-
         const res = await fetch(`${BACKEND_URL}/v1/techsecy/getps`, {
           method: "GET",
-          headers: headers,
           credentials: "include",
         });
         const data = await res.json();
