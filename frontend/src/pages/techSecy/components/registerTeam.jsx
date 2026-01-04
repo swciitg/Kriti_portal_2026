@@ -4,6 +4,19 @@ import { BACKEND_URL } from "../../../constants";
 import { userContext } from "../../../context/userContext";
 import TeamRegistrationGuidelines from "../../../components/TeamRegistrationGuidelines";
 
+/**
+ * 
+ * Documentation of How profile pictures are handled
+ * 
+ * by srinjoy 04-01-2026 from branch tb_needs
+ * 
+ * The profile picture is mandatory input field
+ * The data of teamMembers are put inside the formData
+ * The format is teamMembers[index][field] for the formData which is sent as body to the api /v1/techsecy/
+ * In the backend multer is used to receive the files
+ * The req.files are gets all the files and file is stored in (root)/uploads/team_ids/{psId}/{filename}
+ */
+
 export default function RegisterTeam() {
   const { psId } = useParams();
   const navigate = useNavigate();
