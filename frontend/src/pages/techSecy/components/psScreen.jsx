@@ -26,7 +26,7 @@ export default function PSScreen() {
     const fetchPS = async () => {
       try {
         setLoading(true);
-        const token = localStorage.getItem("token");
+        const token = localStorage.getItem("accessToken");
         const headers = {
           "Content-Type": "application/json"
         };
