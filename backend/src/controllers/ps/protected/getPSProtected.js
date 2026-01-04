@@ -18,6 +18,12 @@ export async function getPSProtected(req, res) {
             return curr_date > ps_start_date;
         })
 
+        psList = psList.map(item => {
+            const obj = item.toObject();
+            delete obj.startDate;
+            return obj;
+        });
+
         return res.status(200).json({
             success : true ,
             ps : psList

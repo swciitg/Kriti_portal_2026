@@ -228,12 +228,12 @@ export default function ProblemStatementsForTechSecy() {
                         {ps.points} pts
                       </span>
                     </div>
-                    <div className="flex items-center justify-between">
+                    {/* <div className="flex items-center justify-between">
                       <span className="text-sm text-gray-600 font-medium">Start Date</span>
                       <span className="text-sm text-gray-800 font-semibold">
                         {ps.startDate.substr(0 , 10)} {" at "} {ps.startDate.substr(11)}
                       </span>
-                    </div>
+                    </div> */}
                   </div>
                 </div>
 
