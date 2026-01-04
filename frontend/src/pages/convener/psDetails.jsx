@@ -3,6 +3,7 @@ import { useParams, useNavigate } from "react-router-dom";
 import { useContext, useEffect, useState } from "react";
 import { BACKEND_URL } from "../../constants.js";
 import { userContext } from "../../context/userContext.jsx";
+import { convertPayloadDatesToUTC, getLocalTimezone, convertUTCToLocalDatetimeInput } from "../../utils/timezoneUtils.js";
 
 const emptyDeliverable = { name: "", type: "url" };
 const emptyPointsItem = { field: "", weightage: 0 };
@@ -72,7 +73,8 @@ export default function PSDetails() {
 
         const formatDate = (dateStr) => {
           if (!dateStr) return "";
-          return new Date(dateStr).toISOString().slice(0, 16);
+          // Convert UTC date from backend to local datetime-local format
+          return convertUTCToLocalDatetimeInput(dateStr);
         };
 
         setPs({
@@ -258,7 +260,15 @@ export default function PSDetails() {
       return;
     }
 
-    const payload = {
+    // Convert datetime fields from local timezone to UTC
+    const datetimeFields = [
+      'startDate',
+      'submissionDeadline',
+      'registrationDeadline',
+      'midEvalSubmissionDeadline'
+    ];
+
+    const basePayload = {
       ...ps,
       points: Number(ps.points),
       teamStrength: Number(ps.teamStrength),
@@ -268,9 +278,13 @@ export default function PSDetails() {
       pptSchedule: ps.pptSchedule?.trim() || undefined,
     };
 
+    // Convert datetime fields to UTC
+    const payload = convertPayloadDatesToUTC(basePayload, datetimeFields);
+
     try {
       setSaving(true);
       const token = localStorage.getItem("accessToken");
+      
       const res = await fetch(`${BACKEND_URL}/v1/convener/update-ps/${id}`, {
         method: "PUT",
         headers: {

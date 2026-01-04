@@ -1,0 +1,47 @@
+name: Deploy to Production
+
+on:
+  workflow_dispatch:  # Enables manual trigger
+
+jobs:
+  build-frontend:
+    name: Building Frontend
+    runs-on: ubuntu-latest
+    steps:
+      - name: Establish ssh connection
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.SSH_HOST }}
+          key: ${{ secrets.SSH_KEY }}
+          passphrase: ${{ secrets.SSH_PASSPHRASE }}
+          port: ${{ secrets.SSH_PORT }}
+          username: ${{ secrets.SSH_USERNAME }}
+          script: |
+            cd /webapps/Kriti_portal_2026/frontend
+            sudo chown "$USER":"$USER" /home/"$USER"/.docker -R
+            sudo chmod g+rwx "$HOME/.docker" -R
+            git checkout master
+            git fetch
+            git pull
+            docker compose -f docker-compose.yml up -d --build
+
+  build-backend:
+    name: Building Backend
+    runs-on: ubuntu-latest
+    steps:
+      - name: Establish ssh connection
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.SSH_HOST }}
+          key: ${{ secrets.SSH_KEY }}
+          passphrase: ${{ secrets.SSH_PASSPHRASE }}
+          port: ${{ secrets.SSH_PORT }}
+          username: ${{ secrets.SSH_USERNAME }}
+          script: |
+            cd /webapps/Kriti_portal_2026/backend
+            sudo chown "$USER":"$USER" /home/"$USER"/.docker -R
+            sudo chmod g+rwx "$HOME/.docker" -R
+            git checkout master
+            git fetch
+            git pull
+            docker compose -f docker-compose.yml up -d --build
