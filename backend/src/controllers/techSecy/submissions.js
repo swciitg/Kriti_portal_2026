@@ -414,6 +414,11 @@ export const createSubmission = async (req, res) => {
       submissionPointsDistribution: [],
     });
 
+    await Team.updateOne(
+      { techSecy: techSecy._id, ps: psId },
+      { $set: { submitted: true } }
+    );
+
     res.status(201).json({ success: true, submission });
   } catch (err) {
     console.error("Submission error:", err);
