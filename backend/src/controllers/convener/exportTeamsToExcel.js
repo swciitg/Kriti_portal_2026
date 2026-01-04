@@ -1,6 +1,24 @@
 import team from "../../model/team.js";
 import ExcelJS from "exceljs";
 
+function prependZeroes(item , req_len) {
+    if(item === undefined || item === null) {
+        return null;
+      }
+    let res = item.toString()
+    if(res.length >= req_len) {
+        return item;
+    }
+
+    let zeroes_neeeded = req_len - res.length
+    while(zeroes_neeeded) {
+        zeroes_neeeded--;
+        res = "0" + res;
+      }
+
+    return res
+  }
+
 export async function exportTeamsToExcel(req, res) {
   try {
     // Fetch all teams with populated references
@@ -37,6 +55,9 @@ export async function exportTeamsToExcel(req, res) {
       { header: "Year of Study", key: "yearOfStudy", width: 15 },
       { header: "Phone Number", key: "phoneNumber", width: 18 },
       { header: "Department", key: "department", width: 25 },
+      { header: "Discord ID", key: "discordId", width: 25 },
+      { header: "Discord Username", key: "discordUsername", width: 25 },
+      { header: "College ID Link", key: "collegeIdlink", width: 25 },
       { header: "Registered On", key: "registeredOn", width: 20 },
     ];
 
@@ -52,7 +73,7 @@ export async function exportTeamsToExcel(req, res) {
     // Add data rows
     allTeams.forEach((teamData) => {
       const baseInfo = {
-        hostelId: teamData.hostelId,
+        hostelId: prependZeroes(teamData.hostelId , 4),
         psName: teamData.ps?.name || "N/A",
         prep: teamData.ps?.prep || "N/A",
         teamSize: teamData.teamMembers.length,
@@ -71,6 +92,9 @@ export async function exportTeamsToExcel(req, res) {
           yearOfStudy: member.yearOfStudy,
           phoneNumber: member.phoneNumber,
           department: member.department,
+          discordId: member.discordId || "NA",
+          discordUsername: member.discordUsername || "NA",
+          collegeIdlink: member.profilePicture ? process.env.BACKEND_URL + member.profilePicture : "NA"
         });
       });
 
