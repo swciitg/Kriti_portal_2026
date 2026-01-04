@@ -4,9 +4,6 @@ import Team from "../../../model/team.js";
 
 export const getPS = async (req, res) => {
   try {
-    console.log("Fetching started PS");
-    console.log("User:", req.user);
-
     const startedPS = await PS.find({
       startDate: { $lte: new Date() }
     }).select("_id name startDate prep midEvalExist pdf points teamStrength registrationDeadline");
@@ -19,9 +16,6 @@ export const getPS = async (req, res) => {
       const techSecyData = await TechSecy.findOne({ user: req.user._id });
       if (techSecyData) {
         hostelId = techSecyData.hostelId;
-        console.log("TechSecy found with hostelId:", hostelId);
-      } else {
-        console.log("TechSecy not found for user:", req.user._id);
       }
     } 
 
@@ -29,14 +23,12 @@ export const getPS = async (req, res) => {
     psList = await Promise.all(startedPS.map(async (ps) => {
       let teamRegistered = false;
 
-      // If we have hostel info, check if team exists
       if (hostelId) {
         const teamExists = await Team.findOne({
           ps: ps._id,
           hostelId: hostelId
         });
         teamRegistered = !!teamExists;
-        console.log(`PS: ${ps.name}, hostelId: ${hostelId}, teamExists: ${teamRegistered}`);
       }
 
       const psObj = ps.toObject ? ps.toObject() : JSON.parse(JSON.stringify(ps));

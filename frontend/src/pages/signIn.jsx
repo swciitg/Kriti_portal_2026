@@ -150,7 +150,7 @@ export default function SignIn() {
               <div className="grid grid-cols-2 gap-3">
                 {[
                   ["Convener", "Kriti Convener"],
-                  ["Company", "Company POC"],
+                  ["Company", "Submission Judge"],
                   ["Judge", "Problem Statement Judge"],
                   ["TechSecy", "Hostel Technical Secretary"]
                 ].map(r => (

@@ -42,7 +42,7 @@ export default function OnboardUserPage() {
       try {
         setError("");
         const token = localStorage.getItem("accessToken");
-        const res = await fetch(`${BACKEND_URL}/v1/ps` , {
+        const res = await fetch(`${BACKEND_URL}/v1/ps/a` , {
           method : "GET" , 
           headers : {
              "Content-Type": "application/json",
@@ -99,10 +99,7 @@ export default function OnboardUserPage() {
       setLoading(false)
     }
   }
-
-  useEffect(() => {
-    console.log(psList)
-  },[psList])
+  
 
   return (
     <>
