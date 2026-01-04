@@ -3,6 +3,7 @@ import { userContext } from "../../context/userContext";
 import { useContext, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { BACKEND_URL } from "../../constants";
+import prependZeroes from "../../utils/prependZeroes";
 
 export default function TeamRequestAll() {
   const navigate = useNavigate();
@@ -253,7 +254,7 @@ export default function TeamRequestAll() {
                 >
                   <div>
                     <h3 className="text-lg font-semibold text-gray-800">
-                      Hostel ID: {req.hostelId}
+                      Hostel ID: {prependZeroes(req.hostelId , 4)}
                     </h3>
                     <p className="mt-1 text-gray-600">
                       <b>PS Name:</b> {req.psName}
@@ -369,7 +370,7 @@ export default function TeamRequestAll() {
                   <div className="flex items-start justify-between mb-4">
                     <div>
                       <h3 className="text-xl font-bold text-gray-800">
-                        {team.hostelId}
+                        {prependZeroes(team.hostelId , 4)}
                       </h3>
                       <p className="text-sm text-gray-600 mt-1">
                         {team.ps?.name || "N/A"}
