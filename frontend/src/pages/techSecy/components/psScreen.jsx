@@ -22,37 +22,44 @@ export default function PSScreen() {
     }
   }, [user, navigate]);
 
-  useEffect(() => {
-    const fetchPS = async () => {
-      try {
-        setLoading(true);
-        const res = await fetch(`${BACKEND_URL}/v1/techsecy/getps`, {
-          method: "GET",
-          credentials: "include",
-        });
-        const data = await res.json();
+useEffect(() => {
+  const fetchPS = async () => {
+    try {
+      setLoading(true);
+      const token = localStorage.getItem("accessToken");
+      
+      const res = await fetch(`${BACKEND_URL}/v1/techsecy/getps`, {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": token ? `Bearer ${token}` : "",
+        },
+      });
+      
+      const data = await res.json();
 
-        if (!res.ok) throw new Error(data.message || "Failed to fetch PS");
+      if (!res.ok) throw new Error(data.message || "Failed to fetch PS");
 
-        const filtered = data.ps.map((item) => ({
-          id: item._id,
-          name: item.name,
-          prep: item.prep,
-          teamStrength: item.teamStrength,
-          points: item.points,
-          registrationDeadline: item.registrationDeadline,
-          teamRegistered: item.teamRegistered || false
-        }));
+      const filtered = data.ps.map((item) => ({
+        id: item._id,
+        name: item.name,
+        prep: item.prep,
+        teamStrength: item.teamStrength,
+        points: item.points,
+        registrationDeadline: item.registrationDeadline,
+        teamRegistered: item.teamRegistered || false  // This is the key field
+      }));
 
-        setProblemStatements(filtered);
-      } catch (e) {
-        setError(e.message);
-      } finally {
-        setLoading(false);
-      }
-    };
-    fetchPS();
-  }, []);
+      setProblemStatements(filtered);
+    } catch (e) {
+      setError(e.message);
+    } finally {
+      setLoading(false);
+    }
+  };
+  fetchPS();
+}, []);
+
 
   const handleRegister = (id) => navigate(`/techsecy/register-team/${id}`);
   const handleViewTeam = (id) => navigate(`/techsecy/register-team/${id}`);
