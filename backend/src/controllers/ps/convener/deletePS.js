@@ -3,8 +3,6 @@ import team from "../../../model/team.js";
 import mongoose from "mongoose";
 
 export const deletePS = async (req, res) => {
-  const session = await mongoose.startSession();
-  
   try {
     const { id } = req.params;
 
@@ -16,32 +14,24 @@ export const deletePS = async (req, res) => {
       });
     }
 
-    // Start transaction
-    session.startTransaction();
-
-    // Find the problem statement first
-    const ps = await PS.findById(id).session(session);
+    // Check if PS exists first
+    const ps = await PS.findById(id);
     
     if (!ps) {
-      await session.abortTransaction();
       return res.status(404).json({ 
         success: false,
         message: "Problem statement not found" 
       });
     }
 
-    // Delete all teams registered for this PS
-    const teamsDeleteResult = await team.deleteMany({ 
-      ps: id 
-    }).session(session);
+    // Delete teams FIRST (important order)
+    const teamsDeleteResult = await team.deleteMany({ ps: id });
 
-    // Delete the problem statement
-    await PS.findByIdAndDelete(id).session(session);
+    // Then delete the problem statement
+    await PS.findByIdAndDelete(id);
 
-    // Commit transaction - both operations succeed together
-    await session.commitTransaction();
-
-    console.log(`PS deleted: ${id}, Teams deleted: ${teamsDeleteResult.deletedCount}`);
+    // Log for audit trail
+    console.log(`PS deleted: ${id} (${ps.title}), Teams deleted: ${teamsDeleteResult.deletedCount}`);
 
     res.status(200).json({ 
       success: true,
@@ -54,8 +44,6 @@ export const deletePS = async (req, res) => {
     });
 
   } catch (error) {
-    // Rollback transaction on error - nothing gets deleted
-    await session.abortTransaction();
     console.error("Error deleting problem statement:", error);
     
     res.status(500).json({ 
@@ -63,8 +51,5 @@ export const deletePS = async (req, res) => {
       message: "Failed to delete problem statement",
       error: process.env.NODE_ENV === 'development' ? error.message : undefined
     });
-  } finally {
-    // Always end session
-    session.endSession();
   }
 };

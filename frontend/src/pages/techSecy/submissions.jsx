@@ -151,7 +151,7 @@ export default function SubmissionsPage() {
               </svg>
           </div>
           <h2 className="text-xl font-bold text-gray-900 mb-2">
-            {error.includes("currently available") ? "No Problem Statements for Submission yet!" : "Error Loading Data"}
+            {error.includes("currently available") ? "No Problem Statements for Submission yet!" : "No Problem Statements yet!"}
           </h2>
           <p className="text-gray-600 mb-6">{error}</p>
         </div>
