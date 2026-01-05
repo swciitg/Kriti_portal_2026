@@ -5,15 +5,6 @@ import mongoose from "mongoose";
 export const deletePS = async (req, res) => {
   try {
     const { id } = req.params;
-
-    // Validate MongoDB ObjectId
-    if (!mongoose.Types.ObjectId.isValid(id)) {
-      return res.status(400).json({ 
-        success: false,
-        message: "Invalid problem statement ID format" 
-      });
-    }
-
     // Check if PS exists first
     const ps = await PS.findById(id);
     
