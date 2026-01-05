@@ -71,7 +71,7 @@ export default function SubmissionsPage() {
         setPsList(availablePsList);
         
         if (availablePsList.length === 0) {
-          setError("Comming Soon!");
+          setError("No PS are currently available for submission. Check back later.");
         } else {
           setError("");
         }
@@ -151,7 +151,7 @@ export default function SubmissionsPage() {
               </svg>
           </div>
           <h2 className="text-xl font-bold text-gray-900 mb-2">
-            {error.includes("currently available") ? "No Problem Statements for Submission yet!" : "No Problem Statements yet!"}
+            {error.includes("currently available") ? "No problem statements yet" : "Error Loading Data"}
           </h2>
           <p className="text-gray-600 mb-6">{error}</p>
         </div>
@@ -170,6 +170,7 @@ export default function SubmissionsPage() {
           </div>
           <h2 className="text-2xl font-bold text-gray-900 mb-3">Coming Soon</h2>
           <p className="text-gray-600 mb-2">Problem statements haven't started yet</p>
+          <p className="text-sm text-gray-400">Check back later</p>
         </div>
       </div>
     );
