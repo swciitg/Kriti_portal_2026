@@ -71,7 +71,7 @@ export default function SubmissionsPage() {
         setPsList(availablePsList);
         
         if (availablePsList.length === 0) {
-          setError("No PS are currently available. Check back after the start date.");
+          setError("Comming Soon!");
         } else {
           setError("");
         }
@@ -134,22 +134,26 @@ export default function SubmissionsPage() {
   if (error) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50 flex flex-col items-center justify-center p-4">
-        <div className="bg-white shadow-2xl rounded-2xl p-8 max-w-md w-full text-center border border-red-200">
-          <div className="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
-            <svg className="w-8 h-8 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-            </svg>
+        <div className="bg-white shadow-2xl rounded-2xl p-8 max-w-md w-full text-center border border-gray-200">
+          <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
+            <svg
+                className="w-12 h-12 text-gray-400"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
+                />
+              </svg>
           </div>
           <h2 className="text-xl font-bold text-gray-900 mb-2">
-            {error.includes("currently available") ? "No Active Problem Statements" : "Error Loading Data"}
+            {error.includes("currently available") ? "No Problem Statements for Submission yet!" : "Error Loading Data"}
           </h2>
           <p className="text-gray-600 mb-6">{error}</p>
-          <button
-            onClick={() => window.location.reload()}
-            className="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition font-medium shadow-md hover:shadow-lg"
-          >
-            Refresh Page
-          </button>
         </div>
       </div>
     );
@@ -166,7 +170,6 @@ export default function SubmissionsPage() {
           </div>
           <h2 className="text-2xl font-bold text-gray-900 mb-3">Coming Soon</h2>
           <p className="text-gray-600 mb-2">Problem statements haven't started yet</p>
-          <p className="text-sm text-gray-400">Check back after the start date</p>
         </div>
       </div>
     );

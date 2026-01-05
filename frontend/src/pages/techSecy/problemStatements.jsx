@@ -203,7 +203,7 @@ export default function ProblemStatementsForTechSecy() {
             <p className="text-gray-500">
               {searchTerm
                 ? "Try adjusting your search terms"
-                : "Create your first problem statement to get started"}
+                : "Comming soon!"}
             </p>
           </div>
         )}
