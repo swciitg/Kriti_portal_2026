@@ -133,7 +133,7 @@ useEffect(() => {
                 Back to Dashboard
               </button>
                <h1 className="text-4xl font-bold text-gray-800 mb-2">
-                Problem Statements
+                Team Registrations
               </h1>
               <p className="text-gray-600">
                 Choose a problem statement to register your team or view your existing team

@@ -13,8 +13,8 @@ export default function TeamRegistrationGuidelines({ variant = "full" }) {
     },
     {
       number: "3",
-      title: "Review & Submit",
-      description: "Double-check all details and click 'Register Team' to complete registration. Your team will not be registered until you submit."
+      title: "Submit",
+      description: "Double-check all details and click 'Register Team' to complete registration. Once submitted, details cannot be changed."
     }
   ];
 
