@@ -154,7 +154,7 @@ export default function SubmissionsPage() {
           <h2 className="text-xl font-bold text-gray-900 mb-2">
             {error.includes("currently available") ? "No problem statements yet" : "No problem statements yet"}
           </h2>
-          <p className="text-gray-600 mb-6">{error}. Please register your team to submit</p>
+          <p className="text-gray-600 mb-6">{error} Problem Statements will be visible only after team registration.</p>
         </div>
       </div>
     );
