@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { useContext, useEffect, useState } from "react";
 import { BACKEND_URL } from "../../constants";
 import { userContext } from "../../context/userContext";
+import { convertPayloadDatesToUTC, getLocalTimezone } from "../../utils/timezoneUtils";
 
 const emptyDeliverable = { name: "", type: "url" };
 const emptyPointsItem = { field: "", weightage: 0 };
@@ -145,9 +146,9 @@ export default function PSCreate() {
     if (!ps.submissionDeadline) return "Submission deadline is required.";
     if (!ps.registrationDeadline) return "Registration deadline is required.";
     if (!ps.pdf.trim()) return "PDF link is required.";
-    if (ps.points === "" || ps.points === null || Number(ps.points) === 0) 
+    if (ps.points === "" || ps.points === null || Number(ps.points) === 0)
       return "Points are required and must be greater than 0.";
-    if (ps.teamStrength === "" || Number(ps.teamStrength) < 1) 
+    if (ps.teamStrength === "" || Number(ps.teamStrength) < 1)
       return "Team strength is required and must be at least 1.";
 
     const urlRegex = /^https?:\/\/.+/;
@@ -196,7 +197,15 @@ export default function PSCreate() {
       return;
     }
 
-    const payload = {
+    // Convert datetime fields from local timezone to UTC
+    const datetimeFields = [
+      'startDate',
+      'submissionDeadline',
+      'registrationDeadline',
+      'midEvalSubmissionDeadline'
+    ];
+    
+    const basePayload = {
       ...ps,
       points: Number(ps.points),
       teamStrength: Number(ps.teamStrength),
@@ -206,9 +215,13 @@ export default function PSCreate() {
       pptSchedule: ps.pptSchedule.trim() || undefined,
     };
 
+    // Convert datetime fields to UTC
+    const payload = convertPayloadDatesToUTC(basePayload, datetimeFields);
+
     try {
       setSaving(true);
       const token = localStorage.getItem("accessToken");
+      
       const res = await fetch(`${BACKEND_URL}/v1/convener/create-ps`, {
         method: "POST",
         headers: {
@@ -238,6 +251,25 @@ export default function PSCreate() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-gray-50 to-slate-100">
       <div className="container mx-auto px-4 py-8 max-w-5xl">
+        <button
+          onClick={() => navigate("/convener/ps")}
+          className="flex items-center text-blue-600 hover:text-blue-700 mb-4 transition-colors"
+        >
+          <svg
+            className="w-5 h-5 mr-2"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth={2}
+              d="M15 19l-7-7 7-7"
+            />
+          </svg>
+          Back to PS
+        </button>
         <div className="bg-white shadow-xl rounded-2xl overflow-hidden">
           {/* Header */}
           <div className="bg-gradient-to-r from-slate-700 to-slate-800 p-6 text-white">

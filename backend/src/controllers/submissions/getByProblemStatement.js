@@ -2,6 +2,8 @@ import mongoose from "mongoose";
 import submission from "../../model/submission.js";
 import ps from "../../model/ps.js";
 
+// THIS ROUTE IS ALSO USED FOR SUPERADMIN - INCASE IS NEEDS TO BE USED FOR ANOTHER ROLE, MAKE SURE TO CONSIDER SUPERADMIN ROLE AS WELL.
+
 export async function GetSubmissionsForProblemStatement(req, res) {
     try {
         const {psId} = req.params;

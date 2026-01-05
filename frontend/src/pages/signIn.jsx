@@ -1,4 +1,4 @@
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { BACKEND_URL } from "../constants.js"
 import { useContext } from "react"
 import { userContext } from "../context/userContext.jsx"
@@ -13,12 +13,28 @@ export default function SignIn() {
     password: "",
     role: "Convener"
   })
-  const { updateUser } = useContext(userContext)
+  const { user, updateUser } = useContext(userContext)
   const navigate = useNavigate()
 
   const [error, setError] = useState("")
 
   const [showPassword , setShowPassword] = useState(false);
+
+  useEffect(() => {
+    const stored = JSON.parse(localStorage.getItem("user"));
+    if (user || stored) {
+      const currentUser = user || stored;
+      if (currentUser.role === "Convener") {
+        navigate("/convener");
+      } else if (currentUser.role === "Judge") {
+        navigate("/judge/dashboard");
+      } else if (currentUser.role === "Company") {
+        navigate("/company/dashboard");
+      } else if (currentUser.role === "TechSecy") {
+        navigate("/techsecy");
+      }
+    }
+  }, [user, navigate]);
 
   const handleSubmit = async (e) => {
     e.preventDefault()
@@ -79,8 +95,7 @@ export default function SignIn() {
     <div className="min-h-screen flex items-center justify-center bg-gray-50 p-8">
       <div className="w-full max-w-md">
         <form onSubmit={handleSubmit} className="bg-white rounded-xl shadow-lg p-6 space-y-6">
-          <div className="flex items-center justify-center gap-4 mb-2">
-            <img src={swcLogo} alt="SWC Logo" className="h-12 w-12" />
+          <div className="flex items-center justify-center gap-1 mb-2">
             <img src={techLogo} alt="Tech Logo" className="h-12 w-12 rounded-lg" />
             <h1 className="text-3xl font-bold text-gray-800">Sign In</h1>
           </div>
@@ -135,7 +150,7 @@ export default function SignIn() {
               <div className="grid grid-cols-2 gap-3">
                 {[
                   ["Convener", "Kriti Convener"],
-                  ["Company", "Company POC"],
+                  ["Company", "Submission Judge"],
                   ["Judge", "Problem Statement Judge"],
                   ["TechSecy", "Hostel Technical Secretary"]
                 ].map(r => (

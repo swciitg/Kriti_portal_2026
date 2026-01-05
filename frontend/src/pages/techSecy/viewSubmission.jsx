@@ -2,6 +2,7 @@ import { useEffect, useState, useContext } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { userContext } from "../../context/userContext";
 import { BACKEND_URL } from "../../constants";
+import prependZeroes from "../../utils/prependZeroes";
 
 export default function ViewSubmission() {
   const navigate = useNavigate();
@@ -147,14 +148,27 @@ export default function ViewSubmission() {
   return (
     <div className="min-h-screen bg-gray-100 flex flex-col">
       <nav className="w-full bg-white shadow-md py-4 px-6">
+        <button
+          onClick={() => navigate("/techsecy/submissions")}
+          className="flex items-center text-blue-600 hover:text-blue-700 mb-4 transition-colors"
+        >
+          <svg
+            className="w-5 h-5 mr-2"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth={2}
+              d="M15 19l-7-7 7-7"
+            />
+          </svg>
+          Back to Submissions
+        </button>
         <div className="flex items-center justify-between">
           <h1 className="text-xl font-semibold text-gray-800">View Submission</h1>
-          <button
-            onClick={() => navigate("/techsecy/submissions")}
-            className="px-4 py-2 bg-gray-200 text-gray-700 rounded hover:bg-gray-300 transition"
-          >
-            Back
-          </button>
         </div>
       </nav>
 
@@ -239,7 +253,7 @@ export default function ViewSubmission() {
           <div className="mb-6 p-4 bg-gray-50 rounded border">
             <p className="text-gray-700">
               <span className="font-semibold">Hostel ID:</span>{" "}
-              {submission.hostelId}
+              {prependZeroes(submission.hostelId , 4)}
             </p>
             <p className="text-xs text-gray-500 mt-1">
               Submission ID: {submission._id}

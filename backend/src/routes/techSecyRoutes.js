@@ -6,6 +6,7 @@ import { editRegisteredTeam } from "../controllers/techSecy/editRegisteredTeam.j
 import { updateRegisterTeam } from "../controllers/techSecy/updateRegisterTeam.js";
 import { DeleteRequest } from "../controllers/convener/requests/deleteRequest.js";
 import { GetRequestById } from "../controllers/techSecy/getRequestByID.js";
+import { getPS } from "../controllers/ps/public/getPS.js";
 
 const router = Router();
 
@@ -25,5 +26,7 @@ router.route("/delete/:id").delete(verifyJWT, handleRouteAccess, DeleteRequest);
 router
   .route("/get-requests/:psId")
   .get(verifyJWT, handleRouteAccess, GetRequestById);
+
+router.route("/getps").get(verifyJWT, handleRouteAccess, getPS);
 
 export default router;

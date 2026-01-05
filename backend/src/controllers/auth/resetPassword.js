@@ -3,6 +3,8 @@ import bcrypt from "bcrypt";
 import user from "../../model/user.js";
 import { mailUtil } from "../../utils/mail.js";
 import Token from "../../model/resetPassToken.js";
+import { passwordResetEmail } from "../../utils/emailTemplates.js";
+import { wrongEmailTemplate } from "../../utils/emailTemplates.js";
 
 const FRONTEND_URL = process.env.FRONTEND_URL || "http://localhost:3000"; 
 const TOKEN_EXPIRY_MS = 5 * 60 * 1000;
@@ -49,7 +51,8 @@ export async function RequestChange(req, res) {
         
         if (!emailCheck) {
             const text = "SOMEONE TRIED TO CHANGE THE PASSWORD OF KRITI PORTAL ACCOUNT FOR THIS EMAIL. HOWEVER NO ACCOUNT EXISTS FOR THIS EMAIL. INCASE IT WAS YOU, PLEASE USE A VALID EMAIL-ID OR CONTACT KRITI CONVENER FOR CREATING AN ACCOUNT.\nThis is a system generated email. Do not reply to this.\nTHANK YOU";
-            const mailSuccess = await mailUtil(email, text);
+            const html = wrongEmailTemplate();
+            const mailSuccess = await mailUtil(email, text, html);
             if(!mailSuccess) {
                 throw new Error("Mail not sent");
             }
@@ -62,9 +65,10 @@ export async function RequestChange(req, res) {
                 expiresAt : Date.now() + TOKEN_EXPIRY_MS
             });
             
-        
-            const text = `Follow this link to reset your password. This link expires in 5 minutes:\n\n${FRONTEND_URL}/reset-password?token=${token}&email=${email}\n\nIf you didn't request this, please ignore this email.\n\nThis is a system generated email. Do not reply.`;
-            const mailSuccess = await mailUtil(email, text);
+            const resetLink = `${FRONTEND_URL}/reset-password?token=${token}&email=${email}`;
+            const text = `Follow this link to reset your password. This link expires in 5 minutes:\n\n${resetLink}\n\nIf you didn't request this, please ignore this email.\n\nThis is a system generated email. Do not reply.`;
+            const html = passwordResetEmail({ resetLink });
+            const mailSuccess = await mailUtil(email, text, html);
             if(!mailSuccess) {
                 await Token.deleteOne({ email });
                 throw new Error("Mail not sent");

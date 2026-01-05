@@ -46,7 +46,7 @@ export async function verifyJWT(req, res, next) {
           message: "User not found",
         });
       }
-      req.user = superadmin;
+      req.user = decodedToken;
       return next();
     } else {
       // token was created with { id: this.id, ... }
@@ -136,6 +136,8 @@ export function handleRouteAccess(req, res, next) {
       "/v1/convener/get-access-requests",
       "/v1/convener/get-company-access-requests",
       "/v1/convener/get-requests",
+      "/v1/convener/export-teams",
+      "/v1/convener/get-all-teams",
     ];
     const startsWithAllowed = [
       "/v1/convener/update-ps/",
@@ -189,7 +191,9 @@ export function handleRouteAccess(req, res, next) {
   }
 
   if (role === "TechSecy") {
-    const allowed = [];
+    const allowed = [
+      "/v1/ps"
+    ];
     const startsWithAllowed = [
       "/v1/techsecy/register-team/",
       "/v1/techsecy/get-team/",
@@ -197,11 +201,14 @@ export function handleRouteAccess(req, res, next) {
       "/v1/techsecy/update-registered-team/",
       "/v1/techsecy/delete/",
       "/v1/techsecy/get-requests/",
-      "/v1/pssubmission/user-info/",
+      "/v1/pssubmission/user-info",
       "/v1/pssubmission/ps/open",
       "/v1/pssubmission/ps/",
       "/v1/pssubmission/submit",
       "/v1/pssubmission/view/",
+      "/v1/pssubmission/upload-temp",
+      "/v1/techsecy/getps",
+      "/v1/ps/protected",
     ];
     if (
       !allowed.includes(route) &&

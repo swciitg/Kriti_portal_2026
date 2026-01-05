@@ -50,7 +50,7 @@ function HostelJudging() {
         }
 
         const data = await response.json();
-        console.log(data)
+        // console.log(data)
 
         if (data.success && data.ps) {
           setPsInfo(data.ps);
@@ -338,7 +338,7 @@ function HostelJudging() {
                           Score (out of 100)
                         </label>
                         <input
-                          type="number"
+                          type="text"
                           min="0"
                           max="100"
                           step="0.01"

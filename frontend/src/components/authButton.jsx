@@ -1,73 +1,74 @@
-import { useContext } from "react"
-import { userContext } from "../context/userContext"
+// AuthButton.jsx
+import { useContext } from "react";
+import { userContext } from "../context/userContext";
 import { BACKEND_URL } from "../constants";
 import { useNavigate } from "react-router-dom";
 
 export default function AuthButton() {
+  const { user, updateUser } = useContext(userContext);
+  const navigate = useNavigate();
 
-    const {user , updateUser} = useContext(userContext);
-    const navigate = useNavigate();
+  function isSignedIn() {
+    const stored = JSON.parse(localStorage.getItem("user"));
+    if (!user && !stored) return false;
+    return true;
+  }
 
-    function isSignedIn() {
-        const stored = JSON.parse(localStorage.getItem("user"));
-        if (!user && !stored) return false;
-        return true;
+  async function LogoutHandler() {
+    try {
+      const token = localStorage.getItem("accessToken");
+      const res = await fetch(`${BACKEND_URL}/v1/auth/logout`, {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: token ? `Bearer ${token}` : "",
+        },
+      });
+
+      const data = await res.json();
+
+      if (res.status === 401 || data.success) {
+        updateUser(null);
+        localStorage.removeItem("accessToken");
+        navigate("/sign-in");
+      }
+    } catch (error) {
+      console.log(error);
     }
+  }
 
-    async function LogoutHandler() {
-        try {
-            const token = localStorage.getItem("accessToken");
-            const res = await fetch(`${BACKEND_URL}/v1/auth/logout` , {
-                method : "GET" ,
-                headers : {
-                    "Content-Type": "application/json"  ,
-                    "Authorization" : token ? `Bearer ${token}` : ""
-                }
-            });
-
-            const data = await res.json();
-
-            if(res.status === 401 || data.success) {
-                updateUser(null);
-                localStorage.removeItem("accessToken");
-                navigate('/sign-in');
-            }
-        } catch (error) {
-            console.log(error);
-        }
+  function handleClick() {
+    if (isSignedIn()) {
+      LogoutHandler();
+    } else {
+      navigate("/sign-in");
     }
+  }
 
-    function handleClick() {
-        if (isSignedIn()) {
-            LogoutHandler();
-        } else {
-            navigate('/sign-in')
-        }
-    }
+  const currentPath = window.location.pathname;
+  const isSubmissionPage = currentPath.includes("/submissions");
 
-    return  (
-        <div className="absolute top-0 right-4 z-40 flex gap-1.5 justify-end items-center">
+  if (isSubmissionPage) {
+    return null;
+  }
+
+  return (
+    <div className="fixed top-4 right-4 z-50 flex gap-3">
+      <button
+        onClick={() => handleClick()}
+        className="bg-blue-600 text-white py-2.5 px-5 font-medium text-sm rounded-lg hover:bg-blue-700 active:scale-95 transition-all duration-200 shadow-lg hover:shadow-xl"
+      >
+        {isSignedIn() ? "Log Out" : "Sign In"}
+      </button>
+
+      {isSignedIn() && (
         <button
-            onClick={() => handleClick()}
-            className=" bg-blue-600 text-white py-2 px-4 font-semibold rounded-lg hover:bg-blue-700 transition disabled:bg-blue-400 cursor-pointer"
+          onClick={() => navigate("/change-password")}
+          className="bg-blue-600 text-white py-2.5 px-5 font-medium text-sm rounded-lg hover:bg-blue-700 active:scale-95 transition-all duration-200 shadow-lg hover:shadow-xl"
         >
-          {
-            isSignedIn()?
-            "Log Out" : "Sign In"
-          }
+          Change Password
         </button>
-
-            <button
-            onClick={() => {
-                navigate('/change-password')
-            }}
-                className="m-2 bg-blue-600 text-white py-2 px-4 font-semibold rounded-lg hover:bg-blue-700 transition disabled:bg-blue-400 cursor-pointer"
-            >
-                Change Password
-            </button>
-
-
-        </div>
-    )
-
+      )}
+    </div>
+  );
 }

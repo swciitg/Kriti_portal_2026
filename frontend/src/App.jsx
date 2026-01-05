@@ -4,6 +4,7 @@ import Footer from "./components/footer.jsx"
 import OnboardUserPage from "./pages/convener/createUser.jsx"
 import { UserProvider } from "./context/userContext.jsx"
 import ConvenerDashboard from "./pages/convener/dashboard.jsx"
+import ConvenerGuidelines from "./pages/convener/guidelines.jsx"
 import AuthButton from "./components/authButton.jsx"
 import SuperAdminSignIn from "./pages/superAdmin/signIn.jsx"
 import SuperAdminDashboard from "./pages/superAdmin/dashboard.jsx"
@@ -25,6 +26,8 @@ import TeamRequestAll from "./pages/convener/teamRequestAll.jsx";
 import SubmissionsPage from "./pages/techSecy/submissions.jsx";
 import SubmissionForm from "./pages/techSecy/submissionForm.jsx";
 import ViewSubmission from "./pages/techSecy/viewSubmission.jsx";
+import Guidelines from "./pages/techSecy/guidelines.jsx"
+import ProblemStatementsForTechSecy from "./pages/techSecy/problemStatements.jsx"
 
 
 function App() {
@@ -39,6 +42,7 @@ function App() {
           <Route path="/reset-password" element={<ResetPassword />} />
 
           <Route path="/convener" element={<ConvenerDashboard />} />
+          <Route path="/convener/guidelines" element={<ConvenerGuidelines />} />
           <Route path="/convener/onboard-user" element={<OnboardUserPage />} />
           <Route path="/convener/ps" element={<PSManager />} />
           <Route path="/convener/ps/create" element={<PSCreate />} />
@@ -59,6 +63,8 @@ function App() {
           <Route path="/techsecy/submissions" element={<SubmissionsPage />} />
           <Route path="/techsecy/submissions/submit/:psId" element={<SubmissionForm />} />
           <Route path="/techsecy/submissions/view/:submissionId" element={<ViewSubmission />} />
+          <Route path="/techsecy/guidelines" element={<Guidelines />} />
+          <Route path="/techsecy/problem-statements" element={<ProblemStatementsForTechSecy />} />
 
           <Route path="/judge/dashboard" element={<JudgeDashboard />} />
           <Route path="/judge/hostel/:hostelId" element={<HostelJudging />} />
