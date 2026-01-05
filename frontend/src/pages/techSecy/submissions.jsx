@@ -40,6 +40,7 @@ export default function SubmissionsPage() {
         });
 
         const data = await response.json();
+        console.log("Fetched PS Data:", data);
 
         if (!data.success) {
           setError(data.message || "Failed to fetch PS");
@@ -151,9 +152,9 @@ export default function SubmissionsPage() {
               </svg>
           </div>
           <h2 className="text-xl font-bold text-gray-900 mb-2">
-            {error.includes("currently available") ? "No problem statements yet" : "Error Loading Data"}
+            {error.includes("currently available") ? "No problem statements yet" : "No problem statements yet"}
           </h2>
-          <p className="text-gray-600 mb-6">{error}</p>
+          <p className="text-gray-600 mb-6">{error}. Please register your team to submit</p>
         </div>
       </div>
     );
