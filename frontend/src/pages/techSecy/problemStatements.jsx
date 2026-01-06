@@ -1,8 +1,9 @@
-import { useEffect, useState, useContext } from "react";
+import { useEffect, useState, useContext, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { userContext } from "../../context/userContext";
 import { BACKEND_URL } from "../../constants";
 import PdfViewer from "../superAdmin/components/viewPS.jsx";
+import TechSecyNavbar from "./components/navbar.jsx";
 
 export default function ProblemStatementsForTechSecy() {
   const navigate = useNavigate();
@@ -12,7 +13,7 @@ export default function ProblemStatementsForTechSecy() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [searchTerm, setSearchTerm] = useState("");
-  const [pdfUrl , setPdfUrl] = useState(null);
+  const [pdfUrl, setPdfUrl] = useState(null);
 
   useEffect(() => {
     const stored = JSON.parse(localStorage.getItem("user"));
@@ -30,15 +31,13 @@ export default function ProblemStatementsForTechSecy() {
       try {
         setLoading(true);
         const token = localStorage.getItem("accessToken");
-        const res = await fetch(`${BACKEND_URL}/v1/ps/protected` , 
-        {
-            method: "GET",
-            headers: {
-              "Content-Type": "application/json",
-              "Authorization": token ? `Bearer ${token}` : "",
-            },
-        }
-        );
+        const res = await fetch(`${BACKEND_URL}/v1/ps/protected`, {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: token ? `Bearer ${token}` : "",
+          },
+        });
         // console.log(res)
         const data = await res.json();
 
@@ -50,7 +49,7 @@ export default function ProblemStatementsForTechSecy() {
           prep: item.prep,
           teamStrength: item.teamStrength,
           points: item.points,
-          startDate : new Date(item.startDate).toLocaleString("en-US", {
+          startDate: new Date(item.startDate).toLocaleString("en-US", {
             timeZone: local_time_zone,
             year: "numeric",
             month: "2-digit",
@@ -59,9 +58,8 @@ export default function ProblemStatementsForTechSecy() {
             minute: "2-digit",
             second: "2-digit",
           }),
-          pdf : item.pdf
+          pdf: item.pdf,
         }));
-
         setProblemStatements(filtered);
       } catch (e) {
         setError(e.message);
@@ -72,30 +70,33 @@ export default function ProblemStatementsForTechSecy() {
     fetchPS();
   }, []);
 
-
-  async function DownloadPDF(url , filename) {
-      try {
-        // const res = await fetch(url)
-        // const blob = await res.blob();
-        // const url = window.URL.createObjectURL(blob);
-        const a = document.createElement("a");
-        a.href = url;
-        a.target = "_blank";
-        a.rel = "noopener noreferrer";
-        a.download = filename;
-        document.body.appendChild(a);
-        a.click();
-        document.body.removeChild(a);
-      } catch (error) {
-        setError("Some error occured in Downloading Problem Statment")
-      }
+  async function DownloadPDF(url, filename) {
+    try {
+      // const res = await fetch(url)
+      // const blob = await res.blob();
+      // const url = window.URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.target = "_blank";
+      a.rel = "noopener noreferrer";
+      a.download = filename;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+    } catch (error) {
+      setError("Some error occured in Downloading Problem Statment");
+    }
   }
-
-
 
   const filteredPS = problemStatements.filter((ps) =>
     ps.name.toLowerCase().includes(searchTerm.toLowerCase())
   );
+
+  // helper arrays per prep to avoid repeated filters and enable conditional rendering
+  const highPS = filteredPS.filter((ps) => ps.prep === "high");
+  const midPS = filteredPS.filter((ps) => ps.prep === "mid");
+  const lowPS = filteredPS.filter((ps) => ps.prep === "low");
+  const noPS = filteredPS.filter((ps) => ps.prep === "no");
 
   const getPrepColor = (prep) => {
     const colors = {
@@ -107,75 +108,196 @@ export default function ProblemStatementsForTechSecy() {
     return colors[prep] || colors.no;
   };
 
-  return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-gray-50 to-slate-100">
+  // Presentational carousel (UI-only) that shows PS name and deadline — no category tags
+  const PSCarousel = ({ items, title }) => {
+    const ref = useRef(null);
 
-    {
-        pdfUrl && 
-        <PdfViewer pdfUrl={pdfUrl} setPdfUrl={setPdfUrl}/>
-    }
-    <nav className="w-full bg-white shadow-lg border-b border-gray-200 sticky top-0 z-50">
-            <div className="max-w-7xl mx-auto px-6 py-4">
-              <button
-                onClick={() => navigate("/techsecy")}
-                className="flex items-center text-blue-600 hover:text-blue-700 mb-4 transition-colors font-medium group"
+    const scrollBy = (dir = 1) => {
+      const el = ref.current;
+      if (!el) return;
+      el.scrollBy({
+        left: el.clientWidth * dir,
+        behavior: "smooth",
+      });
+    };
+
+    if (!items || items.length === 0) return null;
+
+    return (
+      <div className="mt-10">
+        <h2 className="text-3xl font-bold text-white mb-6">{title}</h2>
+
+        <div className="relative">
+          {/* Left Arrow */}
+          <button
+            onClick={() => scrollBy(-1)}
+            className="absolute left-0 top-1/2 z-10 -translate-y-1/2 bg-black/40 backdrop-blur-md p-3 rounded-full hover:bg-black/60 transition"
+          >
+            ❮
+          </button>
+
+          {/* Carousel */}
+          <div
+            ref={ref}
+            className="flex gap-8 overflow-x-auto scroll-smooth snap-x snap-mandatory px-10 py-6 carousel-no-scrollbar"
+          >
+            {items.map((ps) => (
+              <div
+                key={ps.id}
+                className="snap-start min-w-[380px] max-w-[380px]"
               >
-                <svg
-                  className="w-5 h-5 mr-2 group-hover:-translate-x-1 transition-transform"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M15 19l-7-7 7-7"
-                  />
-                </svg>
-                Back to Dashboard
-              </button>
-              <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-                <div>
-                    <h1 className="text-4xl font-bold text-gray-800 mb-2">
-                        Problem Statements
-                    </h1>
-                    <p className="text-gray-600">
-                        Manage and monitor all problem statements
-                    </p>
+                <div className="h-full rounded-3xl bg-white/10 backdrop-blur-xl border border-white/20 shadow-xl hover:scale-[1.03] transition-all duration-300">
+                  <div className="p-6 flex flex-col h-full">
+                    {/* Title */}
+                    <h3 className="text-xl font-bold text-white mb-3 line-clamp-2 pb-4">
+                      {ps.name}
+                    </h3>
+                    {/* Stats */}
+                    <div className="flex justify-between mb-6 text-white">
+                      <div className="bg-white/10 px-4 py-2 rounded-xl text-center">
+                        <p className="text-sm opacity-70">Team Size</p>
+                        <p className="text-lg font-bold">{ps.teamStrength}</p>
+                      </div>
+                      <div className="bg-white/10 px-4 py-2 rounded-xl text-center">
+                        <p className="text-sm opacity-70">Points</p>
+                        <p className="text-lg font-bold">{ps.points}</p>
+                      </div>
+                    </div>
+
+                    {/* Button */}
+                    <button
+                      onClick={() => DownloadPDF(ps.pdf, ps.name + ".pdf")}
+                      className="mt-auto w-full bg-gradient-to-r from-blue-600 to-indigo-700 hover:from-blue-700 hover:to-indigo-800 text-white py-3 rounded-xl font-semibold shadow-lg"
+                    >
+                      View Problem Statement
+                    </button>
+                  </div>
                 </div>
-            </div>
-            </div>
-          </nav>
+              </div>
+            ))}
+          </div>
+
+          {/* Right Arrow */}
+          <button
+            onClick={() => scrollBy(1)}
+            className="absolute right-0 top-1/2 z-10 -translate-y-1/2 bg-black/40 backdrop-blur-md p-3 rounded-full hover:bg-black/60 transition"
+          >
+            ❯
+          </button>
+        </div>
+      </div>
+    );
+  };
+
+
+  return (
+    <div className="min-h-screen bg-[url('/back.png')] bg-cover bg-center bg-no-repeat ">
+      {pdfUrl && <PdfViewer pdfUrl={pdfUrl} setPdfUrl={setPdfUrl} />}
+      {/* Loading State */}
+      {loading && (
+        <div className="flex justify-center items-center py-20">
+          <div className="text-center">
+            <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-blue-600 mx-auto mb-4"></div>
+            <p className="text-gray-600 font-medium">
+              Loading problem statements...
+            </p>
+          </div>
+        </div>
+      )}
+      <div>
+        <TechSecyNavbar />
+      </div>
+      <h1 className="text-white text-5xl text-center pt-30 font-bold bebas-neue-regular">
+        PROBLEM STATEMENTS
+      </h1>
+      {highPS.length > 0 && (
+        <div className="px-16 text-white">
+          <h2 className="text-3xl pt-12 font-bold bebas-neue-regular">
+            High Prep Problem Statements
+          </h2>
+          <p className="text-md pt-4">
+            These are the competitions that involve proof-of-concept
+            demonstration, implementation etc., that happen during the meet.
+            This requires extensive preparation of any prototypes, submissions,
+            etc., from the contingent as directed by the Problem Statement.{" "}
+            <br /> The problem-solving will require sustained efforts of 4-10
+            weeks or more with weekly input of 10-30 hours. A significant amount
+            of prototyping costs/resources will be involved in high-prep
+            competition
+          </p>
+          <h2 className="pt-12 text-2xl font-bold bebas-neue-regular">
+            Listing of High Prep Problem Statements
+          </h2>
+          <div className="mt-6">
+            <PSCarousel items={highPS} />
+          </div>
+        </div>
+      )}
+      {midPS.length > 0 && (
+        <div className="px-16 text-white ">
+          <h2 className="text-3xl pt-12 font-bold bebas-neue-regular">
+            Mid Prep Problem Statements
+          </h2>
+          <p className="text-md pt-4">
+            These are the competitions that involve demonstrations or
+            presentations that happen during the meet. This may require the
+            preparation of some prototypes, submissions, etc., from the
+            contingents as per the Problem Statement.
+            <br /> The problem-solving will require a sustained effort of
+            anywhere between 2-4 weeks with weekly input of 8-20 hours.
+          </p>
+          <h2 className="pt-12 text-2xl font-bold bebas-neue-regular">
+            Listing of Mid Prep Problem Statements
+          </h2>
+          <div className="mt-6">
+            <PSCarousel items={midPS} />
+          </div>
+        </div>
+      )}
+      {lowPS.length > 0 && (
+        <div className="px-16 text-white">
+          <h2 className="text-3xl pt-12 font-bold bebas-neue-regular">
+            Low Prep Problem Statements
+          </h2>
+          <p className="text-md pt-4">
+            These are the competitions that involve presentations that happen
+            during the meet. This may require the preparation of some
+            submissions, etc., from the contingents as per the problem
+            statement. The problem-solving will require a sustained effort of
+            anywhere between 4-7 days
+          </p>
+          <h2 className="pt-12 text-2xl font-bold bebas-neue-regular">
+            Listing of Low Prep Problem Statements
+          </h2>
+          <div className="mt-6">
+            <PSCarousel items={lowPS} />
+          </div>
+        </div>
+      )}
+      {noPS.length > 0 && (
+        <div className="px-16 text-white">
+          <h2 className="text-3xl pt-12 font-bold">
+            No Prep Problem Statements
+          </h2>
+          <p className="text-md pt-4">
+            These are the competitions that require on-the-spot efforts with no
+            prior preparation of any prototypes, submissions, etc., from the
+            contingent.
+          </p>
+          <h2 className="pt-12 text-2xl font-bold">
+            Listing of No Prep Problem Statements
+          </h2>
+          <div className="mt-6">
+            <PSCarousel items={noPS} />
+          </div>
+        </div>
+      )}
 
       <div className="container mx-auto px-4 py-8 max-w-7xl">
-    
-
-        {/* Search Bar */}
-        <div className="mb-6">
-          <input
-            type="text"
-            placeholder="Search problem statements..."
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            className="w-full max-w-md px-4 py-3 rounded-xl border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-transparent shadow-sm transition-all"
-          />
-        </div>
-
         {/* Error Message */}
         {error && (
           <div className="mb-6 bg-red-50 border border-red-200 text-red-700 px-6 py-4 rounded-xl">
             <p className="font-medium">{error}</p>
-          </div>
-        )}
-
-        {/* Loading State */}
-        {loading && (
-          <div className="flex justify-center items-center py-20">
-            <div className="text-center">
-              <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-blue-600 mx-auto mb-4"></div>
-              <p className="text-gray-600 font-medium">Loading problem statements...</p>
-            </div>
           </div>
         )}
 
@@ -201,107 +323,42 @@ export default function ProblemStatementsForTechSecy() {
               {searchTerm ? "No results found" : "No problem statements yet"}
             </h3>
             <p className="text-gray-500">
-              {searchTerm
-                ? "Try adjusting your search terms"
-                : "Comming soon!"}
+              {searchTerm ? "Try adjusting your search terms" : "Comming soon!"}
             </p>
           </div>
         )}
 
-        {/* Problem Statements Grid */}
-        {!loading && filteredPS.length > 0 && (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {filteredPS.map((ps) => (
-              <div
-                key={ps.id}
-                className="bg-white rounded-2xl shadow-md hover:shadow-xl transition-all duration-300 overflow-hidden border border-gray-200 flex flex-col"
-              >
-                {/* Card Header */}
-                <div className="bg-gradient-to-r from-slate-700 to-slate-800 p-6 text-white">
-                  <h3 className="text-xl font-bold mb-3 line-clamp-2 min-h-[3.5rem]">
-                    {ps.name}
-                  </h3>
-                  <div className="flex items-center gap-2">
-                    <span
-                      className={`px-3 py-1 rounded-full text-xs font-semibold border ${getPrepColor(
-                        ps.prep
-                      )} bg-white`}
-                    >
-                      {ps.prep.toUpperCase()} Prep
-                    </span>
-                  </div>
-                </div>
-
-                {/* Card Body */}
-                <div className="p-6 flex-grow">
-                  <div className="space-y-3">
-                    <div className="flex items-center justify-between">
-                      <span className="text-sm text-gray-600 font-medium">Team Size</span>
-                      <span className="text-sm text-gray-800 font-semibold">
-                        {ps.teamStrength} members
-                      </span>
-                    </div>
-                    <div className="flex items-center justify-between">
-                      <span className="text-sm text-gray-600 font-medium">Points</span>
-                      <span className="text-sm text-gray-800 font-semibold">
-                        {ps.points} pts
-                      </span>
-                    </div>
-                    {/* <div className="flex items-center justify-between">
-                      <span className="text-sm text-gray-600 font-medium">Start Date</span>
-                      <span className="text-sm text-gray-800 font-semibold">
-                        {ps.startDate.substr(0 , 10)} {" at "} {ps.startDate.substr(11)}
-                      </span>
-                    </div> */}
-                  </div>
-                </div>
-
-                {/* Card Footer */}
-                <div className="p-6 pt-0">
-                  <button
-                    onClick={() => {
-                        // setPdfUrl(ps.pdf)
-                        DownloadPDF(ps.pdf , ps.name + ".pdf")
-                    }}
-                    className="w-full bg-gradient-to-r from-blue-600 to-blue-700 text-white py-3 rounded-xl font-semibold hover:from-blue-700 hover:to-blue-800 transition-all shadow-md hover:shadow-lg cursor-pointer"
-                  >
-                    View Details
-                  </button>
-                </div>
-              </div>
-            ))}
-          </div>
-        )}
-
-        {/* Stats Summary */}
+        {/* Stats Summary
         {!loading && filteredPS.length > 0 && (
           <div className="mt-8 bg-white rounded-xl shadow-md p-6 border border-gray-200">
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
               <div className="text-center">
-                <p className="text-3xl font-bold text-gray-800">{problemStatements.length}</p>
+                <p className="text-3xl font-bold text-gray-800">
+                  {problemStatements.length}
+                </p>
                 <p className="text-sm text-gray-600 mt-1">Total PS</p>
               </div>
               <div className="text-center">
                 <p className="text-3xl font-bold text-red-600">
-                  {problemStatements.filter(ps => ps.prep === "high").length}
+                  {problemStatements.filter((ps) => ps.prep === "high").length}
                 </p>
                 <p className="text-sm text-gray-600 mt-1">High Prep</p>
               </div>
               <div className="text-center">
                 <p className="text-3xl font-bold text-yellow-600">
-                  {problemStatements.filter(ps => ps.prep === "mid").length}
+                  {problemStatements.filter((ps) => ps.prep === "mid").length}
                 </p>
                 <p className="text-sm text-gray-600 mt-1">Mid Prep</p>
               </div>
               <div className="text-center">
                 <p className="text-3xl font-bold text-green-600">
-                  {problemStatements.filter(ps => ps.prep === "low").length}
+                  {problemStatements.filter((ps) => ps.prep === "low").length}
                 </p>
                 <p className="text-sm text-gray-600 mt-1">Low Prep</p>
               </div>
             </div>
           </div>
-        )}
+        )} */}
       </div>
     </div>
   );
