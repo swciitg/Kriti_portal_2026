@@ -52,3 +52,10 @@ button{
 .animate-fade-in {
   animation: fade-in 1.5s ease-out forwards;
 }
+
+@import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&display=swap');
+
+.bebas-neue-regular {
+  font-family: "Bebas Neue", sans-serif;
+  font-weight: 600;
+}

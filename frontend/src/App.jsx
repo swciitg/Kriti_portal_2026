@@ -28,6 +28,7 @@ import SubmissionForm from "./pages/techSecy/submissionForm.jsx";
 import ViewSubmission from "./pages/techSecy/viewSubmission.jsx";
 import Guidelines from "./pages/techSecy/guidelines.jsx"
 import ProblemStatementsForTechSecy from "./pages/techSecy/problemStatements.jsx"
+import NewFooter from "./components/newFooter.jsx"
 
 
 function App() {
@@ -76,7 +77,8 @@ function App() {
           />
         </Routes>
       </BrowserRouter>
-      <Footer />
+      {/* <Footer />*/}
+      <NewFooter />
     </UserProvider>
   );
 }
