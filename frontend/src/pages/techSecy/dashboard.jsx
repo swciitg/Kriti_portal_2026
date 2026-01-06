@@ -3,6 +3,8 @@ import { useEffect, useContext } from "react";
 import { useNavigate } from "react-router-dom";
 import { userContext } from "../../context/userContext";
 import kriti_logo from "../../assets/tech.png";
+import TechSecyLandingScreen from "./components/landingScreen";
+import TechSecyNavbar from "./components/navbar";
 import PsDetails from "./components/PsDetails.jsx";
 import { CarouselDefault } from "./components/Carousel.jsx";
 
@@ -38,9 +40,11 @@ export default function TechSecyDashboard() {
   }
 
   return (
+    <>
+    <TechSecyNavbar/>
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50">
       {/* Header with Hostel ID */}
-      <div className="fixed top-0 left-0 right-0 bg-white/90 backdrop-blur-md shadow-sm z-40 px-6 py-4">
+      {/* <div className="fixed top-0 left-0 right-0 bg-white/90 backdrop-blur-md shadow-sm z-40 px-6 py-4">
         <h1 className="text-3xl md:text-4xl font-bold text-blue-600 tracking-wide">
           HOSTEL{" "}
           {prependZeroes(
@@ -48,13 +52,13 @@ export default function TechSecyDashboard() {
             4
           ) || "0000"}
         </h1>
-      </div>
+      </div> */}
 
       {/* Main Content */}
       <div className="">
         <div className="">
-          {/* Logo and Animated Title */}
-          <div className="flex flex-col items-center justify-center mb-12 md:mb-16">
+          <TechSecyLandingScreen/>
+          {/* <div className="flex flex-col items-center justify-center mb-12 md:mb-16">
             <div className="flex flex-col md:flex-row items-center gap-6 md:gap-8">
               <img
                 src={kriti_logo}
@@ -81,7 +85,8 @@ export default function TechSecyDashboard() {
                 </span>
               </div>
             </div>
-          </div>
+          </div> */}
+
           {/* Quick Actions Grid */}
           <div className="p-3 lg:p-20">
             <PsDetails />
@@ -106,5 +111,7 @@ export default function TechSecyDashboard() {
         </div>
       </div>
     </div>
+    
+    </>
   );
 }

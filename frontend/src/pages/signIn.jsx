@@ -5,7 +5,8 @@ import { userContext } from "../context/userContext.jsx"
 import { useNavigate } from "react-router-dom"
 import { Eye, EyeOff } from "lucide-react"
 import swcLogo from "../assets/swc.svg"
-import techLogo from "../assets/tech.jpg"
+import techLogo from "../assets/tech.png"
+import techSecy_bg from "../assets/techSecy_bg.png"
 
 export default function SignIn() {
   const [form, setForm] = useState({
@@ -92,30 +93,31 @@ export default function SignIn() {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50 p-8">
+<div className="min-h-screen bg-cover bg-center bg-no-repeat flex items-center justify-center p-8" 
+      style={{ backgroundImage: `url(${techSecy_bg})` }}>
       <div className="w-full max-w-md">
-        <form onSubmit={handleSubmit} className="bg-white rounded-xl shadow-lg p-6 space-y-6">
+        <form onSubmit={handleSubmit} className="bg-[#1a1d2e] rounded-xl shadow-lg p-6 space-y-6 border border-gray-800">
           <div className="flex items-center justify-center gap-1 mb-2">
             <img src={techLogo} alt="Tech Logo" className="h-12 w-12 rounded-lg" />
-            <h1 className="text-3xl font-bold text-gray-800">Sign In</h1>
+            <h1 className="text-3xl font-bold text-white">Sign In</h1>
           </div>
 
-          <p className="text-sm text-gray-600 text-center">Welcome to Kriti Portal</p>
+          <p className="text-sm text-gray-400 text-center">Welcome to Kriti Portal</p>
 
           {error && (
-            <div className="bg-red-50 border border-red-200 rounded-lg p-4">
-              <p className="text-sm text-red-600 text-center">{error}</p>
+            <div className="bg-red-900/20 border border-red-700 rounded-lg p-4">
+              <p className="text-sm text-red-400 text-center">{error}</p>
             </div>
           )}
 
           <div className="space-y-4">
             <div>
-              <label className="block text-sm font-medium text-gray-500 mb-1">
+              <label className="block text-sm font-medium text-gray-300 mb-1">
                 Username
               </label>
               <input
                 type="text"
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500 transition-colors"
+                className="w-full px-4 py-2 bg-[#0f1219] border border-gray-700 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:border-blue-500 transition-colors"
                 placeholder="Enter your username"
                 value={form.username}
                 onChange={(e) => setForm({ ...form, username: e.target.value })}
@@ -123,19 +125,19 @@ export default function SignIn() {
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-500 mb-1">
+              <label className="block text-sm font-medium text-gray-300 mb-1">
                 Password
               </label>
               <div className="relative">
                 <input
                   type={showPassword ? "text" : "password"}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500 transition-colors"
+                  className="w-full px-4 py-2 bg-[#0f1219] border border-gray-700 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:border-blue-500 transition-colors"
                   placeholder="Enter your password"
                   value={form.password}
                   onChange={(e) => setForm({ ...form, password: e.target.value })}
                 />
                 <span
-                  className="absolute right-3 top-3 cursor-pointer text-gray-500 hover:text-gray-700"
+                  className="absolute right-3 top-3 cursor-pointer text-gray-400 hover:text-gray-300"
                   onClick={() => setShowPassword(!showPassword)}
                 >
                   {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
@@ -144,7 +146,7 @@ export default function SignIn() {
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-500 mb-2">
+              <label className="block text-sm font-medium text-gray-300 mb-2">
                 Select Role
               </label>
               <div className="grid grid-cols-2 gap-3">
@@ -158,8 +160,8 @@ export default function SignIn() {
                     key={r[0]}
                     className={`flex items-center gap-2 px-3 py-2 rounded-lg border-2 cursor-pointer transition-all ${
                       form.role === r[0]
-                        ? 'border-blue-500 bg-blue-50'
-                        : 'border-gray-200 bg-gray-50 hover:border-gray-300'
+                        ? 'border-blue-500 bg-blue-500/10'
+                        : 'border-gray-700 bg-[#0f1219] hover:border-gray-600'
                     }`}
                   >
                     <input
@@ -170,7 +172,7 @@ export default function SignIn() {
                       onChange={() => setForm({ ...form, role: r[0] })}
                       className="text-blue-600 focus:ring-blue-500"
                     />
-                    <span className="text-sm font-medium text-gray-800">{r[1]}</span>
+                    <span className="text-sm font-medium text-gray-200">{r[1]}</span>
                   </label>
                 ))}
               </div>

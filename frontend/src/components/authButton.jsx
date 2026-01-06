@@ -47,28 +47,29 @@ export default function AuthButton() {
 
   const currentPath = window.location.pathname;
   const isSubmissionPage = currentPath.includes("/submissions");
+  const isTechSecyPage = currentPath.startsWith("/kriti-submission/techsecy");
 
-  if (isSubmissionPage) {
+  if (isSubmissionPage || isTechSecyPage) {
     return null;
   }
 
   return (
-    <div className="fixed top-4 right-4 z-50 flex gap-3">
+    <div className="fixed top-4 right-4 z-50 flex gap-10">
       <button
         onClick={() => handleClick()}
-        className="bg-blue-600 text-white py-2.5 px-5 font-medium text-sm rounded-lg hover:bg-blue-700 active:scale-95 transition-all duration-200 shadow-lg hover:shadow-xl"
+        className="cursor-pointer text-white text-md md:text-base hover:text-gray-300 transition-colors"
       >
         {isSignedIn() ? "Log Out" : "Sign In"}
       </button>
 
-      {isSignedIn() && (
+      {/* {isSignedIn() && ( */}
         <button
           onClick={() => navigate("/change-password")}
-          className="bg-blue-600 text-white py-2.5 px-5 font-medium text-sm rounded-lg hover:bg-blue-700 active:scale-95 transition-all duration-200 shadow-lg hover:shadow-xl"
+          className="cursor-pointer text-white text-md md:text-base hover:text-gray-300 transition-colors"
         >
           Change Password
         </button>
-      )}
+      {/* )} */}
     </div>
   );
 }
