@@ -88,7 +88,7 @@ export default function TechSecyDashboard() {
           </div> */}
 
           {/* Quick Actions Grid */}
-          <div className="p-3 lg:p-20">
+          <div className="p-3 lg:p-20 xl:px-32">
             <PsDetails />
             <div className="pt-12 lg:pt-36">
               <h1 className="text-center text-3xl font-bold">About Kriti</h1>
