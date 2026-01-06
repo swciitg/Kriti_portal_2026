@@ -29,6 +29,7 @@ import SubmissionForm from "./pages/techSecy/submissionForm.jsx";
 import ViewSubmission from "./pages/techSecy/viewSubmission.jsx";
 import Guidelines from "./pages/techSecy/guidelines.jsx"
 import ProblemStatementsForTechSecy from "./pages/techSecy/problemStatements.jsx"
+import HomePage from "./pages/HomePage.jsx"
 
 
 function Wrapper({ children }) {
@@ -46,7 +47,7 @@ function App() {
         <AuthButton />
         <Wrapper>
           <Routes>
-          <Route path="/" element={<SignIn />} />
+          <Route path="/" element={<HomePage />} />
           <Route path="/sign-in" element={<SignIn />} />
           <Route path="/change-password" element={<RequestPasswordReset />} />
           <Route path="/reset-password" element={<ResetPassword />} />
