@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { BACKEND_URL } from "../constants.js";
-import techSecy_bg from "../assets/techSecy_bg.png"
+import techSecy_bg from "../assets/techsecy_bg.png"
 
 export default function ResetPassword() {
   const [token, setToken] = useState("");
