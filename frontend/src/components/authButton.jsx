@@ -49,6 +49,7 @@ export default function AuthButton() {
   const isSubmissionPage = currentPath.includes("/submissions");
   const isTechSecyPage = currentPath.startsWith("/kriti-submission/techsecy");
   const isAuthPage = currentPath.startsWith("/kriti-submission/sign-in")
+  const isPublicPage = currentPath === "/kriti-submission/"
 
   if (isSubmissionPage || isTechSecyPage) {
     return null;
@@ -58,13 +59,13 @@ export default function AuthButton() {
     <div className="fixed top-4 right-4 z-100 flex gap-10">
       <button
         onClick={() => handleClick()}
-        className={isAuthPage?"cursor-pointer text-white text-md md:text-base hover:text-gray-300 transition-colors"
+        className={isAuthPage || isPublicPage?"cursor-pointer text-white text-md md:text-base hover:text-gray-300 transition-colors"
         :"bg-blue-600 text-white py-2.5 px-5 font-medium text-sm rounded-lg hover:bg-blue-700 active:scale-95 transition-all duration-200 shadow-lg hover:shadow-xl"
         }>
         {isSignedIn() ? "Log Out" : "Sign In"}
       </button>
 
-      {/* {isSignedIn() && ( */}
+      {!isPublicPage && (
         <button
           onClick={() => navigate("/change-password")}
           className={isAuthPage?"cursor-pointer text-white text-md md:text-base hover:text-gray-300 transition-colors"
@@ -72,7 +73,7 @@ export default function AuthButton() {
         }>
           Change Password
         </button>
-      {/* )} */}
+       )}
     </div>
   );
 }
