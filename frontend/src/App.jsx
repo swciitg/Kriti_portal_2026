@@ -75,8 +75,8 @@ function App() {
             element={<SubmissionJudging />}
           />
         </Routes>
+        <Footer />
       </BrowserRouter>
-      <Footer />
     </UserProvider>
   );
 }
