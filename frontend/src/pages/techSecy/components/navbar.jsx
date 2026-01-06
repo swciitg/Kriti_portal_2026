@@ -71,12 +71,12 @@ export default function TechSecyNavbar() {
                     >
                         Rulebook
                     </button>
-                    <button
+                    {/* <button
                         className="cursor-pointer text-white text-md md:text-base hover:text-gray-300 transition-colors"
                         onClick={() => {navigate("/techsecy/register-team")}}
                     >
                         Registrations
-                    </button>
+                    </button> */}
                     <button
                         className="cursor-pointer text-white text-md md:text-base hover:text-gray-300 transition-colors"
                         onClick={() => {LogoutHandler()}}
@@ -146,12 +146,12 @@ export default function TechSecyNavbar() {
                         >
                             Rulebook
                         </button>
-                        <button
+                        {/* <button
                             className="cursor-pointer text-white text-xl hover:text-gray-300 transition-colors"
                             onClick={() => handleNavigation("/techsecy/register-team")}
                         >
                             Registrations
-                        </button>
+                        </button> */}
                         <button
                             className="cursor-pointer text-white text-xl hover:text-gray-300 transition-colors"
                             onClick={() => {LogoutHandler()}}
