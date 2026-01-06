@@ -1,5 +1,9 @@
 import React from "react";
 import { useNavigate } from "react-router-dom";
+import ts_ps from "../../../assets/bulb.svg"
+import ts_submis from "../../../assets/submis.svg"
+import ts_guide from  "../../../assets/guide.svg"
+import ts_team from "../../../assets/team.svg"
 
 const cards = [
   {
@@ -19,6 +23,7 @@ const cards = [
         />
       </svg>
     ),
+    src : ts_ps,
     path: "/techsecy/problem-statements",
   },
   {
@@ -38,6 +43,7 @@ const cards = [
         />
       </svg>
     ),
+    src : ts_team,
     path: "/techsecy/register-team",
   },
   {
@@ -125,6 +131,7 @@ const cards = [
         />
       </svg>
     ),
+    src : ts_submis,
     path: "/techsecy/submissions",
   },
   {
@@ -222,6 +229,7 @@ const cards = [
         />
       </svg>
     ),
+    src : ts_guide,
     path: "/techsecy/guidelines",
   },
 ];
@@ -235,7 +243,7 @@ const PsDetails = () => {
           <div
             key={index}
             onClick={() => navigate(card.path)}
-            className={`${card.bg} relative overflow-hidden rounded-2xl pt-6 pl-6 flex justify-between items-center cursor-pointer hover:shadow-lg transition`}
+            className={`${card.bg} relative overflow-hidden pb-16 rounded-2xl pt-6 pl-6 flex justify-between items-center cursor-pointer hover:shadow-lg transition pr-2`}
           >
             <div>
               <h2 className="font-bold text-md lg:text-2xl mb-2">{card.title}</h2>
@@ -259,7 +267,10 @@ const PsDetails = () => {
               </span>
             </div>
 
-            <div className="text-5xl opacity-40">{card.icon}</div>
+            <div className="absolute bottom-0 right-0">
+              <img src={card.src} alt="" className="w-40 h-40 md:w-60 md:h-60"/>
+              {/* {card.icon} */}
+            </div>
           </div>
         ))}
       </div>

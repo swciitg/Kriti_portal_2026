@@ -1,4 +1,5 @@
-import { BrowserRouter, Routes, Route } from "react-router-dom"
+import { BrowserRouter, Routes, Route, useLocation } from "react-router-dom"
+import { useLayoutEffect } from "react"
 import SignIn from "./pages/signIn.jsx"
 import Footer from "./components/footer.jsx"
 import OnboardUserPage from "./pages/convener/createUser.jsx"
@@ -28,15 +29,25 @@ import SubmissionForm from "./pages/techSecy/submissionForm.jsx";
 import ViewSubmission from "./pages/techSecy/viewSubmission.jsx";
 import Guidelines from "./pages/techSecy/guidelines.jsx"
 import ProblemStatementsForTechSecy from "./pages/techSecy/problemStatements.jsx"
+import HomePage from "./pages/HomePage.jsx"
 
+
+function Wrapper({ children }) {
+  const location = useLocation();
+  useLayoutEffect(() => {
+    document.documentElement.scrollTo(0, 0);
+  }, [location.pathname]);
+  return children;
+}
 
 function App() {
   return (
     <UserProvider>
       <BrowserRouter basename="/kriti-submission">
         <AuthButton />
-        <Routes>
-          <Route path="/" element={<SignIn />} />
+        <Wrapper>
+          <Routes>
+          <Route path="/" element={<HomePage />} />
           <Route path="/sign-in" element={<SignIn />} />
           <Route path="/change-password" element={<RequestPasswordReset />} />
           <Route path="/reset-password" element={<ResetPassword />} />
@@ -74,9 +85,10 @@ function App() {
             path="/company/hostel/:hostelId"
             element={<SubmissionJudging />}
           />
-        </Routes>
+          </Routes>
+        </Wrapper>
+        <Footer />
       </BrowserRouter>
-      <Footer />
     </UserProvider>
   );
 }

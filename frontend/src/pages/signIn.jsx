@@ -6,7 +6,7 @@ import { useNavigate } from "react-router-dom"
 import { Eye, EyeOff } from "lucide-react"
 import swcLogo from "../assets/swc.svg"
 import techLogo from "../assets/tech.png"
-import techSecy_bg from "../assets/techSecy_bg.png"
+import techSecy_bg from "../assets/techsecy_bg.png"
 
 export default function SignIn() {
   const [form, setForm] = useState({
