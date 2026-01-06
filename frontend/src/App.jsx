@@ -77,8 +77,7 @@ function App() {
           />
         </Routes>
       </BrowserRouter>
-      {/* <Footer />*/}
-      <NewFooter />
+      <Footer />
     </UserProvider>
   );
 }
