@@ -40,7 +40,7 @@ export default function TechSecyNavbar() {
     };
 
     const handleRulebookOpen = () => {
-        window.open('src/assets/Kriti_Rulebook.pdf', '_blank', 'noopener,noreferrer');
+        window.open('/kriti-submission/Kriti_Rulebook.pdf', '_blank', 'noopener,noreferrer');
     };
 
     return (
