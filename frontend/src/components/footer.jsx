@@ -42,16 +42,16 @@ const NewFooter = () => {
                 </div>
                 <div 
                 onClick={() => {
-                      window.open('src/assets/Kriti_Rulebook.pdf', '_blank', 'noopener,noreferrer');
+                      window.open('/kriti-submission/Kriti_Rulebook.pdf', '_blank', 'noopener,noreferrer');
                 }}
                 className='text-white font-mono text-[16px] sm:text-[18px] md:text-[20px] lg:text-[22px] xl:text-[24px] hover:text-[#93BBFF] transition-colors cursor-pointer'>
                   Rulebook
                 </div>
-                {/* <div 
+                <div 
                 onClick={() => {navigate("/techsecy/register-team")}}
                 className='text-black font-mono text-[16px] sm:text-[18px] md:text-[20px] lg:text-[22px] xl:text-[24px] text-center font-semibold tracking-[-0.22px] bg-[#93BBFF] w-full lg:w-auto lg:min-w-[200px] px-6 sm:px-8 py-3 lg:py-4 mt-4 sm:mt-6 lg:mt-[44px] rounded-md hover:bg-[#7AABEF] transition-colors cursor-pointer'>
                   Registrations
-                </div> */}
+                </div>
               </div>
             </div>
           </div>

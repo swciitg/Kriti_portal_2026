@@ -4,6 +4,7 @@ import { userContext } from "../../context/userContext";
 import { BACKEND_URL } from "../../constants";
 import PdfViewer from "../superAdmin/components/viewPS.jsx";
 import TechSecyNavbar from "./components/navbar.jsx";
+import full_bg from "../../assets/full_bg.png"
 
 export default function ProblemStatementsForTechSecy() {
   const navigate = useNavigate();
@@ -146,7 +147,7 @@ export default function ProblemStatementsForTechSecy() {
                 key={ps.id}
                 className="snap-start min-w-[380px] max-w-[380px]"
               >
-                <div className="h-full rounded-3xl bg-white/10 backdrop-blur-xl border border-white/20 shadow-xl hover:scale-[1.03] transition-all duration-300">
+                <div className="h-full rounded-3xl bg-[#171B34] backdrop-blur-xl border border-white/20 shadow-xl hover:scale-[1.03] transition-all duration-300">
                   <div className="p-6 flex flex-col h-full">
                     {/* Title */}
                     <h3 className="text-xl font-bold text-white mb-3 line-clamp-2 pb-4">
@@ -166,8 +167,9 @@ export default function ProblemStatementsForTechSecy() {
 
                     {/* Button */}
                     <button
+                      style={{background:"#93BBFF"}}
                       onClick={() => DownloadPDF(ps.pdf, ps.name + ".pdf")}
-                      className="mt-auto w-full bg-gradient-to-r from-blue-600 to-indigo-700 hover:from-blue-700 hover:to-indigo-800 text-white py-3 rounded-xl font-semibold shadow-lg"
+                      className="mt-auto text-[#0B0914] py-3 rounded-xl font-semibold shadow-lg transition-all"
                     >
                       View Problem Statement
                     </button>
@@ -191,14 +193,15 @@ export default function ProblemStatementsForTechSecy() {
 
 
   return (
-    <div className="min-h-screen bg-[url('/back.png')] bg-cover bg-center bg-no-repeat ">
+    <div className="min-h-screen bg-cover bg-no-repeat"
+    style={{ backgroundImage: `url(${full_bg})` }}>
       {pdfUrl && <PdfViewer pdfUrl={pdfUrl} setPdfUrl={setPdfUrl} />}
       {/* Loading State */}
       {loading && (
-        <div className="flex justify-center items-center py-20">
+        <div className="flex justify-center items-center py-20 fixed left-[45vw] top-[30vh]">
           <div className="text-center">
-            <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-blue-600 mx-auto mb-4"></div>
-            <p className="text-gray-600 font-medium">
+            <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-blue-900 mx-auto mb-4"></div>
+            <p className="text-white font-medium">
               Loading problem statements...
             </p>
           </div>
