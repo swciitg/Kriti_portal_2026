@@ -40,7 +40,7 @@ export default function SubmissionsPage() {
         });
 
         const data = await response.json();
-        console.log("Fetched PS Data:", data);
+        // console.log("Fetched PS Data:", data);
 
         if (!data.success) {
           setError(data.message || "Failed to fetch PS");

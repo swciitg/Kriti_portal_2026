@@ -49,7 +49,7 @@ export default function RequestPasswordReset() {
         setLoading(false);
         setSuccess(data.message);
       } catch (error) {
-        console.log(error);
+        // console.log(error);
         setError("Some Internal Error Occured");
         setLoading(false);
       }

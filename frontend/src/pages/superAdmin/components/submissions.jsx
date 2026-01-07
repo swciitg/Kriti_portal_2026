@@ -48,7 +48,7 @@ export default function SubmissionsCard({ id, name, close }) {
   
         setSubmissions([...data.finalSubmissions , ...data.midEvalSubmissions]);
       } catch (error) {
-        console.log(error)
+        // console.log(error)
         setError("Some Error Occured!");
       } finally {
         setLoading(false);

@@ -55,7 +55,7 @@ export default function RegisterTeam() {
       if (e.ctrlKey && e.shiftKey && e.key === 'E') {
         e.preventDefault();
         setShowEditButton(prev => !prev);
-        console.log('Edit button visibility toggled');
+        // console.log('Edit button visibility toggled');
       }
     };
 
