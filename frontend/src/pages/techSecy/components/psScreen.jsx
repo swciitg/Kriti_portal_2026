@@ -147,7 +147,7 @@ export default function PSScreen() {
             <span className="text-gray-400 text-sm">Deadline</span>
             <span
               className={`font-semibold text-sm ${
-                closed ? "text-red-400" : "text-red-400"
+                closed ? "text-red-400" : "text-white-400"
               }`}
             >
               {formatDeadline(ps.registrationDeadline)}
