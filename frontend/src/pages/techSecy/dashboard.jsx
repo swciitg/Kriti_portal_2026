@@ -1,5 +1,5 @@
 // src/pages/techSecy/dashboard.jsx
-import { useEffect, useContext } from "react";
+import { useEffect, useContext } from "react"
 import { useNavigate } from "react-router-dom";
 import { userContext } from "../../context/userContext";
 import kriti_logo from "../../assets/tech.png";
@@ -111,7 +111,7 @@ export default function TechSecyDashboard() {
         </div>
       </div>
     </div>
-    
+
     </>
   );
 }
