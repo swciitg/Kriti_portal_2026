@@ -42,7 +42,7 @@ const NewFooter = () => {
                 </div>
                 <div 
                 onClick={() => {
-                      window.open('src/assets/Kriti_Rulebook.pdf', '_blank', 'noopener,noreferrer');
+                      window.open('/kriti-submission/Kriti_Rulebook.pdf', '_blank', 'noopener,noreferrer');
                 }}
                 className='text-white font-mono text-[16px] sm:text-[18px] md:text-[20px] lg:text-[22px] xl:text-[24px] hover:text-[#93BBFF] transition-colors cursor-pointer'>
                   Rulebook
