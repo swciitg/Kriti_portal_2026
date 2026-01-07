@@ -117,7 +117,7 @@ export default function PSScreen() {
                   <div
                     key={ps.id}
                     className="bg-slate-900/90 backdrop-blur border border-white/10 
-                               rounded-xl shadow-lg hover:shadow-2xl transition flex flex-col"
+                               rounded-xl shadow-lg  flex flex-col"
                   >
                     {/* Header */}
                     <div className="p-5 text-white">
