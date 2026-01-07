@@ -47,7 +47,10 @@ export default function TechSecyNavbar() {
         <>
             <nav className="absolute w-full px-4 md:px-8 lg:px-16 py-4 flex items-center justify-between z-50">
                 {/* Logo */}
-                <div className="flex items-center">
+                <div className="flex items-center"
+                onClick={() => {
+                    navigate("/techsecy/")
+                }}>
                     <img
                         src={techBoardLogo}
                         alt="Tech Board Logo"
@@ -71,12 +74,12 @@ export default function TechSecyNavbar() {
                     >
                         Rulebook
                     </button>
-                    {/* <button
+                    <button
                         className="cursor-pointer text-white text-md md:text-base hover:text-gray-300 transition-colors"
                         onClick={() => {navigate("/techsecy/register-team")}}
                     >
                         Registrations
-                    </button> */}
+                    </button>
                     <button
                         className="cursor-pointer text-white text-md md:text-base hover:text-gray-300 transition-colors"
                         onClick={() => {LogoutHandler()}}

@@ -99,9 +99,9 @@ export default function PublicProblemStatements() {
           {items.map((ps) => (
             <div
               key={ps.id}
-              className="snap-start min-w-[380px] max-w-[380px]"
+              className="snap-start min-w-[380px] max-w-[380px] "
             >
-              <div className="h-full rounded-3xl bg-white/10 backdrop-blur-xl border border-white/20 shadow-xl hover:scale-[1.03] transition-all duration-300">
+              <div className="h-full rounded-3xl bg-[#171B34] backdrop-blur-xl border border-white/20 shadow-xl hover:scale-[1.03] transition-all duration-300">
                 <div className="p-6 flex flex-col h-full">
                   {/* Title */}
                   <h3 className="text-xl font-bold text-white mb-3 line-clamp-2 pb-4 min-h-[4rem]">
@@ -121,8 +121,9 @@ export default function PublicProblemStatements() {
 
                   {/* Button */}
                   <button
+                    style={{background:"#93BBFF"}}
                     onClick={() => DownloadPDF(ps.pdf, ps.name + ".pdf")}
-                    className="mt-auto w-full bg-gradient-to-r from-blue-600 to-indigo-700 hover:from-blue-700 hover:to-indigo-800 text-white py-3 rounded-xl font-semibold shadow-lg transition-all"
+                    className="mt-auto text-[#0B0914] py-3 rounded-xl font-semibold shadow-lg transition-all"
                   >
                     View Problem Statement
                   </button>
@@ -147,7 +148,7 @@ export default function PublicProblemStatements() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-800 via-slate-900 to-gray-900">
+    <div className="min-h-screen">
       {pdfUrl && <PdfViewer pdfUrl={pdfUrl} setPdfUrl={setPdfUrl} />}
 
       {/* Loading State */}
