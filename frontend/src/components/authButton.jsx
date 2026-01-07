@@ -33,7 +33,7 @@ export default function AuthButton() {
         navigate("/sign-in");
       }
     } catch (error) {
-      console.log(error);
+      // console.error(error);
     }
   }
 

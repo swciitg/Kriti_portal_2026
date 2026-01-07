@@ -49,7 +49,7 @@ export default function TeamsCard({id , name , close}) {
             setTeams(data.teams);
           }
         } catch (error) {
-          console.log(error)
+          // console.log(error)
           setError("Some Error Occured!");
         } finally {
           setLoading(false);

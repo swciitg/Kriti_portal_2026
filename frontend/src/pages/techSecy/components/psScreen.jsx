@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { userContext } from "../../../context/userContext.jsx";
 import { BACKEND_URL } from "../../../constants.js";
 import TechSecyNavbar from "../components/navbar.jsx";
+import full_bg from "../../../assets/full_bg.png";
 
 export default function PSScreen() {
   const navigate = useNavigate();
@@ -37,9 +38,6 @@ export default function PSScreen() {
 
         const data = await res.json();
         if (!res.ok) throw new Error(data.message || "Failed to fetch PS");
-        console.log("All Problem Statements:", data.ps);
-        console.log("Hi:", data.ps.teamRegistered);
-        // console.log(data.ps.teamRegistered);
         setProblemStatements(
           data.ps.map((item) => ({
             id: item._id,
@@ -74,9 +72,12 @@ export default function PSScreen() {
     });
 
   return (
-    <div className="min-h-screen bg-[url('/register.png')] bg-cover">
+    <div
+      className="min-h-screen bg-cover bg-no-repeat"
+      style={{ backgroundImage: `url(${full_bg})` }}
+    >
       {/* Dark overlay */}
-      <div className="min-h-screen bg-black/70">
+      <div className="min-h-screen">
         <TechSecyNavbar />
 
         <div className="max-w-7xl mx-auto px-6 py-10">
@@ -139,7 +140,7 @@ export default function PSScreen() {
                       <div className="flex justify-between mb-2">
                         <span>Team Size</span>
                         <span className="text-white font-semibold">
-                          {ps.teamStrength} 
+                          {ps.teamStrength}
                         </span>
                       </div>
 
@@ -162,8 +163,8 @@ export default function PSScreen() {
                           onClick={() =>
                             navigate(`/techsecy/register-team/${ps.id}`)
                           }
-                          className="w-full py-2.5 rounded-lg bg-green-600 hover:bg-green-700 
-                                text-white font-semibold transition"
+                          className="w-full py-2.5 rounded-lg bg-[#799BD9] hover:bg-[#5685dc] text-black cursor-pointer
+                               font-semibold transition"
                         >
                           View Team
                         </button>
@@ -189,7 +190,7 @@ export default function PSScreen() {
                     </div>
                     <div className="text-center text-xs font-semibold pb-3">
                       {ps.teamRegistered ? (
-                        <span className="text-green-400">Team Registered</span>
+                        <span className="text-white">Team Registered</span>
                       ) : closed ? (
                         <span className="text-red-400">
                           Registrations Closed

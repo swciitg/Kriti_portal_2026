@@ -58,3 +58,11 @@ button{
 .bebas-neue-regular {
   font-family: "Bebas Neue", sans-serif;
 }
+
+* {
+    -ms-overflow-style: none;  
+    scrollbar-width: none; 
+}
+*::-webkit-scrollbar { 
+    display: none; 
+}

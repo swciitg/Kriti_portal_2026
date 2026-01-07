@@ -49,7 +49,7 @@ export default function SubmissionForm() {
         if (new Date(timestamp) > oneDayAgo) {
           setUploadedFiles(savedFiles || {});
           setUrls(savedUrls || {});
-          console.log("Restored draft from localStorage");
+          // console.log("Restored draft from localStorage");
         } else {
           // Remove stale draft
           localStorage.removeItem(storageKey);

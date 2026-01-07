@@ -29,7 +29,7 @@ export default function TechSecyNavbar() {
             navigate("/sign-in");
           }
         } catch (error) {
-          console.log(error);
+        //   console.log(error);
         }
         setIsMenuOpen(false);
       }
