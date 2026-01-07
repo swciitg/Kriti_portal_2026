@@ -110,99 +110,97 @@ export default function PSScreen() {
           {/* Cards */}
           {!loading && problemStatements.length > 0 && (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-              {problemStatements.map((ps) => {
-                const closed = isDeadlinePassed(ps.registrationDeadline);
+  {problemStatements.map((ps) => {
+    const closed = isDeadlinePassed(ps.registrationDeadline);
 
-                return (
-                  <div
-                    key={ps.id}
-                    className="bg-slate-900/90 backdrop-blur border border-white/10 
-                               rounded-xl shadow-lg  flex flex-col"
-                  >
-                    {/* Header */}
-                    <div className="p-5 text-white">
-                      <div className="flex justify-between">
-                        <h3 className="font-bold text-lg leading-tight">
-                          {ps.name}
-                        </h3>
-                        <span className="text-sm text-gray-300">
-                          {ps.points} pts
-                        </span>
-                      </div>
+    return (
+      <div
+        key={ps.id}
+        className="bg-[#1a1f3a] border border-white/20 rounded-xl shadow-xl flex flex-col overflow-hidden"
+      >
+        {/* Header */}
+        <div className="p-4 bg-[#0f1323] border-b border-white/10">
+          <div className="flex justify-between items-start mb-2">
+            <h3 className="font-bold text-lg text-white leading-tight">
+              {ps.name}
+            </h3>
+            <span className="text-xl font-bold text-white">
+              {ps.points} pts
+            </span>
+          </div>
 
-                      <span className="inline-block mt-2 text-xs px-2 py-1 rounded bg-slate-500 border-[2px] border-[#D8DEF41A]">
-                        {ps.prep.toUpperCase()} Prep
-                      </span>
-                    </div>
+          <span className="inline-block text-xs px-2.5 py-1 rounded-md bg-slate-700/80 text-gray-300 border border-white/20 font-medium">
+            {ps.prep.toUpperCase()} Prep
+          </span>
+        </div>
 
-                    {/* Body */}
-                    <div className="px-5 pb-5 text-sm text-gray-300 flex-grow">
-                      <div className="flex justify-between mb-2">
-                        <span>Team Size</span>
-                        <span className="text-white font-semibold">
-                          {ps.teamStrength}
-                        </span>
-                      </div>
+        {/* Body */}
+        <div className="px-4 py-3 flex-grow">
+          <div className="flex justify-between items-center mb-3">
+            <span className="text-gray-400 text-sm">Team Size</span>
+            <span className="text-white font-semibold text-sm">
+              {ps.teamStrength}
+            </span>
+          </div>
 
-                      <div className="flex justify-between mb-4">
-                        <span>Deadline</span>
-                        <span
-                          className={`font-semibold ${
-                            closed ? "text-red-400" : "text-white"
-                          }`}
-                        >
-                          {formatDeadline(ps.registrationDeadline)}
-                        </span>
-                      </div>
-                    </div>
+          <div className="flex justify-between items-center mb-4">
+            <span className="text-gray-400 text-sm">Deadline</span>
+            <span
+              className={`font-semibold text-sm ${
+                closed ? "text-red-400" : "text-red-400"
+              }`}
+            >
+              {formatDeadline(ps.registrationDeadline)}
+            </span>
+          </div>
+        </div>
 
-                    {/* Footer */}
-                    <div className="p-5">
-                      {ps.teamRegistered ? (
-                        <button
-                          onClick={() =>
-                            navigate(`/techsecy/register-team/${ps.id}`)
-                          }
-                          className="w-full py-2.5 rounded-lg bg-[#799BD9] hover:bg-[#5685dc] text-black cursor-pointer
-                               font-semibold transition"
-                        >
-                          View Team
-                        </button>
-                      ) : (
-                        <button
-                          disabled={closed}
-                          onClick={() => {
-                            if (!closed) {
-                              navigate(`/techsecy/register-team/${ps.id}`);
-                            }
-                          }}
-                          className={`w-full py-2.5 rounded-lg font-semibold transition
-                        ${
-                          closed
-                            ? "bg-gray-500/40 text-gray-300 cursor-not-allowed"
-                            : "bg-[#799BD9] hover:bg-[#5685dc] text-black cursor-pointer"
-                        }
-                      `}
-                        >
-                          {closed ? "Registration Closed" : "Register Team"}
-                        </button>
-                      )}
-                    </div>
-                    <div className="text-center text-xs font-semibold pb-3">
-                      {ps.teamRegistered ? (
-                        <span className="text-white">Team Registered</span>
-                      ) : closed ? (
-                        <span className="text-red-400">
-                          Registrations Closed
-                        </span>
-                      ) : (
-                        <span className="text-blue-400">Registration Open</span>
-                      )}
-                    </div>
-                  </div>
-                );
-              })}
-            </div>
+        {/* Footer */}
+        <div className="px-4 pb-3">
+          {ps.teamRegistered ? (
+            <button
+              onClick={() =>
+                navigate(`/techsecy/register-team/${ps.id}`)
+              }
+              className="w-full py-2.5 rounded-lg bg-[#6b93d6] hover:bg-[#5685dc] text-black font-bold transition text-sm"
+            >
+              View Team
+            </button>
+          ) : (
+            <button
+              disabled={closed}
+              onClick={() => {
+                if (!closed) {
+                  navigate(`/techsecy/register-team/${ps.id}`);
+                }
+              }}
+              className={`w-full py-2.5 rounded-lg font-bold transition text-sm
+                ${
+                  closed
+                    ? "bg-gray-600/40 text-gray-400 cursor-not-allowed"
+                    : "bg-[#6b93d6] hover:bg-[#5685dc] text-black"
+                }
+              `}
+            >
+              {closed ? "Registration Closed" : "Register Team"}
+            </button>
+          )}
+        </div>
+        <div className="text-center pb-3">
+          {ps.teamRegistered ? (
+            <span className="text-white text-xs font-semibold">Team Registered</span>
+          ) : closed ? (
+            <span className="text-red-400 text-xs font-semibold">
+              Registrations closed
+            </span>
+          ) : (
+            <span className="text-blue-400 text-xs font-semibold">Registration Open</span>
+          )}
+        </div>
+      </div>
+    );
+  })}
+</div>
           )}
         </div>
       </div>
