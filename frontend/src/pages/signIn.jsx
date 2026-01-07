@@ -120,7 +120,7 @@ export default function SignIn() {
                 className="w-full px-4 py-2 bg-[#0f1219] border border-gray-700 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:border-blue-500 transition-colors"
                 placeholder="Enter your username"
                 value={form.username}
-                onChange={(e) => setForm({ ...form, username: e.target.value })}
+                onChange={(e) => setForm({ ...form, username: e.target.value.trim() })} 
               />
             </div>
 
