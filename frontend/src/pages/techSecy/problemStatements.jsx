@@ -145,7 +145,7 @@ export default function ProblemStatementsForTechSecy() {
             {items.map((ps) => (
               <div
                 key={ps.id}
-                className="snap-start min-w-[380px] max-w-[380px]"
+                className="snap-start flex-shrink-0 w-[280px] sm:w-[380px]"
               >
                 <div className="h-full rounded-3xl bg-[#171B34] backdrop-blur-xl border border-white/20 shadow-xl hover:scale-[1.03] transition-all duration-300">
                   <div className="p-6 flex flex-col h-full">
@@ -214,7 +214,7 @@ export default function ProblemStatementsForTechSecy() {
         PROBLEM STATEMENTS
       </h1>
       {highPS.length > 0 && (
-        <div className="px-16 text-white">
+        <div className="px-4 md:px-16 text-white">
           <h2 className="text-3xl pt-12 font-bold bebas-neue-regular">
             High Prep Problem Statements
           </h2>
@@ -237,7 +237,7 @@ export default function ProblemStatementsForTechSecy() {
         </div>
       )}
       {midPS.length > 0 && (
-        <div className="px-16 text-white ">
+        <div className="px-4 md:px-16 text-white ">
           <h2 className="text-3xl pt-12 font-bold bebas-neue-regular">
             Mid Prep Problem Statements
           </h2>
@@ -258,7 +258,7 @@ export default function ProblemStatementsForTechSecy() {
         </div>
       )}
       {lowPS.length > 0 && (
-        <div className="px-16 text-white">
+        <div className="px-4 md:px-16 text-white">
           <h2 className="text-3xl pt-12 font-bold bebas-neue-regular">
             Low Prep Problem Statements
           </h2>
@@ -278,7 +278,7 @@ export default function ProblemStatementsForTechSecy() {
         </div>
       )}
       {noPS.length > 0 && (
-        <div className="px-16 text-white">
+        <div className="px-4 md:px-16 text-white">
           <h2 className="text-3xl pt-12 font-bold">
             No Prep Problem Statements
           </h2>
