@@ -38,6 +38,8 @@ export default function RegisterTeam() {
   const canEdit = requestStatus === "approved";
   const isEditing = Boolean(existingTeam);
 
+  const [submitLoading, setSubmitLoading] = useState(false);
+
   // Auth check
   useEffect(() => {
     const stored = JSON.parse(localStorage.getItem("user"));
@@ -224,6 +226,7 @@ export default function RegisterTeam() {
     try {
       setError("");
       setMessage("");
+      setSubmitLoading(true);
 
       // Validate all fields
       for (let i = 0; i < teamMembers.length; i++) {
@@ -280,10 +283,13 @@ export default function RegisterTeam() {
         isEditing ? "Team updated successfully!" : "Team registered successfully!"
       );
 
-      setTimeout(() => navigate(0), 1000);
+      // setTimeout(() => navigate(0), 1000);
+      navigate(0);
     } catch (err) {
       console.error("Submit team error:", err);
       setError("Server error");
+    } finally {
+      setSubmitLoading(false);
     }
   }
 
@@ -660,6 +666,8 @@ export default function RegisterTeam() {
                   </div>
 
                   {/* Action buttons */}
+                  {
+                  !submitLoading &&  
                   <div className="flex flex-col sm:flex-row items-center gap-4 mt-8">
                     <button
                       onClick={addMember}
@@ -682,13 +690,24 @@ export default function RegisterTeam() {
                       {isEditing ? "Update Team" : "Register Team"}
                     </button>
                   </div>
+                  }
 
-                  <button
+                  {
+                  !submitLoading && <button
                     onClick={() => navigate("/techsecy/register-team")}
                     className="w-full mt-4 bg-[#1a1f3a]/80 text-gray-300 py-3 rounded-lg font-semibold hover:bg-[#2d4a8f]/60 hover:text-white transition border border-[#93BBFF]/20"
                   >
                     Cancel & Go Back
                   </button>
+                  }
+
+                  {
+                    submitLoading && 
+                    <div className="flex flex items-center gap-4 justify-center w-full mt-4 bg-[#1a1f3a]/80 text-gray-300 py-3 rounded-lg font-semibold hover:bg-[#2d4a8f]/60 hover:text-white transition border border-[#93BBFF]/20">
+                      <div className="animate-spin rounded-full h-8 w-8 border-b-4 border-[#93BBFF]"></div>
+                      <div className="text-xl font-semibold text-white">Saving...</div>
+                    </div>
+                  }
                 </div>
               )}
 
