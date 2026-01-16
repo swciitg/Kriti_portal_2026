@@ -272,6 +272,7 @@ export default function RegisterTeam() {
       const data = await res.json();
 
       if (!res.ok) {
+        window.scrollTo({ top: 0, behavior: "smooth" });
         setError(data.message || "Failed to save team");
         return;
       }
@@ -283,8 +284,7 @@ export default function RegisterTeam() {
         isEditing ? "Team updated successfully!" : "Team registered successfully!"
       );
 
-      // setTimeout(() => navigate(0), 1000);
-      navigate(0);
+      setTimeout(() => navigate(0), 1000);
     } catch (err) {
       console.error("Submit team error:", err);
       setError("Server error");
