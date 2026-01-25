@@ -42,7 +42,11 @@ export default function SubmissionForm() {
     const savedDraft = localStorage.getItem(storageKey);
     if (savedDraft) {
       try {
-        const { uploadedFiles: savedFiles, urls: savedUrls, timestamp } = JSON.parse(savedDraft);
+        const {
+          uploadedFiles: savedFiles,
+          urls: savedUrls,
+          timestamp,
+        } = JSON.parse(savedDraft);
 
         // Only restore if saved within last 24 hours (prevent stale data)
         const oneDayAgo = new Date(Date.now() - 24 * 60 * 60 * 1000);
@@ -63,13 +67,14 @@ export default function SubmissionForm() {
 
   // Save draft to localStorage whenever uploads or URLs change
   useEffect(() => {
-    const hasData = Object.keys(uploadedFiles).length > 0 || Object.keys(urls).length > 0;
+    const hasData =
+      Object.keys(uploadedFiles).length > 0 || Object.keys(urls).length > 0;
 
     if (hasData) {
       const draft = {
         uploadedFiles,
         urls,
-        timestamp: new Date().toISOString()
+        timestamp: new Date().toISOString(),
       };
       localStorage.setItem(storageKey, JSON.stringify(draft));
     }
@@ -77,20 +82,21 @@ export default function SubmissionForm() {
 
   // Warn user before leaving page if they have unsaved uploads
   useEffect(() => {
-    const hasUnsavedUploads = Object.keys(uploadedFiles).length > 0 || Object.keys(urls).length > 0;
+    const hasUnsavedUploads =
+      Object.keys(uploadedFiles).length > 0 || Object.keys(urls).length > 0;
 
     const handleBeforeUnload = (e) => {
       if (hasUnsavedUploads) {
         e.preventDefault();
-        e.returnValue = ''; // Chrome requires this
-        return 'You have uploaded files that are not submitted yet. Are you sure you want to leave?';
+        e.returnValue = ""; // Chrome requires this
+        return "You have uploaded files that are not submitted yet. Are you sure you want to leave?";
       }
     };
 
-    window.addEventListener('beforeunload', handleBeforeUnload);
+    window.addEventListener("beforeunload", handleBeforeUnload);
 
     return () => {
-      window.removeEventListener('beforeunload', handleBeforeUnload);
+      window.removeEventListener("beforeunload", handleBeforeUnload);
     };
   }, [uploadedFiles, urls]);
 
@@ -108,7 +114,7 @@ export default function SubmissionForm() {
               "Content-Type": "application/json",
               Authorization: token ? `Bearer ${token}` : "",
             },
-          }
+          },
         );
         const userInfoData = await userInfoResponse.json();
         if (userInfoData.success) {
@@ -124,7 +130,7 @@ export default function SubmissionForm() {
               "Content-Type": "application/json",
               Authorization: token ? `Bearer ${token}` : "",
             },
-          }
+          },
         );
 
         const data = await response.json();
@@ -150,6 +156,55 @@ export default function SubmissionForm() {
     fetchData();
   }, [psId, type]);
 
+  // const handleFileSelect = async (deliverableName, file, deliverableType) => {
+  //   if (!file) return;
+
+  //   setUploading((prev) => ({ ...prev, [deliverableName]: true }));
+  //   setError("");
+
+  //   try {
+  //     const formData = new FormData();
+  //     formData.append("file", file);
+  //     formData.append("psId", psId);
+  //     formData.append("deliverableName", deliverableName);
+  //     formData.append("midEval", type === "mid" ? "true" : "false");
+
+  //     const token = localStorage.getItem("accessToken");
+  //     const response = await fetch(`${BACKEND_URL}/v1/pssubmission/upload-temp`, {
+  //       method: "POST",
+  //       headers: {
+  //         Authorization: token ? `Bearer ${token}` : "",
+  //       },
+  //       body: formData,
+  //     });
+
+  //     const data = await response.json();
+
+  //     if (!response.ok || !data.success) {
+  //       setError(data.message || `Upload failed for ${deliverableName}`);
+  //       setUploading((prev) => ({ ...prev, [deliverableName]: false }));
+  //       return;
+  //     }
+
+  //     setUploadedFiles((prev) => ({
+  //       ...prev,
+  //       [deliverableName]: {
+  //         filename: data.filename,
+  //         url: data.fileUrl,
+  //         originalName: data.originalName,
+  //       },
+  //     }));
+
+  //     setUploading((prev) => ({ ...prev, [deliverableName]: false }));
+  //   } catch (err) {
+  //     console.error("Upload error:", err);
+  //     setError("Upload failed: " + err.message);
+  //     setUploading((prev) => ({ ...prev, [deliverableName]: false }));
+  //   }
+  // };
+
+  const CHUNK_SIZE = 5 * 1024 * 1024; // 5MB per chunk
+
   const handleFileSelect = async (deliverableName, file, deliverableType) => {
     if (!file) return;
 
@@ -157,41 +212,57 @@ export default function SubmissionForm() {
     setError("");
 
     try {
-      const formData = new FormData();
-      formData.append("file", file);
-      formData.append("psId", psId);
-      formData.append("deliverableName", deliverableName);
-      formData.append("midEval", type === "mid" ? "true" : "false");
-
       const token = localStorage.getItem("accessToken");
-      const response = await fetch(`${BACKEND_URL}/v1/pssubmission/upload-temp`, {
-        method: "POST",
-        headers: {
-          Authorization: token ? `Bearer ${token}` : "",
-        },
-        body: formData,
-      });
+      const totalChunks = Math.ceil(file.size / CHUNK_SIZE);
 
-      const data = await response.json();
+      for (let chunkIndex = 0; chunkIndex < totalChunks; chunkIndex++) {
+        const start = chunkIndex * CHUNK_SIZE;
+        const end = Math.min(file.size, start + CHUNK_SIZE);
+        const chunk = file.slice(start, end);
 
-      if (!response.ok || !data.success) {
-        setError(data.message || `Upload failed for ${deliverableName}`);
-        setUploading((prev) => ({ ...prev, [deliverableName]: false }));
-        return;
+        const formData = new FormData();
+        formData.append("chunk", chunk);
+        formData.append("fileName", file.name);
+        formData.append("chunkIndex", chunkIndex);
+        formData.append("totalChunks", totalChunks);
+
+        // keep your metadata
+        formData.append("psId", psId);
+        formData.append("deliverableName", deliverableName);
+        formData.append("midEval", type === "mid" ? "true" : "false");
+
+        const res = await fetch(
+          `${BACKEND_URL}/v1/pssubmission/upload-chunk?fileName=${file.name}&chunkIndex=${chunkIndex}&totalChunks=${totalChunks}`,
+          {
+            method: "POST",
+            headers: {
+              Authorization: token ? `Bearer ${token}` : "",
+            },
+            body: formData,
+          },
+        );
+
+        const data = await res.json();
+        if (!res.ok) {
+          throw new Error(data.message || `Chunk ${chunkIndex} failed`);
+        }
+
+        console.log(`Uploaded chunk ${chunkIndex + 1}/${totalChunks}`);
       }
 
+      // After all chunks uploaded
       setUploadedFiles((prev) => ({
         ...prev,
         [deliverableName]: {
-          filename: data.filename,
-          url: data.fileUrl,
-          originalName: data.originalName,
+          filename: file.name,
+          url: `/uploads/final/${file.name}`, // backend returns better path ideally
+          originalName: file.name,
         },
       }));
 
       setUploading((prev) => ({ ...prev, [deliverableName]: false }));
     } catch (err) {
-      console.error("Upload error:", err);
+      console.error("Chunk upload error:", err);
       setError("Upload failed: " + err.message);
       setUploading((prev) => ({ ...prev, [deliverableName]: false }));
     }
@@ -222,9 +293,7 @@ export default function SubmissionForm() {
     });
 
     if (missingDeliverables.length > 0) {
-      setError(
-        `Missing: ${missingDeliverables.map((d) => d.name).join(", ")}`
-      );
+      setError(`Missing: ${missingDeliverables.map((d) => d.name).join(", ")}`);
       return;
     }
 
@@ -266,7 +335,9 @@ export default function SubmissionForm() {
       const data = await response.json();
 
       if (!response.ok || !data.success) {
-        setError(data.message || `Submission failed with status ${response.status}`);
+        setError(
+          data.message || `Submission failed with status ${response.status}`,
+        );
         setSubmitting(false);
         return;
       }
@@ -301,7 +372,7 @@ export default function SubmissionForm() {
     });
     const fileInput = document.getElementById(`file-${idx}`);
     if (fileInput) {
-      fileInput.value = '';
+      fileInput.value = "";
     }
   };
 
@@ -341,7 +412,9 @@ export default function SubmissionForm() {
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="flex flex-col items-center gap-3">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
-          <div className="text-xl text-gray-600">Loading submission form...</div>
+          <div className="text-xl text-gray-600">
+            Loading submission form...
+          </div>
         </div>
       </div>
     );
@@ -391,10 +464,22 @@ export default function SubmissionForm() {
                   </h1>
                   {hostelId && (
                     <div className="flex items-center gap-2 bg-blue-50 px-4 py-2 rounded-lg border border-blue-200">
-                      <svg className="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
+                      <svg
+                        className="w-5 h-5 text-blue-600"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth={2}
+                          d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"
+                        />
                       </svg>
-                      <span className="text-sm font-semibold text-blue-900">Hostel {prependZeroes(hostelId , 4)}</span>
+                      <span className="text-sm font-semibold text-blue-900">
+                        Hostel {prependZeroes(hostelId, 4)}
+                      </span>
                     </div>
                   )}
                 </div>
@@ -404,10 +489,21 @@ export default function SubmissionForm() {
               </div>
 
               {/* Auto-save indicator */}
-              {(Object.keys(uploadedFiles).length > 0 || Object.keys(urls).length > 0) && (
+              {(Object.keys(uploadedFiles).length > 0 ||
+                Object.keys(urls).length > 0) && (
                 <div className="mb-4 p-2 bg-green-50 border border-green-200 rounded flex items-center gap-2">
-                  <svg className="w-4 h-4 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                  <svg
+                    className="w-4 h-4 text-green-600"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M5 13l4 4L19 7"
+                    />
                   </svg>
                   <p className="text-xs text-green-700">
                     Draft auto-saved. You can safely reload this page.
@@ -418,8 +514,18 @@ export default function SubmissionForm() {
               {/* Deadline Info */}
               <div className="bg-blue-50 border border-blue-200 rounded p-4 mb-6">
                 <div className="flex items-start gap-3">
-                  <svg className="w-5 h-5 text-blue-600 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                  <svg
+                    className="w-5 h-5 text-blue-600 mt-0.5"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"
+                    />
                   </svg>
                   <div className="flex-1">
                     <p className="text-sm">
@@ -440,8 +546,18 @@ export default function SubmissionForm() {
                     </p>
                     {ps?.deadline && new Date() > new Date(ps.deadline) && (
                       <p className="text-sm text-red-600 mt-2 flex items-center gap-2">
-                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                        <svg
+                          className="w-4 h-4"
+                          fill="none"
+                          stroke="currentColor"
+                          viewBox="0 0 24 24"
+                        >
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth={2}
+                            d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"
+                          />
                         </svg>
                         Submission is past deadline - penalty will be applied
                       </p>
@@ -452,8 +568,18 @@ export default function SubmissionForm() {
 
               {error && (
                 <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4 flex items-start gap-2">
-                  <svg className="w-5 h-5 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                  <svg
+                    className="w-5 h-5 flex-shrink-0 mt-0.5"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M6 18L18 6M6 6l12 12"
+                    />
                   </svg>
                   <span>{error}</span>
                 </div>
@@ -507,31 +633,74 @@ export default function SubmissionForm() {
                               onClick={() => {
                                 const file = files[deliverable.name];
                                 if (file) {
-                                  handleFileSelect(deliverable.name, file, deliverable.type);
+                                  handleFileSelect(
+                                    deliverable.name,
+                                    file,
+                                    deliverable.type,
+                                  );
                                 }
                               }}
-                              disabled={!files[deliverable.name] || uploading[deliverable.name] || uploadedFiles[deliverable.name]}
+                              disabled={
+                                !files[deliverable.name] ||
+                                uploading[deliverable.name] ||
+                                uploadedFiles[deliverable.name]
+                              }
                               className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled:bg-gray-400 disabled:cursor-not-allowed whitespace-nowrap flex items-center gap-2"
                             >
                               {uploading[deliverable.name] ? (
                                 <>
-                                  <svg className="animate-spin h-4 w-4" fill="none" viewBox="0 0 24 24">
-                                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                                  <svg
+                                    className="animate-spin h-4 w-4"
+                                    fill="none"
+                                    viewBox="0 0 24 24"
+                                  >
+                                    <circle
+                                      className="opacity-25"
+                                      cx="12"
+                                      cy="12"
+                                      r="10"
+                                      stroke="currentColor"
+                                      strokeWidth="4"
+                                    ></circle>
+                                    <path
+                                      className="opacity-75"
+                                      fill="currentColor"
+                                      d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                                    ></path>
                                   </svg>
                                   Uploading...
                                 </>
                               ) : uploadedFiles[deliverable.name] ? (
                                 <>
-                                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                                  <svg
+                                    className="w-4 h-4"
+                                    fill="none"
+                                    stroke="currentColor"
+                                    viewBox="0 0 24 24"
+                                  >
+                                    <path
+                                      strokeLinecap="round"
+                                      strokeLinejoin="round"
+                                      strokeWidth={2}
+                                      d="M5 13l4 4L19 7"
+                                    />
                                   </svg>
                                   Uploaded
                                 </>
                               ) : (
                                 <>
-                                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
+                                  <svg
+                                    className="w-4 h-4"
+                                    fill="none"
+                                    stroke="currentColor"
+                                    viewBox="0 0 24 24"
+                                  >
+                                    <path
+                                      strokeLinecap="round"
+                                      strokeLinejoin="round"
+                                      strokeWidth={2}
+                                      d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"
+                                    />
                                   </svg>
                                   Upload
                                 </>
@@ -541,9 +710,24 @@ export default function SubmissionForm() {
 
                           {uploading[deliverable.name] && (
                             <div className="mt-2 p-2 bg-blue-50 border border-blue-200 rounded flex items-center gap-2">
-                              <svg className="animate-spin h-4 w-4 text-blue-600" fill="none" viewBox="0 0 24 24">
-                                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                              <svg
+                                className="animate-spin h-4 w-4 text-blue-600"
+                                fill="none"
+                                viewBox="0 0 24 24"
+                              >
+                                <circle
+                                  className="opacity-25"
+                                  cx="12"
+                                  cy="12"
+                                  r="10"
+                                  stroke="currentColor"
+                                  strokeWidth="4"
+                                ></circle>
+                                <path
+                                  className="opacity-75"
+                                  fill="currentColor"
+                                  d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                                ></path>
                               </svg>
                               <p className="text-sm text-blue-600">
                                 Uploading file to server...
@@ -554,22 +738,45 @@ export default function SubmissionForm() {
                           {uploadedFiles[deliverable.name] && (
                             <div className="mt-2">
                               <div className="flex items-center gap-2 p-2 bg-green-50 border border-green-200 rounded">
-                                <svg className="w-4 h-4 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                                <svg
+                                  className="w-4 h-4 text-green-600"
+                                  fill="none"
+                                  stroke="currentColor"
+                                  viewBox="0 0 24 24"
+                                >
+                                  <path
+                                    strokeLinecap="round"
+                                    strokeLinejoin="round"
+                                    strokeWidth={2}
+                                    d="M5 13l4 4L19 7"
+                                  />
                                 </svg>
                                 <p className="text-sm text-green-600 flex-1">
-                                  Uploaded: {uploadedFiles[deliverable.name].originalName}
+                                  Uploaded:{" "}
+                                  {uploadedFiles[deliverable.name].originalName}
                                 </p>
                               </div>
                               {getFilePreview(deliverable)}
 
                               <button
                                 type="button"
-                                onClick={() => handleReplaceFile(deliverable.name, idx)}
+                                onClick={() =>
+                                  handleReplaceFile(deliverable.name, idx)
+                                }
                                 className="mt-2 text-sm text-red-600 hover:text-red-800 underline flex items-center gap-1"
                               >
-                                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                                <svg
+                                  className="w-4 h-4"
+                                  fill="none"
+                                  stroke="currentColor"
+                                  viewBox="0 0 24 24"
+                                >
+                                  <path
+                                    strokeLinecap="round"
+                                    strokeLinejoin="round"
+                                    strokeWidth={2}
+                                    d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"
+                                  />
                                 </svg>
                                 Replace file
                               </button>
@@ -591,14 +798,31 @@ export default function SubmissionForm() {
                   </button>
                   <button
                     type="submit"
-                    disabled={submitting || Object.values(uploading).some(Boolean)}
+                    disabled={
+                      submitting || Object.values(uploading).some(Boolean)
+                    }
                     className="flex-1 bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700 disabled:bg-gray-400 disabled:cursor-not-allowed flex items-center justify-center gap-2"
                   >
                     {submitting ? (
                       <>
-                        <svg className="animate-spin h-5 w-5" fill="none" viewBox="0 0 24 24">
-                          <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                          <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                        <svg
+                          className="animate-spin h-5 w-5"
+                          fill="none"
+                          viewBox="0 0 24 24"
+                        >
+                          <circle
+                            className="opacity-25"
+                            cx="12"
+                            cy="12"
+                            r="10"
+                            stroke="currentColor"
+                            strokeWidth="4"
+                          ></circle>
+                          <path
+                            className="opacity-75"
+                            fill="currentColor"
+                            d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                          ></path>
                         </svg>
                         Submitting...
                       </>
@@ -643,20 +867,35 @@ export default function SubmissionForm() {
                 <div key={idx} className="text-sm border-b pb-2">
                   <strong>{deliverable.name}:</strong>{" "}
                   {deliverable.type === "url" ? (
-                    <span className="text-blue-600 break-all">{urls[deliverable.name]}</span>
+                    <span className="text-blue-600 break-all">
+                      {urls[deliverable.name]}
+                    </span>
                   ) : (
-                    <span>File: {uploadedFiles[deliverable.name]?.originalName}</span>
+                    <span>
+                      File: {uploadedFiles[deliverable.name]?.originalName}
+                    </span>
                   )}
                 </div>
               ))}
             </div>
 
             <div className="p-3 bg-red-50 border border-red-200 rounded mb-6 flex gap-2">
-              <svg className="w-5 h-5 text-red-600 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+              <svg
+                className="w-5 h-5 text-red-600 flex-shrink-0 mt-0.5"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"
+                />
               </svg>
               <p className="text-sm text-red-800">
-                Warning: Once submitted, you cannot change or resubmit this submission.
+                Warning: Once submitted, you cannot change or resubmit this
+                submission.
               </p>
             </div>
 
