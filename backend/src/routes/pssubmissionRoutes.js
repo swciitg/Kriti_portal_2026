@@ -16,7 +16,7 @@ import { getSubmission } from "../controllers/techSecy/submissions.js";
 const router = Router();
 
 // Max temp upload size (bytes). Can be set via env `MAX_TEMP_UPLOAD_SIZE`.
-const MAX_FILE_SIZE = parseInt("500*1024*1024");
+const MAX_FILE_SIZE = 500*1024*1024;
 
 // Create temp upload directory
 const tempDir = path.join(process.cwd(), "uploads", "temp");
