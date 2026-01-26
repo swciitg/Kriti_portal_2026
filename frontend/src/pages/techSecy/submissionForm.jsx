@@ -4,6 +4,7 @@ import { userContext } from "../../context/userContext";
 import { BACKEND_URL } from "../../constants";
 import SubmissionGuidelines from "../../components/SubmissionGuidelines";
 import prependZeroes from "../../utils/prependZeroes";
+import bgImage from "../../assets/techsecy_bg.png";
 
 export default function SubmissionForm() {
   const navigate = useNavigate();
@@ -155,53 +156,6 @@ export default function SubmissionForm() {
 
     fetchData();
   }, [psId, type]);
-
-  // const handleFileSelect = async (deliverableName, file, deliverableType) => {
-  //   if (!file) return;
-
-  //   setUploading((prev) => ({ ...prev, [deliverableName]: true }));
-  //   setError("");
-
-  //   try {
-  //     const formData = new FormData();
-  //     formData.append("file", file);
-  //     formData.append("psId", psId);
-  //     formData.append("deliverableName", deliverableName);
-  //     formData.append("midEval", type === "mid" ? "true" : "false");
-
-  //     const token = localStorage.getItem("accessToken");
-  //     const response = await fetch(`${BACKEND_URL}/v1/pssubmission/upload-temp`, {
-  //       method: "POST",
-  //       headers: {
-  //         Authorization: token ? `Bearer ${token}` : "",
-  //       },
-  //       body: formData,
-  //     });
-
-  //     const data = await response.json();
-
-  //     if (!response.ok || !data.success) {
-  //       setError(data.message || `Upload failed for ${deliverableName}`);
-  //       setUploading((prev) => ({ ...prev, [deliverableName]: false }));
-  //       return;
-  //     }
-
-  //     setUploadedFiles((prev) => ({
-  //       ...prev,
-  //       [deliverableName]: {
-  //         filename: data.filename,
-  //         url: data.fileUrl,
-  //         originalName: data.originalName,
-  //       },
-  //     }));
-
-  //     setUploading((prev) => ({ ...prev, [deliverableName]: false }));
-  //   } catch (err) {
-  //     console.error("Upload error:", err);
-  //     setError("Upload failed: " + err.message);
-  //     setUploading((prev) => ({ ...prev, [deliverableName]: false }));
-  //   }
-  // };
 
   const CHUNK_SIZE = 5 * 1024 * 1024; // 5MB per chunk
 
@@ -432,7 +386,12 @@ export default function SubmissionForm() {
 
   return (
     <div className="min-h-screen bg-gray-50 py-8 px-4">
-      <div className="max-w-7xl mx-auto">
+      <img
+        src={bgImage}
+        alt=""
+        className="fixed inset-0 w-full h-full object-cover z-10"
+      />
+      <div className="max-w-7xl mx-auto relative z-20">
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           {/* Main Form - Left Side (2/3) */}
           <div className="lg:col-span-2">
