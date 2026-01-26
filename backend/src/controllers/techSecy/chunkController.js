@@ -10,11 +10,11 @@ if (!fs.existsSync(FINAL_DIR)) fs.mkdirSync(FINAL_DIR, { recursive: true });
 export const uploadChunk = async (req, res) => {
   try {
     const { fileName, chunkIndex, totalChunks } = req.body;
-    console.log(
-      `User ${req.user._id} uploaded chunk ${chunkIndex}/${totalChunks} of ${fileName}`,
-    );
+    // console.log(
+    //   `User ${req.user._id} uploaded chunk ${chunkIndex}/${totalChunks} of ${fileName}`,
+    // );
     if (Number(chunkIndex) === Number(totalChunks) - 1) {
-        console.log("Chunks in folder:", fs.readdirSync(CHUNKS_DIR));
+        // console.log("Chunks in folder:", fs.readdirSync(CHUNKS_DIR));
       const finalFilePath = await mergeChunks(
         req.user._id,
         fileName,
@@ -51,7 +51,6 @@ async function mergeChunks(userId, fileName, totalChunks) {
     });
   }
   writeStream.end();
-  console.log("Merged file:", finalPath);
-
+  // console.log("Merged file:", finalPath);
   return finalPath;
 }
