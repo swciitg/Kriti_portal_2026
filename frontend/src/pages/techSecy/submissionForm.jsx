@@ -5,6 +5,7 @@ import { BACKEND_URL } from "../../constants";
 import SubmissionGuidelines from "../../components/SubmissionGuidelines";
 import prependZeroes from "../../utils/prependZeroes";
 import bgImage from "../../assets/techsecy_bg.png";
+import TechSecyNavbar from "./components/navbar.jsx";
 
 export default function SubmissionForm() {
   const navigate = useNavigate();
@@ -385,23 +386,24 @@ export default function SubmissionForm() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 py-8 px-4">
+    <div className="min-h-screen bg-gray-50 px-4">
       <img
         src={bgImage}
         alt=""
         className="fixed inset-0 w-full h-full object-cover z-10"
       />
-      <div className="max-w-7xl mx-auto relative z-20">
+      <TechSecyNavbar />
+      <div className="max-w-7xl mx-auto relative z-20 pt-30">
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           {/* Main Form - Left Side (2/3) */}
           <div className="lg:col-span-2">
-            <div className="bg-white shadow rounded-lg p-6">
+            <div className="bg-white/5 backdrop-blur-xl border border-white/10 rounded-2xl p-6 shadow-[0_0_40px_rgba(0,0,0,0.4)]">
               {/* Header with Hostel Info */}
               <div className="mb-6">
                 <div className="flex items-center justify-between mb-2">
                   <button
                     onClick={() => navigate("/techsecy/submissions")}
-                    className="flex items-center text-blue-600 hover:text-blue-700 mb-4 transition-colors"
+                    className="flex items-center text-slate-300 hover:text-cyan-400 transition-colors"
                   >
                     <svg
                       className="w-5 h-5 mr-2"
@@ -418,7 +420,7 @@ export default function SubmissionForm() {
                     </svg>
                     Back to Dashboard
                   </button>
-                  <h1 className="text-3xl font-bold text-gray-900">
+                  <h1 className="text-3xl font-semibold text-white tracking-tight">
                     {ps?.name || "Submission Form"}
                   </h1>
                   {hostelId && (
@@ -471,10 +473,10 @@ export default function SubmissionForm() {
               )}
 
               {/* Deadline Info */}
-              <div className="bg-blue-50 border border-blue-200 rounded p-4 mb-6">
+              <div className="bg-indigo-500/10 border border-indigo-400/20 rounded-xl p-4 mb-6">
                 <div className="flex items-start gap-3">
                   <svg
-                    className="w-5 h-5 text-blue-600 mt-0.5"
+                    className="w-5 h-5 text-indigo-400 mt-0.5"
                     fill="none"
                     stroke="currentColor"
                     viewBox="0 0 24 24"
@@ -487,7 +489,7 @@ export default function SubmissionForm() {
                     />
                   </svg>
                   <div className="flex-1">
-                    <p className="text-sm">
+                    <p className="text-sm text-white font-light">
                       <strong>Deadline:</strong>{" "}
                       {ps?.deadline
                         ? new Date(ps.deadline).toLocaleString("en-IN", {
@@ -496,7 +498,7 @@ export default function SubmissionForm() {
                           })
                         : "Not set"}
                     </p>
-                    <p className="text-sm mt-1">
+                    <p className="text-sm mt-1 text-white font-light">
                       <strong>Current Time:</strong>{" "}
                       {new Date().toLocaleString("en-IN", {
                         dateStyle: "medium",
@@ -547,11 +549,14 @@ export default function SubmissionForm() {
               <form onSubmit={handleInitialSubmit}>
                 <div className="space-y-6">
                   {ps?.deliverables?.map((deliverable, idx) => (
-                    <div key={idx} className="border rounded-lg p-4 bg-gray-50">
-                      <label className="block text-sm font-medium text-gray-700 mb-2">
+                    <div
+                      key={idx}
+                      className="bg-indigo-500/10 border border-indigo-400/20 rounded-xl p-4 mb-6 text-white"
+                    >
+                      <label className="block text-sm font-light mb-2">
                         {deliverable.name}
                         <span className="text-red-500 ml-1">*</span>
-                        <span className="text-xs text-gray-500 ml-2 font-normal">
+                        <span className="text-xs ml-2 font-light">
                           (Type: {deliverable.type.toUpperCase()})
                         </span>
                       </label>
@@ -751,7 +756,7 @@ export default function SubmissionForm() {
                   <button
                     type="button"
                     onClick={() => navigate("/techsecy/submissions")}
-                    className="px-6 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50"
+                    className="px-6 py-2 rounded-md border border-white/10 text-slate-300 hover:bg-white/5"
                   >
                     Cancel
                   </button>
@@ -760,7 +765,7 @@ export default function SubmissionForm() {
                     disabled={
                       submitting || Object.values(uploading).some(Boolean)
                     }
-                    className="flex-1 bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700 disabled:bg-gray-400 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                    className="flex-1 text-white py-2 px-4 rounded-md bg-indigo-500 hover:bg-indigo-600 disabled:bg-gray-400 disabled:cursor-not-allowed flex items-center justify-center gap-2"
                   >
                     {submitting ? (
                       <>

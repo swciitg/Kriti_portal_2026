@@ -82,6 +82,12 @@ export default function TechSecyNavbar() {
                     </button>
                     <button
                         className="cursor-pointer text-white text-md md:text-base hover:text-gray-300 transition-colors"
+                        onClick={() => {navigate("/techsecy/submissions")}}
+                    >
+                        Submissions
+                    </button>
+                    <button
+                        className="cursor-pointer text-white text-md md:text-base hover:text-gray-300 transition-colors"
                         onClick={() => {LogoutHandler()}}
                     >
                         Logout
