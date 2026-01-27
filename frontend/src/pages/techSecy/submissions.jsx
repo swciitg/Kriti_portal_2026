@@ -3,8 +3,8 @@ import { useNavigate } from "react-router-dom";
 import { userContext } from "../../context/userContext";
 import { BACKEND_URL } from "../../constants";
 import bgImage from "../../assets/techsecy_bg.png";
-import SubmissionBox from "./components/submissionBox";
-import TechSecyNavbar from "./components/navbar";
+import SubmissionBox from "./components/SubmissionBox.jsx";
+import TechSecyNavbar from "./components/navbar.jsx";
 
 export default function SubmissionsPage() {
   const navigate = useNavigate();
