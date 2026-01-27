@@ -574,10 +574,13 @@ export default function SubmissionForm() {
                         />
                       ) : (
                         <>
-                          <div className="flex gap-2">
+                          <div className="flex gap-2 items-start">
                             <input
                               type="file"
                               accept={`.${deliverable.type}`}
+                              id={`file-${idx}`}
+                              disabled={uploading[deliverable.name]}
+                              className="hidden"
                               onChange={(e) => {
                                 const file = e.target.files[0];
                                 if (file) {
@@ -587,11 +590,24 @@ export default function SubmissionForm() {
                                   }));
                                 }
                               }}
-                              disabled={uploading[deliverable.name]}
-                              className="flex-1 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white"
-                              id={`file-${idx}`}
                             />
-
+                            <label
+                              htmlFor={`file-${idx}`}
+                              className={`flex-1 px-3 py-2 border rounded-md bg-white cursor-pointer
+                                focus-within:ring-2 focus-within:ring-blue-500
+                                ${
+                                  uploading[deliverable.name]
+                                    ? "bg-gray-100 cursor-not-allowed"
+                                    : "border-gray-300"
+                                }
+                              `}
+                            >
+                              <span className="text-gray-700 text-sm">
+                                {files[deliverable.name]
+                                  ? files[deliverable.name].name
+                                  : "Choose file"}
+                              </span>
+                            </label>
                             <button
                               type="button"
                               onClick={() => {
