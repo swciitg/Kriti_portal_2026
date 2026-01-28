@@ -61,7 +61,7 @@ export default function SubmissionForm() {
           localStorage.removeItem(storageKey);
         }
       } catch (err) {
-        console.error("Failed to restore draft:", err);
+        // console.error("Failed to restore draft:", err);
         localStorage.removeItem(storageKey);
       }
     }
@@ -170,6 +170,8 @@ export default function SubmissionForm() {
       const token = localStorage.getItem("accessToken");
       const totalChunks = Math.ceil(file.size / CHUNK_SIZE);
 
+      let resData = null;
+
       for (let chunkIndex = 0; chunkIndex < totalChunks; chunkIndex++) {
         const start = chunkIndex * CHUNK_SIZE;
         const end = Math.min(file.size, start + CHUNK_SIZE);
@@ -202,22 +204,26 @@ export default function SubmissionForm() {
           throw new Error(data.message || `Chunk ${chunkIndex} failed`);
         }
 
-        console.log(`Uploaded chunk ${chunkIndex + 1}/${totalChunks}`);
+        // console.log(`Uploaded chunk ${chunkIndex + 1}/${totalChunks}`);
+        if(chunkIndex + 1 === totalChunks) {
+          // console.log(data);
+          resData = data;
+        }
       }
-
+      // console.log(resData)
       // After all chunks uploaded
       setUploadedFiles((prev) => ({
         ...prev,
         [deliverableName]: {
-          filename: file.name,
-          url: `/uploads/final/${file.name}`, // backend returns better path ideally
-          originalName: file.name,
+          filename: resData.filename,
+          url: resData.fileUrl, // backend returns better path ideally
+          originalName: resData.originalName,
         },
       }));
 
       setUploading((prev) => ({ ...prev, [deliverableName]: false }));
     } catch (err) {
-      console.error("Chunk upload error:", err);
+      // console.error("Chunk upload error:", err);
       setError("Upload failed: " + err.message);
       setUploading((prev) => ({ ...prev, [deliverableName]: false }));
     }
@@ -235,19 +241,23 @@ export default function SubmissionForm() {
     setError("");
 
     if (!ps || !ps.deliverables || ps.deliverables.length === 0) {
+      window.scrollTo({ top: 0, behavior: "smooth" });
       setError("No deliverables configured for this submission");
       return;
     }
 
     const missingDeliverables = ps.deliverables.filter((d) => {
       if (d.type === "url") {
+        window.scrollTo({ top: 0, behavior: "smooth" });
         return !urls[d.name] || !urls[d.name].trim();
       } else {
+        window.scrollTo({ top: 0, behavior: "smooth" });
         return !uploadedFiles[d.name];
       }
     });
 
     if (missingDeliverables.length > 0) {
+      window.scrollTo({ top: 0, behavior: "smooth" });
       setError(`Missing: ${missingDeliverables.map((d) => d.name).join(", ")}`);
       return;
     }
@@ -274,7 +284,7 @@ export default function SubmissionForm() {
       const payload = {
         psId,
         midEval: type === "mid" ? "true" : "false",
-        submissionTime: capturedSubmissionTime,
+        submissionTime: new Date().toISOString(),
         urlDeliverables: JSON.stringify(urlDeliverables),
       };
 
@@ -303,9 +313,11 @@ export default function SubmissionForm() {
       alert("Submission successful!");
       navigate("/techsecy/submissions");
     } catch (err) {
-      console.error("Submit error:", err);
+      // console.error("Submit error:", err);
       setError("Failed to submit: " + err.message);
       setSubmitting(false);
+    } finally {
+      window.scrollTo({ top: 0, behavior: "smooth" });
     }
   };
 
@@ -833,7 +845,7 @@ export default function SubmissionForm() {
           <div className="bg-[#1a1f3a] border border-white/20 rounded-xl p-6 max-w-md w-full shadow-2xl">
             <h2 className="text-xl font-bold mb-4 text-white">Confirm Submission</h2>
 
-            <div className="mb-4 p-3 bg-[#0f1323] border border-white/10 rounded-lg">
+            {/* <div className="mb-4 p-3 bg-[#0f1323] border border-white/10 rounded-lg">
               <p className="text-sm text-gray-300">
                 <strong className="text-white">Submission Time:</strong>{" "}
                 {new Date(capturedSubmissionTime).toLocaleString("en-IN", {
@@ -841,7 +853,7 @@ export default function SubmissionForm() {
                   timeStyle: "long",
                 })}
               </p>
-            </div>
+            </div> */}
 
             <p className="text-sm text-gray-400 mb-4">
               Please review your submission before confirming:
