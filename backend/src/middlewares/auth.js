@@ -138,6 +138,7 @@ export function handleRouteAccess(req, res, next) {
       "/v1/convener/get-requests",
       "/v1/convener/export-teams",
       "/v1/convener/get-all-teams",
+      "/v1/convener/submission-details"
     ];
     const startsWithAllowed = [
       "/v1/convener/update-ps/",

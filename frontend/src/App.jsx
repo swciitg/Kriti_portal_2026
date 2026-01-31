@@ -30,6 +30,7 @@ import ViewSubmission from "./pages/techSecy/viewSubmission.jsx";
 import Guidelines from "./pages/techSecy/guidelines.jsx"
 import ProblemStatementsForTechSecy from "./pages/techSecy/problemStatements.jsx"
 import HomePage from "./pages/HomePage.jsx"
+import SubmissionDetailsPage from "./pages/convener/submissionDetails.jsx"
 
 
 function Wrapper({ children }) {
@@ -61,6 +62,7 @@ function App() {
           <Route path="/convener/judge-requests" element={<JudgeRequests />} />
           <Route path="/convener/company-requests" element={<CompanyRequests />} />
           <Route path="/convener/team-requests" element={<TeamRequestAll />} />
+          <Route path="/convener/submission-details" element={<SubmissionDetailsPage />} />
 
           <Route path="/superadmin/sign-in" element={<SuperAdminSignIn />} />
           <Route path="/superadmin" element={<SuperAdminDashboard />} />
