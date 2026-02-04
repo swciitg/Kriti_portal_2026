@@ -149,6 +149,7 @@ export function handleRouteAccess(req, res, next) {
       "/v1/convener/grant-company-access/",
       "/v1/convener/get-requests/",
       "/v1/convener/update-status/",
+      "/v1/convener/export-submissions/"
     ];
     if (
       !allowed.includes(route) &&

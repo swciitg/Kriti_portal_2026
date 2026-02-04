@@ -2,6 +2,7 @@ import { useEffect, useState, useContext } from "react"
 import { useNavigate } from "react-router-dom"
 import { userContext } from "../../context/userContext"
 import { BACKEND_URL } from "../../constants"
+import DownloadSubmissionsButton from "./components/exportSubmissionsBtn";
 
 function SubmissionCard({ submission }) {
     const isLate = new Date(submission.submissionTime) > new Date(submission.ps.submissionDeadline);
@@ -40,7 +41,7 @@ function SubmissionCard({ submission }) {
     )
 }
 
-function PSSection({ title, data }) {
+function PSSection({ title, data , isMidEval }) {
   return (
     <div className="space-y-6">
       <h2 className="text-2xl font-bold text-slate-900">{title}</h2>
@@ -56,9 +57,12 @@ function PSSection({ title, data }) {
         >
           <div className="flex items-center justify-between">
             <h3 className="text-xl font-semibold text-slate-800">{psName}</h3>
-            <span className="text-sm font-medium text-slate-600">
-              Total: {submissions.length}
-            </span>
+            <div className="flex flex-col items-end">
+              <span className="text-sm font-medium text-slate-600">
+                Total: {submissions.length}
+              </span>
+              <DownloadSubmissionsButton psId={submissions[0].ps._id} psName={psName} isMidEval={isMidEval}/>
+            </div>
           </div>
 
           <div className="grid sm:grid-cols-2 gap-4">
@@ -166,8 +170,8 @@ export default function SubmissionDetailsPage() {
 
         {!loading && !error && (
           <div className="space-y-14">
-            <PSSection title="Mid Evaluation Submissions" data={midEval} />
-            <PSSection title="Final Submissions" data={finalEval} />
+            <PSSection title="Mid Evaluation Submissions" data={midEval} isMidEval={true}/>
+            <PSSection title="Final Submissions" data={finalEval} isMidEval={false}/>
           </div>
         )}
       </div>
